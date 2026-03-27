@@ -12,6 +12,8 @@ function Link({ href, title }: Props) {
       target="_blank"
       rel="noopener noreferrer"
       className="text-platinum w-full text-center font-semibold uppercase lg:w-auto"
+      aria-label={title}
+      title={title}
     >
       <div className="shadow-effect button-shadow">
         <div className="backdrop-glass button-glass">
