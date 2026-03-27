@@ -12,7 +12,7 @@ type Props = {
     };
   }[];
 };
-//color-alabaster-grey
+
 function PriceItem({ title, description, packages }: Props) {
   return (
     <Card>
