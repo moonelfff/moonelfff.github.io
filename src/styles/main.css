@@ -18,6 +18,12 @@
     list-style-type: disc;
     padding-left: 1.5rem;
   }
+
+  &.content-markdown {
+    p {
+      text-align: justify;
+    }
+  }
 }
 
 .shadow-effect {

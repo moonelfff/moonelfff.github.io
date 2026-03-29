@@ -1,29 +1,15 @@
-import Typography from "../atom/Typography";
+import { parseMarkdown } from "../../utils/markdownParser";
 
 type Props = {
-  title: string;
-  titleProps?: {
-    component?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
-    className?: string;
-  };
-  paragraphs: string[];
+  content: string;
 };
 
-function ContentBox({ title, titleProps, paragraphs }: Props) {
+function ContentBox({ content }: Props) {
+  console.log(content);
   return (
     <div>
-      <Typography
-        component={titleProps?.component || "h2"}
-        className={titleProps?.className}
-      >
-        {title}
-      </Typography>
-      <div className="flex flex-col gap-3">
-        {paragraphs.map((paragraph, index) => (
-          <Typography component="p" key={index}>
-            {paragraph}
-          </Typography>
-        ))}
+      <div className="markdown content-markdown flex flex-col gap-3">
+        {parseMarkdown(content)}
       </div>
     </div>
   );
