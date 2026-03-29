@@ -2,8 +2,8 @@ import Typography from "../atom/Typography";
 import Link from "../molecule/Link";
 import PriceItem from "./PriceItem";
 import getContent from "../../assets/data/content";
-import Markdown from "react-markdown";
 import { useEffect, useState } from "react";
+import { parseMarkdown } from "../../utils/markdownParser";
 
 function Pricelist() {
   const data = getContent();
@@ -36,11 +36,9 @@ function Pricelist() {
               key={item.title}
               title={item.title}
               description={
-                descriptions[item.title] ? (
-                  <Markdown>{descriptions[item.title]}</Markdown>
-                ) : (
-                  "Loading..."
-                )
+                descriptions[item.title]
+                  ? parseMarkdown(descriptions[item.title])
+                  : "Loading..."
               }
               packages={item.packages}
             />

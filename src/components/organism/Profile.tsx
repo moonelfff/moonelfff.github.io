@@ -1,4 +1,3 @@
-import Typography from "../atom/Typography";
 import getContent from "../../assets/data/content";
 import photo from "@/assets/images/kate_zhuk.jpg";
 import Image from "../molecule/Image";
