@@ -12,7 +12,7 @@ function Link({ href, title }: Props) {
         href={href}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-platinum w-full text-center font-semibold uppercase lg:w-auto"
+        className="text-platinum w-full text-center font-semibold uppercase lg:w-auto lg:min-w-100"
         aria-label={title}
         title={title}
       >
