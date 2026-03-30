@@ -147,7 +147,6 @@
 .button-glass:hover {
   backdrop-filter: blur(0) !important;
   -webkit-backdrop-filter: blur(0);
-  box-shadow: none;
 }
 
 .button-shadow::after {
