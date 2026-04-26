@@ -79,5 +79,7 @@
   "telegram": "Телеграм",
   "telegramLink": "https://t.me/moonelfff",
   "bookConsultation": "Записаться на консультацию",
-  "loading": "Загрузка..."
+  "loading": "Загрузка...",
+  "testLink": "#",
+  "testTitle": "Пройти тест"
 }
