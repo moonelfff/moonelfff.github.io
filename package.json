@@ -11,6 +11,7 @@
     "prepare": "tw-patch install"
   },
   "dependencies": {
+    "@responsive-image/react": "^1.1.6",
     "@tailwindcss/vite": "^4.1.18",
     "marked": "^17.0.5",
     "react": "^19.2.0",
@@ -19,6 +20,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@responsive-image/core": "^2.1.0",
+    "@responsive-image/vite-plugin": "^3.0.0",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
