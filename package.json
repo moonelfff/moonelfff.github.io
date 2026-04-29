@@ -1,8 +1,9 @@
 {
-  "name": "katezhuk",
+  "name": "ekaterinazhuk",
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://ekaterinazhuk.ru",
   "scripts": {
     "dev": "vite",
     "build": "npx tw-patch extract && tsc -b && vite build",
