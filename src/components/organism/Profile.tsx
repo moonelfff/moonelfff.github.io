@@ -5,17 +5,26 @@ import Link from "../molecule/Link";
 import ContentBox from "../molecule/ContentBox";
 import { useEffect, useState } from "react";
 import Typography from "../atom/Typography";
+import TelegramIcon from "../../assets/icons/TelegramIcon";
+import VKIcon from "../../assets/icons/VKIcon";
 
 function Profile() {
   const data = getContent();
 
   const [content, setContent] = useState<string | undefined>(undefined);
 
+  const [blogContent, setBlogContent] = useState<string | undefined>(undefined);
+
   useEffect(() => {
     fetch(data.info.contentPath)
       .then((response) => response.text())
       .then((content) => {
         setContent(content);
+      });
+    fetch(data.blogDescriptionPath)
+      .then((response) => response.text())
+      .then((content) => {
+        setBlogContent(content);
       });
   }, [data.info.contentPath]);
 
@@ -26,10 +35,26 @@ function Profile() {
         <Typography component="h2" className="mb-3">
           {data.info.title}
         </Typography>
-        <ContentBox content={content} />
-        <Link href={data.telegramLink} title={data.bookConsultation} />
-        <Link href={data.blogLink} title={data.blog} />
-        {/* <Link href={data.testLink} title={data.testTitle} /> */}
+        <div className="flex flex-col gap-6">
+          <div>
+            <ContentBox content={content} />
+            <Link
+              href={data.telegramLink}
+              title={data.bookConsultation}
+              icon={TelegramIcon}
+            />
+            <Link
+              href={data.vkMessengerLink}
+              title={data.bookConsultation}
+              icon={VKIcon}
+            />
+          </div>
+          <div>
+            <ContentBox content={blogContent} />
+            <Link href={data.blogLink} title={data.blog} icon={TelegramIcon} />
+          </div>
+          {/* <Link href={data.testLink} title={data.testTitle} /> */}
+        </div>
       </div>
       <div>
         <Image

@@ -1,11 +1,21 @@
+import type { JSX } from "react";
 import Typography from "../atom/Typography";
 
 type Props = {
   href: string;
   title: string;
+  icon?: ({
+    color,
+    width,
+    height,
+  }: {
+    color: string;
+    width: number;
+    height: number;
+  }) => JSX.Element;
 };
 
-function Link({ href, title }: Props) {
+function Link({ href, title, icon }: Props) {
   return (
     <div className="flex justify-center pt-5">
       <a
@@ -17,10 +27,24 @@ function Link({ href, title }: Props) {
         title={title}
       >
         <div className="shadow-effect button-shadow mt-2">
-          <div className="backdrop-glass button-glass w-full lg:w-auto lg:min-w-100">
-            <Typography component="span" className="block px-6 py-3">
-              {title}
-            </Typography>
+          <div className="backdrop-glass button-glass flex w-full justify-center lg:w-auto lg:min-w-100">
+            <div className="flex gap-2 px-6">
+              <Typography
+                component="span"
+                className="block py-3 text-sm lg:text-base"
+              >
+                {title}
+              </Typography>
+              {icon && (
+                <span className="flex items-center justify-center">
+                  {icon({
+                    color: "var(--color-platinum)",
+                    width: 32,
+                    height: 32,
+                  })}
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </a>

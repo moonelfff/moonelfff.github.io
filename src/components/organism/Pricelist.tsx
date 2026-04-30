@@ -4,6 +4,8 @@ import PriceItem from "./PriceItem";
 import getContent from "../../assets/data/content";
 import { useEffect, useState } from "react";
 import { parseMarkdown } from "../../utils/markdownParser";
+import VKIcon from "../../assets/icons/VKIcon";
+import TelegramIcon from "../../assets/icons/TelegramIcon";
 
 function Pricelist() {
   const data = getContent();
@@ -32,7 +34,7 @@ function Pricelist() {
         {data.priceHeader}
       </Typography>
       <div className="flex flex-col gap-6">
-        <div className="flex flex-col flex-wrap justify-center gap-3 gap-y-5 lg:flex-row">
+        <div className="flex flex-col flex-wrap justify-center gap-3 lg:flex-row">
           {data.pricelist.map((item) => (
             <PriceItem
               key={item.title}
@@ -51,7 +53,16 @@ function Pricelist() {
           ))}
         </div>
       </div>
-      <Link href={data.telegramLink} title={data.bookConsultation} />
+      <Link
+        href={data.telegramLink}
+        title={data.bookConsultation}
+        icon={TelegramIcon}
+      />
+      <Link
+        href={data.vkMessengerLink}
+        title={data.bookConsultation}
+        icon={VKIcon}
+      />
     </section>
   );
 }
