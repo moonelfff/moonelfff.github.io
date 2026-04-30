@@ -1,11 +1,9 @@
 import Typography from "../atom/Typography";
-import Link from "../molecule/Link";
 import PriceItem from "./PriceItem";
 import getContent from "../../assets/data/content";
 import { useEffect, useState } from "react";
 import { parseMarkdown } from "../../utils/markdownParser";
-import VKIcon from "../../assets/icons/VKIcon";
-import TelegramIcon from "../../assets/icons/TelegramIcon";
+import Contact from "./Contact";
 
 function Pricelist() {
   const data = getContent();
@@ -53,16 +51,7 @@ function Pricelist() {
           ))}
         </div>
       </div>
-      <Link
-        href={data.telegramLink}
-        title={data.bookConsultation}
-        icon={TelegramIcon}
-      />
-      <Link
-        href={data.vkMessengerLink}
-        title={data.bookConsultation}
-        icon={VKIcon}
-      />
+      <Contact />
     </section>
   );
 }

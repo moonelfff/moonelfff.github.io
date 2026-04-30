@@ -6,7 +6,7 @@ import ContentBox from "../molecule/ContentBox";
 import { useEffect, useState } from "react";
 import Typography from "../atom/Typography";
 import TelegramIcon from "../../assets/icons/TelegramIcon";
-import VKIcon from "../../assets/icons/VKIcon";
+import Contact from "./Contact";
 
 function Profile() {
   const data = getContent();
@@ -38,16 +38,7 @@ function Profile() {
         <div className="flex flex-col gap-6">
           <div>
             <ContentBox content={content} />
-            <Link
-              href={data.telegramLink}
-              title={data.bookConsultation}
-              icon={TelegramIcon}
-            />
-            <Link
-              href={data.vkMessengerLink}
-              title={data.bookConsultation}
-              icon={VKIcon}
-            />
+            <Contact />
           </div>
           <div>
             <ContentBox content={blogContent} />
