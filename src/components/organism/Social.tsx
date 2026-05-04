@@ -1,4 +1,5 @@
 import getContent from "../../assets/data/content";
+import B17Icon from "../../assets/icons/B17Icon";
 import TelegramIcon from "../../assets/icons/TelegramIcon";
 import VKIcon from "../../assets/icons/VKIcon";
 
@@ -25,6 +26,16 @@ function Social() {
           title={content.vkMessenger}
         >
           <VKIcon color="var(--color-platinum)" />
+        </a>
+      </li>
+      <li>
+        <a
+          href={content.b17Link}
+          target="_blank"
+          rel="noopener noreferrer"
+          title={content.b17}
+        >
+          <B17Icon color="var(--color-platinum)" />
         </a>
       </li>
     </ul>
