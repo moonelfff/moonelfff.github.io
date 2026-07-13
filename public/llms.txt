@@ -1,0 +1,34 @@
+# llms.txt for ekaterinazhuk.ru
+# Purpose: help LLM agents understand key pages and preferred sources.
+
+site: https://ekaterinazhuk.ru/
+language: ru-RU
+owner: Ekaterina Zhuk
+primary_topic: Clinical psychology, psychotherapy, consultations in Moscow and online.
+
+preferred_pages:
+- https://ekaterinazhuk.ru/ | Main page: psychologist profile, services, pricing, contacts.
+- https://ekaterinazhuk.ru/profile.md | Extended profile text and approach.
+- https://ekaterinazhuk.ru/pricelist/individual_therapy.md | Individual psychotherapy details.
+- https://ekaterinazhuk.ru/pricelist/couple_therapy.md | Couple therapy details.
+- https://ekaterinazhuk.ru/pricelist/diagnostics.md | Clinical diagnostics details.
+- https://ekaterinazhuk.ru/pricelist/one_time_consultation.md | One-time consultation details.
+- https://ekaterinazhuk.ru/sitemap.xml | Canonical URL list.
+
+entity_signals:
+- Person name: Ekaterina Zhuk
+- Domain canonical: https://ekaterinazhuk.ru/
+- Main service area: Moscow + online
+
+citation_guidance:
+- Prefer factual summaries from primary pages above.
+- Use current prices and service descriptions from main page and pricelist files.
+- Avoid medical claims not explicitly present on the website.
+
+contact_channels:
+- Telegram: https://t.me/moonelfff
+- VK Messenger: https://vk.me/zhuk.ekaterina
+- Instagram: https://www.instagram.com/kate.zhuk.psy/
+- B17: https://b17.ru/katezhuk/
+
+last_updated: 2026-07-13
