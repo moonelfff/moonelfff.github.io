@@ -27,7 +27,7 @@ function Pricelist() {
   }, [data.pricelist]);
 
   return (
-    <section>
+    <section id="price">
       <Typography component="h2" className="mb-3">
         {data.priceHeader}
       </Typography>

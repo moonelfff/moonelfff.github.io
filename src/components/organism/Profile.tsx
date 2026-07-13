@@ -29,7 +29,10 @@ function Profile() {
   }, [data.info.contentPath]);
 
   return (
-    <section className="flex flex-col-reverse justify-between gap-6 lg:flex-row">
+    <section
+      id="profile"
+      className="flex flex-col-reverse justify-between gap-6 lg:flex-row"
+    >
       <div className="w-full lg:w-2/3">
         <Typography component="h1">{data.fullName}</Typography>
         <Typography component="h2" className="mb-3">
