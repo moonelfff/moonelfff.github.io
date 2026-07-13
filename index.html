@@ -30,7 +30,7 @@
       content="Екатерина Жук, психолог, клинический психолог, практический психолог, психотерапевт, консультация психолога, помощь психолога, парная психотерапия, психолог Москва, психолог онлайн"
     />
     <meta name="author" content="Екатерина Жук" />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta name="yandex" content="all" />
     <!-- Open Graph -->
     <meta
@@ -178,6 +178,23 @@
             ]
           },
           {
+            "@type": "Service",
+            "@id": "https://ekaterinazhuk.ru/#service-psychologist-moscow",
+            "name": "Консультация психолога в Москве и онлайн",
+            "serviceType": "Психологическая консультация",
+            "areaServed": "Москва",
+            "provider": {
+              "@id": "https://ekaterinazhuk.ru/#person"
+            },
+            "availableChannel": {
+              "@type": "ServiceChannel",
+              "serviceLocation": {
+                "@type": "Place",
+                "name": "Москва"
+              }
+            }
+          },
+          {
             "@type": "WebPage",
             "@id": "https://ekaterinazhuk.ru/#webpage",
             "url": "https://ekaterinazhuk.ru",
@@ -189,6 +206,9 @@
             },
             "about": {
               "@id": "https://ekaterinazhuk.ru/#person"
+            },
+            "mentions": {
+              "@id": "https://ekaterinazhuk.ru/#service-psychologist-moscow"
             },
             "image": "https://ekaterinazhuk.ru/photo.webp",
             "primaryImageOfPage": {
