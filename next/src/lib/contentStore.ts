@@ -36,7 +36,13 @@ function getMarkdownPaths(content: SiteContent): string[] {
 }
 
 async function readLocalContentJson(): Promise<SiteContent> {
-  const jsonPath = path.join(process.cwd(), "src", "assets", "data", "content.json");
+  const jsonPath = path.join(
+    process.cwd(),
+    "src",
+    "assets",
+    "data",
+    "content.json",
+  );
 
   try {
     const content = await fs.readFile(jsonPath, "utf-8");
@@ -88,7 +94,9 @@ function getSupabaseAdminClient(): SupabaseClient | null {
   });
 }
 
-async function readSupabaseMap(keys: string[]): Promise<Map<string, string> | null> {
+async function readSupabaseMap(
+  keys: string[],
+): Promise<Map<string, string> | null> {
   const supabase = getSupabaseAdminClient();
   if (!supabase) {
     return null;
@@ -113,7 +121,10 @@ async function readSupabaseMap(keys: string[]): Promise<Map<string, string> | nu
 
 export async function getContentBundle(): Promise<ContentBundle> {
   const localBundle = await readLocalBundle();
-  const initialKeys = [CONTENT_JSON_KEY, ...getMarkdownPaths(localBundle.content)];
+  const initialKeys = [
+    CONTENT_JSON_KEY,
+    ...getMarkdownPaths(localBundle.content),
+  ];
   const supabaseMap = await readSupabaseMap(initialKeys);
 
   if (!supabaseMap || !supabaseMap.has(CONTENT_JSON_KEY)) {
@@ -122,7 +133,9 @@ export async function getContentBundle(): Promise<ContentBundle> {
 
   let content: SiteContent;
   try {
-    content = JSON.parse(supabaseMap.get(CONTENT_JSON_KEY) as string) as SiteContent;
+    content = JSON.parse(
+      supabaseMap.get(CONTENT_JSON_KEY) as string,
+    ) as SiteContent;
   } catch {
     return localBundle;
   }
@@ -134,7 +147,8 @@ export async function getContentBundle(): Promise<ContentBundle> {
 
   const markdown: MarkdownMap = {};
   for (const pathKey of markdownPaths) {
-    markdown[pathKey] = sourceMap.get(pathKey) ?? localBundle.markdown[pathKey] ?? "";
+    markdown[pathKey] =
+      sourceMap.get(pathKey) ?? localBundle.markdown[pathKey] ?? "";
   }
 
   return {
@@ -150,14 +164,27 @@ type SaveInput = {
 };
 
 function validateSaveInput(input: SaveInput) {
-  if (!input.content?.info?.contentPath || !Array.isArray(input.content.pricelist)) {
+  if (
+    !input.content?.info?.contentPath ||
+    !Array.isArray(input.content.pricelist)
+  ) {
     throw new Error("Invalid content schema");
   }
 }
 
 async function saveToLocal(input: SaveInput) {
-  const jsonPath = path.join(process.cwd(), "src", "assets", "data", "content.json");
-  await fs.writeFile(jsonPath, `${JSON.stringify(input.content, null, 2)}\n`, "utf-8");
+  const jsonPath = path.join(
+    process.cwd(),
+    "src",
+    "assets",
+    "data",
+    "content.json",
+  );
+  await fs.writeFile(
+    jsonPath,
+    `${JSON.stringify(input.content, null, 2)}\n`,
+    "utf-8",
+  );
 
   const markdownPaths = getMarkdownPaths(input.content);
   await Promise.all(
@@ -191,7 +218,9 @@ async function saveToSupabase(input: SaveInput): Promise<boolean> {
   return !error;
 }
 
-export async function saveContentBundle(input: SaveInput): Promise<ContentBundle> {
+export async function saveContentBundle(
+  input: SaveInput,
+): Promise<ContentBundle> {
   validateSaveInput(input);
 
   const savedToSupabase = await saveToSupabase(input);
@@ -202,7 +231,9 @@ export async function saveContentBundle(input: SaveInput): Promise<ContentBundle
   return getContentBundle();
 }
 
-export async function getMarkdownByPath(markdownPath: string): Promise<string | null> {
+export async function getMarkdownByPath(
+  markdownPath: string,
+): Promise<string | null> {
   const key = markdownKey(markdownPath);
   const bundle = await getContentBundle();
   return bundle.markdown[key] ?? null;

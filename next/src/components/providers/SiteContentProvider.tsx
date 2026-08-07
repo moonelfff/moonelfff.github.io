@@ -1,7 +1,14 @@
 "use client";
 
 import defaultContent from "@/assets/data/content.json";
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 
 type SiteContent = typeof defaultContent;
 
@@ -44,7 +51,11 @@ export function SiteContentProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(() => ({ content }), [content]);
 
-  return <SiteContentContext.Provider value={value}>{children}</SiteContentContext.Provider>;
+  return (
+    <SiteContentContext.Provider value={value}>
+      {children}
+    </SiteContentContext.Provider>
+  );
 }
 
 export function useSiteContent(): SiteContent {

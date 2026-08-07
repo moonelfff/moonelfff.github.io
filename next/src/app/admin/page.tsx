@@ -77,7 +77,9 @@ export default function AdminPage() {
     });
 
     if (!response.ok) {
-      const body = (await response.json().catch(() => null)) as { error?: string } | null;
+      const body = (await response.json().catch(() => null)) as {
+        error?: string;
+      } | null;
       setError(body?.error ?? "Ошибка сохранения");
       setSaving(false);
       return;
@@ -129,8 +131,14 @@ export default function AdminPage() {
         </div>
       </header>
 
-      {error ? <p className="rounded-lg bg-red-100 px-4 py-2 text-red-800">{error}</p> : null}
-      {message ? <p className="rounded-lg bg-emerald-100 px-4 py-2 text-emerald-800">{message}</p> : null}
+      {error ? (
+        <p className="rounded-lg bg-red-100 px-4 py-2 text-red-800">{error}</p>
+      ) : null}
+      {message ? (
+        <p className="rounded-lg bg-emerald-100 px-4 py-2 text-emerald-800">
+          {message}
+        </p>
+      ) : null}
 
       <section className="rounded-2xl border border-black/15 bg-white p-4">
         <h2 className="mb-2 text-lg font-medium">content.json</h2>

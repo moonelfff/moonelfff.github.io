@@ -1,4 +1,9 @@
-import { getContentBundle, saveContentBundle, type MarkdownMap, type SiteContent } from "@/lib/contentStore";
+import {
+  getContentBundle,
+  saveContentBundle,
+  type MarkdownMap,
+  type SiteContent,
+} from "@/lib/contentStore";
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -24,7 +29,8 @@ export async function PUT(request: Request) {
 
     return NextResponse.json(bundle);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to save content";
+    const message =
+      error instanceof Error ? error.message : "Failed to save content";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

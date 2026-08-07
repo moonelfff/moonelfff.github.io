@@ -21,7 +21,9 @@ export default function AdminLoginPage() {
     });
 
     if (!response.ok) {
-      const body = (await response.json().catch(() => null)) as { error?: string } | null;
+      const body = (await response.json().catch(() => null)) as {
+        error?: string;
+      } | null;
       setError(body?.error ?? "Ошибка входа");
       setLoading(false);
       return;
