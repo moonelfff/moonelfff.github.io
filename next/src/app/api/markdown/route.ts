@@ -1,5 +1,4 @@
-import { promises as fs } from "node:fs";
-import path from "node:path";
+import { getMarkdownByPath } from "@/lib/contentStore";
 import { NextResponse } from "next/server";
 
 function normalizeMarkdownPath(input: string): string | null {
@@ -7,7 +6,7 @@ function normalizeMarkdownPath(input: string): string | null {
   if (!normalized.endsWith(".md")) {
     return null;
   }
-  if (normalized.includes("..") || path.isAbsolute(normalized)) {
+  if (normalized.includes("..")) {
     return null;
   }
   return normalized;
@@ -26,22 +25,15 @@ export async function GET(request: Request) {
     return new NextResponse("Invalid markdown path", { status: 400 });
   }
 
-  const publicDir = path.join(process.cwd(), "public");
-  const absolutePath = path.resolve(publicDir, normalizedPath);
-
-  if (!absolutePath.startsWith(publicDir)) {
-    return new NextResponse("Forbidden", { status: 403 });
-  }
-
-  try {
-    const fileContent = await fs.readFile(absolutePath, "utf-8");
-    return new NextResponse(fileContent, {
-      status: 200,
-      headers: {
-        "Content-Type": "text/markdown; charset=utf-8",
-      },
-    });
-  } catch {
+  const fileContent = await getMarkdownByPath(normalizedPath);
+  if (fileContent === null) {
     return new NextResponse("Markdown file not found", { status: 404 });
   }
+
+  return new NextResponse(fileContent, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/markdown; charset=utf-8",
+    },
+  });
 }

@@ -1,4 +1,3 @@
-import getContent from "../../assets/data/content";
 import photo from "@/assets/images/photo.webp";
 import Image from "../molecule/Image";
 import Link from "../molecule/Link";
@@ -8,9 +7,10 @@ import Typography from "../atom/Typography";
 import TelegramIcon from "../../assets/icons/TelegramIcon";
 import Contact from "./Contact";
 import { fetchMarkdown } from "../../utils/fetchMarkdown";
+import { useSiteContent } from "../providers/SiteContentProvider";
 
 function Profile() {
-  const data = getContent();
+  const data = useSiteContent();
 
   const [content, setContent] = useState<string | undefined>(undefined);
 

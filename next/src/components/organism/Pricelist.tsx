@@ -1,13 +1,13 @@
 import Typography from "../atom/Typography";
 import PriceItem from "./PriceItem";
-import getContent from "../../assets/data/content";
 import { useEffect, useState } from "react";
 import { parseMarkdown } from "../../utils/markdownParser";
 import Contact from "./Contact";
 import { fetchMarkdown } from "../../utils/fetchMarkdown";
+import { useSiteContent } from "../providers/SiteContentProvider";
 
 function Pricelist() {
-  const data = getContent();
+  const data = useSiteContent();
   const [descriptions, setDescriptions] = useState<Record<string, string>>({});
 
   useEffect(() => {

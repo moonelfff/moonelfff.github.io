@@ -1,9 +1,9 @@
-import getContent from "../../assets/data/content";
 import Typography from "../atom/Typography";
+import { useSiteContent } from "../providers/SiteContentProvider";
 
 function Copyright() {
   const year = new Date().getFullYear();
-  const content = getContent();
+  const content = useSiteContent();
 
   return (
     <Typography component="p">
