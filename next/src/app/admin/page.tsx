@@ -1183,7 +1183,7 @@ export default function AdminPage() {
                           </span>
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-2">
+                        <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
                           <button
                             type="button"
                             disabled={pkgIndex === 0}
@@ -1230,29 +1230,28 @@ export default function AdminPage() {
                           >
                             Ниже
                           </button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setTariffs((current) =>
+                                current.map((item, index) =>
+                                  index === tariffIndex
+                                    ? {
+                                        ...item,
+                                        packages: item.packages.filter(
+                                          (_, packageIndex) =>
+                                            packageIndex !== pkgIndex,
+                                        ),
+                                      }
+                                    : item,
+                                ),
+                              )
+                            }
+                            className={subtleDangerButtonClass}
+                          >
+                            Удалить пакет
+                          </button>
                         </div>
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setTariffs((current) =>
-                              current.map((item, index) =>
-                                index === tariffIndex
-                                  ? {
-                                      ...item,
-                                      packages: item.packages.filter(
-                                        (_, packageIndex) =>
-                                          packageIndex !== pkgIndex,
-                                      ),
-                                    }
-                                  : item,
-                              ),
-                            )
-                          }
-                          className={subtleDangerButtonClass}
-                        >
-                          Удалить пакет
-                        </button>
                       </div>
 
                       <div className="grid gap-2 md:grid-cols-4">
