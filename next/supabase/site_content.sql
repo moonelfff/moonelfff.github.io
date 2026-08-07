@@ -16,3 +16,5 @@ drop trigger if exists trg_site_content_updated_at on public.site_content;
 create trigger trg_site_content_updated_at
 before update on public.site_content
 for each row execute function public.set_updated_at();
+
+grant select, insert, update, delete on public.site_content to service_role;
