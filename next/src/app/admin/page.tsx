@@ -118,7 +118,9 @@ function AdminSection({
           }`}
         >
           <div className="overflow-hidden">
-            <div className={compactMode ? "space-y-3 pt-1" : "space-y-4 pt-1"}>
+            <div
+              className={compactMode ? "space-y-2 pt-0.5" : "space-y-4 pt-1"}
+            >
               {children}
             </div>
           </div>
@@ -798,13 +800,25 @@ export default function AdminPage() {
   return (
     <main
       className={`bg-platinum font-primary mx-auto flex min-h-dvh w-full max-w-6xl flex-col px-4 py-6 ${
-        compactMode ? "gap-3" : "gap-4"
+        compactMode ? "gap-2" : "gap-4"
       }`}
     >
-      <header className="bg-soft-linnen/90 sticky top-2 z-40 rounded-2xl border border-black/10 p-3 backdrop-blur-md">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      <header
+        className={`bg-soft-linnen/90 sticky top-2 z-40 rounded-2xl border border-black/10 backdrop-blur-md ${
+          compactMode ? "p-2" : "p-3"
+        }`}
+      >
+        <div
+          className={`flex flex-wrap items-center justify-between ${
+            compactMode ? "gap-2" : "gap-3"
+          }`}
+        >
           <div>
-            <h1 className="text-2xl font-semibold text-black">
+            <h1
+              className={`${
+                compactMode ? "text-xl" : "text-2xl"
+              } font-semibold text-black`}
+            >
               Админка контента
             </h1>
             <p className="text-sm text-black/80">
@@ -816,7 +830,9 @@ export default function AdminPage() {
               <span className="font-medium">{tariffSource}</span>
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div
+            className={`flex flex-wrap ${compactMode ? "gap-1.5" : "gap-2"}`}
+          >
             <button
               type="button"
               onClick={onToggleCompactMode}
@@ -912,7 +928,7 @@ export default function AdminPage() {
           </p>
         ) : null}
 
-        <div className="flex flex-col gap-4">
+        <div className={`flex flex-col ${compactMode ? "gap-3" : "gap-4"}`}>
           {tariffs.map((tariff, tariffIndex) => (
             <article
               key={tariff.id}
@@ -920,14 +936,18 @@ export default function AdminPage() {
               onDrop={(event) => onTariffDrop(event, tariffIndex)}
               onDragEnd={onTariffDragEnd}
               className={`border-platinum/25 rounded-xl border bg-black/15 ${
-                compactMode ? "p-3" : "p-4"
+                compactMode ? "p-2" : "p-4"
               } transition ${
                 dropTargetTariffIndex === tariffIndex
                   ? "border-gold/60 bg-black/30"
                   : ""
               } ${draggingTariffIndex === tariffIndex ? "opacity-70" : ""}`}
             >
-              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <div
+                className={`flex flex-wrap items-center justify-between ${
+                  compactMode ? "mb-2 gap-1.5" : "mb-3 gap-2"
+                }`}
+              >
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
@@ -999,7 +1019,9 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              <div className="grid gap-3 md:grid-cols-2">
+              <div
+                className={`grid md:grid-cols-2 ${compactMode ? "gap-2" : "gap-3"}`}
+              >
                 <label className="flex flex-col gap-1">
                   <span className="text-platinum/80 text-sm">
                     Название тарифа
@@ -1043,7 +1065,11 @@ export default function AdminPage() {
                 </label>
               </div>
 
-              <label className="text-platinum/90 mt-3 flex items-center gap-2 text-sm">
+              <label
+                className={`text-platinum/90 flex items-center gap-2 text-sm ${
+                  compactMode ? "mt-2" : "mt-3"
+                }`}
+              >
                 <input
                   type="checkbox"
                   checked={tariff.isActive}
@@ -1060,7 +1086,9 @@ export default function AdminPage() {
                 Показывать на сайте
               </label>
 
-              <label className="mt-3 flex flex-col gap-1">
+              <label
+                className={`flex flex-col gap-1 ${compactMode ? "mt-2" : "mt-3"}`}
+              >
                 <span className="text-platinum/80 text-sm">
                   Описание тарифа (Markdown)
                 </span>
@@ -1076,12 +1104,16 @@ export default function AdminPage() {
                     )
                   }
                   placeholder="Описание тарифа в Markdown"
-                  className={`${textareaClass} ${compactMode ? "h-32" : "h-40"}`}
+                  className={`${textareaClass} ${compactMode ? "h-28" : "h-40"}`}
                 />
               </label>
 
-              <div className="mt-4">
-                <div className="mb-2 flex items-center justify-between">
+              <div className={compactMode ? "mt-3" : "mt-4"}>
+                <div
+                  className={`flex items-center justify-between ${
+                    compactMode ? "mb-1.5" : "mb-2"
+                  }`}
+                >
                   <h4 className="text-platinum font-medium">Пакеты</h4>
                   <button
                     type="button"
@@ -1106,7 +1138,9 @@ export default function AdminPage() {
                   </button>
                 </div>
 
-                <div className="flex flex-col gap-3">
+                <div
+                  className={`flex flex-col ${compactMode ? "gap-2" : "gap-3"}`}
+                >
                   {tariff.packages.map((pkg, pkgIndex) => (
                     <div
                       key={pkg.id}
@@ -1117,7 +1151,9 @@ export default function AdminPage() {
                         onPackageDrop(event, tariffIndex, pkgIndex)
                       }
                       onDragEnd={onPackageDragEnd}
-                      className={`border-platinum/20 rounded-lg border bg-black/20 p-3 transition ${
+                      className={`border-platinum/20 rounded-lg border bg-black/20 ${
+                        compactMode ? "p-2" : "p-3"
+                      } transition ${
                         dropTargetPackage?.tariffIndex === tariffIndex &&
                         dropTargetPackage.packageIndex === pkgIndex
                           ? "border-gold/60 bg-black/35"
@@ -1129,7 +1165,11 @@ export default function AdminPage() {
                           : ""
                       }`}
                     >
-                      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                      <div
+                        className={`flex flex-wrap items-center justify-between ${
+                          compactMode ? "mb-1.5 gap-1.5" : "mb-2 gap-2"
+                        }`}
+                      >
                         <div className="flex items-center gap-2">
                           <button
                             type="button"
@@ -1254,7 +1294,9 @@ export default function AdminPage() {
                         </div>
                       </div>
 
-                      <div className="grid gap-2 md:grid-cols-4">
+                      <div
+                        className={`grid md:grid-cols-4 ${compactMode ? "gap-1.5" : "gap-2"}`}
+                      >
                         <label className="flex flex-col gap-1">
                           <span className="text-platinum/80 text-xs">
                             Название пакета
@@ -1402,7 +1444,9 @@ export default function AdminPage() {
         compactMode={compactMode}
         onToggle={() => toggleSection("main")}
       >
-        <div className="grid gap-4 md:grid-cols-2">
+        <div
+          className={`grid md:grid-cols-2 ${compactMode ? "gap-3" : "gap-4"}`}
+        >
           <label className="flex flex-col gap-1">
             <span className="text-platinum/80 text-sm">Имя</span>
             <input
@@ -1470,7 +1514,9 @@ export default function AdminPage() {
         compactMode={compactMode}
         onToggle={() => toggleSection("links")}
       >
-        <div className="grid gap-4 md:grid-cols-2">
+        <div
+          className={`grid md:grid-cols-2 ${compactMode ? "gap-3" : "gap-4"}`}
+        >
           <label className="flex flex-col gap-1">
             <span className="text-platinum/80 text-sm">Ссылка Telegram</span>
             <input
@@ -1549,16 +1595,20 @@ export default function AdminPage() {
         compactMode={compactMode}
         onToggle={() => toggleSection("markdown")}
       >
-        <div className="flex flex-col gap-4">
+        <div className={`flex flex-col ${compactMode ? "gap-3" : "gap-4"}`}>
           {markdownKeys.map((key) => (
             <div
               key={key}
-              className="border-platinum/25 rounded-xl border bg-black/15 p-3"
+              className={`border-platinum/25 rounded-xl border bg-black/15 ${
+                compactMode ? "p-2" : "p-3"
+              }`}
             >
               <label className="text-platinum/90 mb-2 block text-sm font-medium">
                 {MARKDOWN_LABELS[key] ?? `/${key}`}
               </label>
-              <div className="grid gap-3 lg:grid-cols-2">
+              <div
+                className={`grid lg:grid-cols-2 ${compactMode ? "gap-2" : "gap-3"}`}
+              >
                 <textarea
                   value={markdown[key]}
                   onChange={(event) =>
@@ -1568,13 +1618,13 @@ export default function AdminPage() {
                     }))
                   }
                   className={`${textareaClass} ${
-                    compactMode ? "h-44" : "h-60"
+                    compactMode ? "h-36" : "h-60"
                   }`}
                   spellCheck={false}
                 />
                 <div
                   className={`markdown content-markdown border-platinum/25 text-platinum overflow-auto rounded-lg border bg-black/25 p-3 ${
-                    compactMode ? "h-44" : "h-60"
+                    compactMode ? "h-36" : "h-60"
                   }`}
                 >
                   {markdown[key]?.trim() ? (
