@@ -3,7 +3,14 @@
 import type { SiteContent } from "@/lib/contentStore";
 import type { Tariff, TariffPackage } from "@/lib/tariffStore";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState, type DragEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type DragEvent,
+  type ReactNode,
+} from "react";
+import { parseMarkdown } from "@/utils/markdownParser";
 
 type AdminBundle = {
   content: SiteContent;
@@ -16,8 +23,66 @@ type TariffBundle = {
   source: "local" | "supabase";
 };
 
-function prettyJson(value: SiteContent): string {
-  return JSON.stringify(value, null, 2);
+type SectionKey = "tariffs" | "main" | "links" | "markdown";
+
+const MARKDOWN_LABELS: Record<string, string> = {
+  "profile.md": "Профиль: основной текст",
+  "blog.md": "Блог: вводный текст",
+};
+
+const SECTION_TITLES: Record<SectionKey, string> = {
+  tariffs: "Тарифы",
+  main: "Основные данные сайта",
+  links: "Ссылки и подписи",
+  markdown: "Тексты",
+};
+
+const INITIAL_COLLAPSED_SECTIONS: Record<SectionKey, boolean> = {
+  tariffs: false,
+  main: false,
+  links: false,
+  markdown: false,
+};
+
+type AdminSectionProps = {
+  title: string;
+  collapsed: boolean;
+  compactMode: boolean;
+  onToggle: () => void;
+  actions?: ReactNode;
+  children: ReactNode;
+};
+
+function AdminSection({
+  title,
+  collapsed,
+  compactMode,
+  onToggle,
+  actions,
+  children,
+}: AdminSectionProps) {
+  return (
+    <section className="rounded-2xl border border-black/15 bg-white p-4">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <button
+          type="button"
+          onClick={onToggle}
+          className="inline-flex items-center gap-2 text-left"
+          aria-expanded={!collapsed}
+        >
+          <span className="text-lg font-medium">{title}</span>
+          <span className="text-xs text-black/55">{collapsed ? "▸" : "▾"}</span>
+        </button>
+        <div className="flex items-center gap-2">{actions}</div>
+      </div>
+
+      {!collapsed ? (
+        <div className={compactMode ? "space-y-3" : "space-y-4"}>
+          {children}
+        </div>
+      ) : null}
+    </section>
+  );
 }
 
 function createPackage(index: number): TariffPackage {
@@ -58,6 +123,63 @@ function moveTariff(
   return next;
 }
 
+function cloneContent(content: SiteContent): SiteContent {
+  return JSON.parse(JSON.stringify(content)) as SiteContent;
+}
+
+function cloneMarkdown(
+  markdown: Record<string, string>,
+): Record<string, string> {
+  return { ...markdown };
+}
+
+function isHttpUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function validateContentUrls(content: SiteContent): string[] {
+  const candidates = [
+    {
+      field: "telegramLink",
+      value: content.telegramLink,
+      label: "Ссылка Telegram",
+    },
+    {
+      field: "vkMessengerLink",
+      value: content.vkMessengerLink,
+      label: "Ссылка VK мессенджер",
+    },
+    { field: "b17Link", value: content.b17Link, label: "Ссылка B17" },
+    { field: "blogLink", value: content.blogLink, label: "Ссылка блога" },
+    {
+      field: "instagramLink",
+      value: content.instagramLink,
+      label: "Ссылка Instagram",
+    },
+  ];
+
+  const errors: string[] = [];
+  for (const candidate of candidates) {
+    if (!candidate.value?.trim()) {
+      errors.push(`${candidate.label}: поле не должно быть пустым`);
+      continue;
+    }
+
+    if (!isHttpUrl(candidate.value)) {
+      errors.push(
+        `${candidate.label}: укажите полный URL, например https://...`,
+      );
+    }
+  }
+
+  return errors;
+}
+
 export default function AdminPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -72,8 +194,13 @@ export default function AdminPage() {
     "local",
   );
 
-  const [contentJson, setContentJson] = useState("");
+  const [contentData, setContentData] = useState<SiteContent | null>(null);
   const [markdown, setMarkdown] = useState<Record<string, string>>({});
+  const [initialContentData, setInitialContentData] =
+    useState<SiteContent | null>(null);
+  const [initialMarkdown, setInitialMarkdown] = useState<
+    Record<string, string>
+  >({});
   const [tariffs, setTariffs] = useState<Tariff[]>([]);
   const [draggingTariffIndex, setDraggingTariffIndex] = useState<number | null>(
     null,
@@ -81,8 +208,34 @@ export default function AdminPage() {
   const [dropTargetTariffIndex, setDropTargetTariffIndex] = useState<
     number | null
   >(null);
+  const [compactMode, setCompactMode] = useState(false);
+  const [collapsedSections, setCollapsedSections] = useState<
+    Record<SectionKey, boolean>
+  >(INITIAL_COLLAPSED_SECTIONS);
 
-  const markdownKeys = useMemo(() => Object.keys(markdown).sort(), [markdown]);
+  const markdownKeys = useMemo(
+    () =>
+      Object.keys(markdown)
+        .filter((key) => !key.startsWith("pricelist/"))
+        .sort(),
+    [markdown],
+  );
+
+  const isContentDirty = useMemo(() => {
+    if (!contentData || !initialContentData) {
+      return false;
+    }
+
+    return (
+      JSON.stringify(contentData) !== JSON.stringify(initialContentData) ||
+      JSON.stringify(markdown) !== JSON.stringify(initialMarkdown)
+    );
+  }, [contentData, initialContentData, markdown, initialMarkdown]);
+
+  const allSectionsCollapsed = useMemo(
+    () => Object.values(collapsedSections).every(Boolean),
+    [collapsedSections],
+  );
 
   useEffect(() => {
     const load = async () => {
@@ -115,8 +268,12 @@ export default function AdminPage() {
 
       const contentBody = (await contentResponse.json()) as AdminBundle;
       setSource(contentBody.source);
-      setContentJson(prettyJson(contentBody.content));
-      setMarkdown(contentBody.markdown);
+      const nextContent = cloneContent(contentBody.content);
+      const nextMarkdown = cloneMarkdown(contentBody.markdown);
+      setContentData(nextContent);
+      setMarkdown(nextMarkdown);
+      setInitialContentData(cloneContent(nextContent));
+      setInitialMarkdown(cloneMarkdown(nextMarkdown));
 
       const tariffBody = (await tariffsResponse.json()) as TariffBundle;
       setTariffSource(tariffBody.source);
@@ -133,11 +290,15 @@ export default function AdminPage() {
     setErrorContent(null);
     setMessageContent(null);
 
-    let parsedContent: SiteContent;
-    try {
-      parsedContent = JSON.parse(contentJson) as SiteContent;
-    } catch {
-      setErrorContent("content.json: невалидный JSON");
+    if (!contentData) {
+      setErrorContent("Контент еще не загружен");
+      setSavingContent(false);
+      return;
+    }
+
+    const urlErrors = validateContentUrls(contentData);
+    if (urlErrors.length > 0) {
+      setErrorContent(urlErrors.join(" | "));
       setSavingContent(false);
       return;
     }
@@ -146,7 +307,7 @@ export default function AdminPage() {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        content: parsedContent,
+        content: contentData,
         markdown,
       }),
     });
@@ -162,10 +323,48 @@ export default function AdminPage() {
 
     const body = (await response.json()) as AdminBundle;
     setSource(body.source);
-    setContentJson(prettyJson(body.content));
-    setMarkdown(body.markdown);
+    const nextContent = cloneContent(body.content);
+    const nextMarkdown = cloneMarkdown(body.markdown);
+    setContentData(nextContent);
+    setMarkdown(nextMarkdown);
+    setInitialContentData(cloneContent(nextContent));
+    setInitialMarkdown(cloneMarkdown(nextMarkdown));
     setMessageContent("Контент сохранен");
     setSavingContent(false);
+  };
+
+  const onResetContent = () => {
+    if (!initialContentData) {
+      return;
+    }
+
+    setContentData(cloneContent(initialContentData));
+    setMarkdown(cloneMarkdown(initialMarkdown));
+    setErrorContent(null);
+    setMessageContent("Изменения сброшены к последнему сохранению");
+  };
+
+  const updateContentField = <K extends keyof SiteContent>(
+    key: K,
+    value: SiteContent[K],
+  ) => {
+    setContentData((current) =>
+      current ? { ...current, [key]: value } : current,
+    );
+  };
+
+  const updateInfoField = (key: keyof SiteContent["info"], value: string) => {
+    setContentData((current) =>
+      current
+        ? {
+            ...current,
+            info: {
+              ...current.info,
+              [key]: value,
+            },
+          }
+        : current,
+    );
   };
 
   const onSaveTariffs = async () => {
@@ -250,12 +449,55 @@ export default function AdminPage() {
     setDropTargetTariffIndex(null);
   };
 
+  const onToggleCompactMode = () => {
+    setCompactMode((current) => {
+      if (!current) {
+        setCollapsedSections({
+          tariffs: false,
+          main: true,
+          links: true,
+          markdown: true,
+        });
+      } else {
+        setCollapsedSections(INITIAL_COLLAPSED_SECTIONS);
+      }
+
+      return !current;
+    });
+  };
+
+  const toggleSection = (section: SectionKey) => {
+    setCollapsedSections((current) => ({
+      ...current,
+      [section]: !current[section],
+    }));
+  };
+
+  const setAllSectionsCollapsed = (collapsed: boolean) => {
+    setCollapsedSections({
+      tariffs: collapsed,
+      main: collapsed,
+      links: collapsed,
+      markdown: collapsed,
+    });
+  };
+
   if (loading) {
     return <main className="p-6">Загрузка админки...</main>;
   }
 
+  if (!contentData) {
+    return (
+      <main className="p-6">Не удалось инициализировать данные контента.</main>
+    );
+  }
+
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6">
+    <main
+      className={`mx-auto flex w-full max-w-6xl flex-col px-4 py-6 ${
+        compactMode ? "gap-3" : "gap-4"
+      }`}
+    >
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">Админка контента</h1>
@@ -271,10 +513,34 @@ export default function AdminPage() {
         <div className="flex gap-2">
           <button
             type="button"
+            onClick={onToggleCompactMode}
+            className="rounded-lg border border-black/20 px-4 py-2"
+          >
+            {compactMode ? "Обычный режим" : "Компактный режим"}
+          </button>
+          {compactMode ? (
+            <button
+              type="button"
+              onClick={() => setAllSectionsCollapsed(!allSectionsCollapsed)}
+              className="rounded-lg border border-black/20 px-4 py-2"
+            >
+              {allSectionsCollapsed ? "Развернуть все" : "Свернуть все"}
+            </button>
+          ) : null}
+          <button
+            type="button"
             onClick={onLogout}
             className="rounded-lg border border-black/20 px-4 py-2"
           >
             Выйти
+          </button>
+          <button
+            type="button"
+            onClick={onResetContent}
+            disabled={!isContentDirty || savingContent}
+            className="rounded-lg border border-black/20 px-4 py-2 disabled:opacity-50"
+          >
+            Сбросить изменения
           </button>
           <button
             type="button"
@@ -298,10 +564,13 @@ export default function AdminPage() {
         </p>
       ) : null}
 
-      <section className="rounded-2xl border border-black/15 bg-white p-4">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-lg font-medium">Тарифы</h2>
-          <div className="flex gap-2">
+      <AdminSection
+        title={SECTION_TITLES.tariffs}
+        collapsed={collapsedSections.tariffs}
+        compactMode={compactMode}
+        onToggle={() => toggleSection("tariffs")}
+        actions={
+          <>
             <button
               type="button"
               onClick={() =>
@@ -322,12 +591,11 @@ export default function AdminPage() {
             >
               {savingTariffs ? "Сохраняем тарифы..." : "Сохранить тарифы"}
             </button>
-          </div>
-        </div>
-
+          </>
+        }
+      >
         <p className="mb-3 text-sm text-black/65">
-          Перетаскивайте карточки тарифов за любой участок карточки, чтобы
-          менять порядок.
+          Перетаскивайте карточки тарифов только за иконку-хваталку в заголовке.
         </p>
 
         {errorTariffs ? (
@@ -348,7 +616,9 @@ export default function AdminPage() {
               onDragOver={(event) => onTariffDragOver(event, tariffIndex)}
               onDrop={(event) => onTariffDrop(event, tariffIndex)}
               onDragEnd={onTariffDragEnd}
-              className={`rounded-xl border border-black/15 p-4 transition ${
+              className={`rounded-xl border border-black/15 ${
+                compactMode ? "p-3" : "p-4"
+              } transition ${
                 dropTargetTariffIndex === tariffIndex
                   ? "border-black/40 bg-black/[0.03]"
                   : ""
@@ -486,7 +756,9 @@ export default function AdminPage() {
                   )
                 }
                 placeholder="Описание тарифа в Markdown"
-                className="mt-3 h-40 w-full rounded-lg border border-black/20 p-3 font-mono text-sm"
+                className={`mt-3 w-full rounded-lg border border-black/20 p-3 font-mono text-sm ${
+                  compactMode ? "h-32" : "h-40"
+                }`}
               />
 
               <div className="mt-4">
@@ -665,43 +937,193 @@ export default function AdminPage() {
             </article>
           ))}
         </div>
-      </section>
+      </AdminSection>
 
-      <section className="rounded-2xl border border-black/15 bg-white p-4">
-        <h2 className="mb-2 text-lg font-medium">
-          Остальной контент: content.json
-        </h2>
-        <textarea
-          value={contentJson}
-          onChange={(event) => setContentJson(event.target.value)}
-          className="h-96 w-full rounded-xl border border-black/20 p-3 font-mono text-sm outline-none focus:border-black"
-          spellCheck={false}
-        />
-      </section>
+      <AdminSection
+        title={SECTION_TITLES.main}
+        collapsed={collapsedSections.main}
+        compactMode={compactMode}
+        onToggle={() => toggleSection("main")}
+      >
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="flex flex-col gap-1">
+            <span className="text-sm text-black/70">Имя</span>
+            <input
+              value={contentData.fullName}
+              onChange={(event) =>
+                updateContentField("fullName", event.target.value)
+              }
+              className="rounded-lg border border-black/20 px-3 py-2"
+            />
+          </label>
 
-      <section className="rounded-2xl border border-black/15 bg-white p-4">
-        <h2 className="mb-3 text-lg font-medium">
-          Markdown файлы (кроме тарифов)
-        </h2>
+          <label className="flex flex-col gap-1">
+            <span className="text-sm text-black/70">Подзаголовок профиля</span>
+            <input
+              value={contentData.info.title}
+              onChange={(event) => updateInfoField("title", event.target.value)}
+              className="rounded-lg border border-black/20 px-3 py-2"
+            />
+          </label>
+
+          <label className="flex flex-col gap-1 md:col-span-2">
+            <span className="text-sm text-black/70">
+              Короткое описание профессии
+            </span>
+            <input
+              value={contentData.professionDescription}
+              onChange={(event) =>
+                updateContentField("professionDescription", event.target.value)
+              }
+              className="rounded-lg border border-black/20 px-3 py-2"
+            />
+          </label>
+
+          <label className="flex flex-col gap-1">
+            <span className="text-sm text-black/70">
+              Заголовок блока тарифов
+            </span>
+            <input
+              value={contentData.priceHeader}
+              onChange={(event) =>
+                updateContentField("priceHeader", event.target.value)
+              }
+              className="rounded-lg border border-black/20 px-3 py-2"
+            />
+          </label>
+
+          <label className="flex flex-col gap-1">
+            <span className="text-sm text-black/70">Текст загрузки</span>
+            <input
+              value={contentData.loading}
+              onChange={(event) =>
+                updateContentField("loading", event.target.value)
+              }
+              className="rounded-lg border border-black/20 px-3 py-2"
+            />
+          </label>
+        </div>
+      </AdminSection>
+
+      <AdminSection
+        title={SECTION_TITLES.links}
+        collapsed={collapsedSections.links}
+        compactMode={compactMode}
+        onToggle={() => toggleSection("links")}
+      >
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="flex flex-col gap-1">
+            <span className="text-sm text-black/70">Ссылка Telegram</span>
+            <input
+              value={contentData.telegramLink}
+              onChange={(event) =>
+                updateContentField("telegramLink", event.target.value)
+              }
+              className="rounded-lg border border-black/20 px-3 py-2"
+            />
+          </label>
+
+          <label className="flex flex-col gap-1">
+            <span className="text-sm text-black/70">Ссылка VK мессенджер</span>
+            <input
+              value={contentData.vkMessengerLink}
+              onChange={(event) =>
+                updateContentField("vkMessengerLink", event.target.value)
+              }
+              className="rounded-lg border border-black/20 px-3 py-2"
+            />
+          </label>
+
+          <label className="flex flex-col gap-1">
+            <span className="text-sm text-black/70">Ссылка B17</span>
+            <input
+              value={contentData.b17Link}
+              onChange={(event) =>
+                updateContentField("b17Link", event.target.value)
+              }
+              className="rounded-lg border border-black/20 px-3 py-2"
+            />
+          </label>
+
+          <label className="flex flex-col gap-1">
+            <span className="text-sm text-black/70">Ссылка блога</span>
+            <input
+              value={contentData.blogLink}
+              onChange={(event) =>
+                updateContentField("blogLink", event.target.value)
+              }
+              className="rounded-lg border border-black/20 px-3 py-2"
+            />
+          </label>
+
+          <label className="flex flex-col gap-1">
+            <span className="text-sm text-black/70">Кнопка записи</span>
+            <input
+              value={contentData.bookConsultation}
+              onChange={(event) =>
+                updateContentField("bookConsultation", event.target.value)
+              }
+              className="rounded-lg border border-black/20 px-3 py-2"
+            />
+          </label>
+
+          <label className="flex flex-col gap-1">
+            <span className="text-sm text-black/70">Текст ссылки на блог</span>
+            <input
+              value={contentData.blog}
+              onChange={(event) =>
+                updateContentField("blog", event.target.value)
+              }
+              className="rounded-lg border border-black/20 px-3 py-2"
+            />
+          </label>
+        </div>
+      </AdminSection>
+
+      <AdminSection
+        title={SECTION_TITLES.markdown}
+        collapsed={collapsedSections.markdown}
+        compactMode={compactMode}
+        onToggle={() => toggleSection("markdown")}
+      >
         <div className="flex flex-col gap-4">
           {markdownKeys.map((key) => (
             <div key={key} className="rounded-xl border border-black/15 p-3">
-              <label className="mb-2 block text-sm font-medium">/{key}</label>
-              <textarea
-                value={markdown[key]}
-                onChange={(event) =>
-                  setMarkdown((current) => ({
-                    ...current,
-                    [key]: event.target.value,
-                  }))
-                }
-                className="h-60 w-full rounded-lg border border-black/20 p-3 font-mono text-sm outline-none focus:border-black"
-                spellCheck={false}
-              />
+              <label className="mb-2 block text-sm font-medium">
+                {MARKDOWN_LABELS[key] ?? `/${key}`}
+              </label>
+              <div className="grid gap-3 lg:grid-cols-2">
+                <textarea
+                  value={markdown[key]}
+                  onChange={(event) =>
+                    setMarkdown((current) => ({
+                      ...current,
+                      [key]: event.target.value,
+                    }))
+                  }
+                  className={`w-full rounded-lg border border-black/20 p-3 font-mono text-sm outline-none focus:border-black ${
+                    compactMode ? "h-44" : "h-60"
+                  }`}
+                  spellCheck={false}
+                />
+                <div
+                  className={`markdown content-markdown overflow-auto rounded-lg border border-black/15 bg-black/[0.02] p-3 ${
+                    compactMode ? "h-44" : "h-60"
+                  }`}
+                >
+                  {markdown[key]?.trim() ? (
+                    parseMarkdown(markdown[key])
+                  ) : (
+                    <p className="text-sm text-black/55">
+                      Предпросмотр появится после ввода текста.
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
           ))}
         </div>
-      </section>
+      </AdminSection>
     </main>
   );
 }
