@@ -1,0 +1,90 @@
+{
+  "fullName": "Екатерина Жук",
+  "info": {
+    "title": "Клинический психолог",
+    "contentPath": "/profile.md"
+  },
+  "professionDescription": "Клинический и практический психолог",
+  "priceHeader": "Пакеты консультаций и цены",
+  "pricelist": [
+    {
+      "descriptionPath": "/pricelist/one_time_consultation.md",
+      "packages": [
+        {
+          "name": "55 минут",
+          "price": { "regular": { "amount": 5500, "currency": "₽" } }
+        }
+      ],
+      "title": "Разовая консультация"
+    },
+    {
+      "descriptionPath": "/pricelist/individual_therapy.md",
+      "packages": [
+        {
+          "name": "1 встреча",
+          "price": { "regular": { "amount": 5500, "currency": "₽" } }
+        },
+        {
+          "name": "4 встречи",
+          "price": {
+            "regular": { "amount": 22000, "currency": "₽" },
+            "discounted": { "amount": 20000, "currency": "₽" }
+          }
+        }
+      ],
+      "title": "Индивидуальная психотерапия"
+    },
+    {
+      "descriptionPath": "/pricelist/couple_therapy.md",
+      "packages": [
+        {
+          "name": "1 встреча",
+          "price": { "regular": { "amount": 7500, "currency": "₽" } }
+        },
+        {
+          "name": "4 встречи",
+          "price": {
+            "regular": { "amount": 30000, "currency": "₽" },
+            "discounted": { "amount": 28000, "currency": "₽" }
+          }
+        }
+      ],
+      "title": "Парная терапия"
+    },
+    {
+      "descriptionPath": "/pricelist/diagnostics.md",
+      "packages": [
+        {
+          "name": "60-90 минут",
+          "price": { "regular": { "amount": 7500, "currency": "₽" } }
+        }
+      ],
+      "title": "Клиническая психологическая диагностика"
+    },
+    {
+      "descriptionPath": "/pricelist/personality_map.md",
+      "packages": [
+        {
+          "name": "",
+          "price": { "regular": { "amount": 3000, "currency": "₽" } }
+        }
+      ],
+      "title": "Психоаналитическая карта личности"
+    }
+  ],
+  "blogDescriptionPath": "/blog.md",
+  "blog": "Перейти в блог",
+  "blogLink": "https://t.me/kate_zhuk_psy",
+  "instagram": "Инстаграм",
+  "instagramLink": "https://www.instagram.com/kate.zhuk.psy/",
+  "telegram": "Телеграм",
+  "telegramLink": "https://t.me/moonelfff",
+  "vkMessenger": "ВК Мессенджер",
+  "vkMessengerLink": "https://vk.me/zhuk.ekaterina",
+  "b17": "B17",
+  "b17Link": "https://b17.ru/katezhuk/",
+  "bookConsultation": "Записаться на консультацию",
+  "loading": "Загрузка...",
+  "testLink": "#",
+  "testTitle": "Пройти тест"
+}
