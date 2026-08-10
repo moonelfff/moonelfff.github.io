@@ -23,6 +23,8 @@ type TariffBundle = {
   source: "local" | "supabase";
 };
 
+type UploadKind = "profile" | "og";
+
 type SectionKey = "tariffs" | "main" | "links" | "markdown";
 
 const MARKDOWN_LABELS: Record<string, string> = {
@@ -378,6 +380,14 @@ export default function AdminPage() {
     packageIndex: number;
   } | null>(null);
   const [compactMode, setCompactMode] = useState(false);
+  const [uploadingImageKind, setUploadingImageKind] =
+    useState<UploadKind | null>(null);
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
+  const [ogImageFile, setOgImageFile] = useState<File | null>(null);
+  const [profilePreviewUrl, setProfilePreviewUrl] = useState<string | null>(
+    null,
+  );
+  const [ogPreviewUrl, setOgPreviewUrl] = useState<string | null>(null);
   const [collapsedSections, setCollapsedSections] = useState<
     Record<SectionKey, boolean>
   >(INITIAL_COLLAPSED_SECTIONS);
@@ -429,6 +439,34 @@ export default function AdminPage() {
 
     return () => window.clearTimeout(timeoutId);
   }, [messageTariffs]);
+
+  useEffect(() => {
+    if (!profileImageFile) {
+      setProfilePreviewUrl(null);
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(profileImageFile);
+    setProfilePreviewUrl(objectUrl);
+
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+    };
+  }, [profileImageFile]);
+
+  useEffect(() => {
+    if (!ogImageFile) {
+      setOgPreviewUrl(null);
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(ogImageFile);
+    setOgPreviewUrl(objectUrl);
+
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+    };
+  }, [ogImageFile]);
 
   useEffect(() => {
     const load = async () => {
@@ -616,6 +654,60 @@ export default function AdminPage() {
     setTariffs(body.tariffs);
     setMessageTariffs("Тарифы сохранены");
     setSavingTariffs(false);
+  };
+
+  const onUploadImage = async (kind: UploadKind) => {
+    const file = kind === "profile" ? profileImageFile : ogImageFile;
+
+    if (!file) {
+      setErrorContent("Сначала выберите изображение для загрузки");
+      return;
+    }
+
+    setUploadingImageKind(kind);
+    setErrorContent(null);
+    setMessageContent(null);
+
+    const formData = new FormData();
+    formData.set("kind", kind);
+    formData.set("file", file);
+
+    const response = await fetch("/api/admin/image", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const body = (await response.json().catch(() => null)) as {
+        error?: string;
+      } | null;
+      setErrorContent(body?.error ?? "Ошибка загрузки изображения");
+      setUploadingImageKind(null);
+      return;
+    }
+
+    const body = (await response.json()) as AdminBundle;
+    const nextContent = cloneContent(body.content);
+    const nextMarkdown = cloneMarkdown(body.markdown);
+
+    setSource(body.source);
+    setContentData(nextContent);
+    setMarkdown(nextMarkdown);
+    setInitialContentData(cloneContent(nextContent));
+    setInitialMarkdown(cloneMarkdown(nextMarkdown));
+    setMessageContent(
+      kind === "profile"
+        ? "Фото профиля успешно загружено"
+        : "OG-изображение успешно загружено",
+    );
+
+    if (kind === "profile") {
+      setProfileImageFile(null);
+    } else {
+      setOgImageFile(null);
+    }
+
+    setUploadingImageKind(null);
   };
 
   const onLogout = async () => {
@@ -1586,6 +1678,91 @@ export default function AdminPage() {
               className={inputClass}
             />
           </label>
+        </div>
+
+        <div
+          className={`grid md:grid-cols-2 ${compactMode ? "gap-3" : "gap-4"}`}
+        >
+          <div className="border-platinum/25 rounded-xl border bg-black/15 p-3">
+            <p className="text-platinum/90 text-sm font-medium">Фото профиля</p>
+            <p className="text-platinum/70 mt-1 text-xs">
+              Рекомендуется вертикальное фото, минимум 1200px по длинной
+              стороне.
+            </p>
+
+            {profilePreviewUrl || contentData.profileImageUrl ? (
+              <img
+                src={profilePreviewUrl ?? contentData.profileImageUrl}
+                alt={
+                  profilePreviewUrl
+                    ? "Предпросмотр фото профиля"
+                    : "Текущее фото профиля"
+                }
+                className="border-platinum/30 mt-2 max-h-44 rounded-lg border object-cover"
+              />
+            ) : null}
+
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              onChange={(event) =>
+                setProfileImageFile(event.target.files?.[0] ?? null)
+              }
+              className="text-platinum/80 file:border-platinum/35 file:text-platinum mt-3 w-full text-sm file:mr-3 file:rounded-lg file:border file:bg-black/20 file:px-3 file:py-1.5"
+            />
+
+            <button
+              type="button"
+              onClick={() => onUploadImage("profile")}
+              disabled={!profileImageFile || uploadingImageKind !== null}
+              className={`${compactMode ? subtleButtonClass : secondaryButtonClass} mt-3`}
+            >
+              {uploadingImageKind === "profile"
+                ? "Загружаем..."
+                : "Загрузить фото профиля"}
+            </button>
+          </div>
+
+          <div className="border-platinum/25 rounded-xl border bg-black/15 p-3">
+            <p className="text-platinum/90 text-sm font-medium">
+              Превью для Google и соцсетей (OG)
+            </p>
+            <p className="text-platinum/70 mt-1 text-xs">
+              Лучше использовать изображение 1200x630 для корректных превью.
+            </p>
+
+            {ogPreviewUrl || contentData.ogImageUrl ? (
+              <img
+                src={ogPreviewUrl ?? contentData.ogImageUrl}
+                alt={
+                  ogPreviewUrl
+                    ? "Предпросмотр OG изображения"
+                    : "Текущее OG изображение"
+                }
+                className="border-platinum/30 mt-2 max-h-44 w-full rounded-lg border object-cover"
+              />
+            ) : null}
+
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              onChange={(event) =>
+                setOgImageFile(event.target.files?.[0] ?? null)
+              }
+              className="text-platinum/80 file:border-platinum/35 file:text-platinum mt-3 w-full text-sm file:mr-3 file:rounded-lg file:border file:bg-black/20 file:px-3 file:py-1.5"
+            />
+
+            <button
+              type="button"
+              onClick={() => onUploadImage("og")}
+              disabled={!ogImageFile || uploadingImageKind !== null}
+              className={`${compactMode ? subtleButtonClass : secondaryButtonClass} mt-3`}
+            >
+              {uploadingImageKind === "og"
+                ? "Загружаем..."
+                : "Загрузить OG изображение"}
+            </button>
+          </div>
         </div>
       </AdminSection>
 

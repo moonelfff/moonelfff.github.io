@@ -11,6 +11,7 @@ import { useSiteContent } from "../providers/SiteContentProvider";
 
 function Profile() {
   const data = useSiteContent();
+  const profileImageSrc = data.profileImageUrl || photo;
 
   const [content, setContent] = useState<string | undefined>(undefined);
 
@@ -62,7 +63,7 @@ function Profile() {
       </div>
       <div>
         <Image
-          src={photo}
+          src={profileImageSrc}
           alt={data.fullName}
           className="flex w-full justify-center"
         />
