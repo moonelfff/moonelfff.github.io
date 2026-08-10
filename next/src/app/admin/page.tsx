@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   useEffect,
   useMemo,
+  useRef,
   useState,
   type DragEvent,
   type ReactNode,
@@ -51,6 +52,10 @@ const buttonBaseClass =
 const secondaryButtonClass = `${buttonBaseClass} border-platinum/35 bg-black/20 text-platinum hover:bg-black/30`;
 const primaryButtonClass = `${buttonBaseClass} border-gold/45 bg-dusty-grape text-platinum hover:bg-dusty-grape/90`;
 const dangerButtonClass = `${buttonBaseClass} border-red-300/55 bg-red-900/35 text-red-100 hover:bg-red-900/50`;
+const headerButtonBaseClass =
+  "cursor-pointer shrink-0 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-50";
+const headerSecondaryButtonClass = `${headerButtonBaseClass} border-platinum/35 bg-black/20 text-platinum hover:bg-black/30`;
+const headerPrimaryButtonClass = `${headerButtonBaseClass} border-gold/45 bg-dusty-grape text-platinum hover:bg-dusty-grape/90`;
 const subtleButtonClass =
   "cursor-pointer rounded-lg border border-platinum/25 bg-black/15 px-3 py-1.5 text-xs font-medium text-platinum/90 transition hover:bg-black/25 disabled:cursor-not-allowed disabled:opacity-45";
 const subtleDangerButtonClass =
@@ -64,7 +69,6 @@ const STATUS_MESSAGE_TIMEOUT_MS = 4000;
 type AdminSectionProps = {
   title: string;
   collapsed: boolean;
-  compactMode: boolean;
   onToggle: () => void;
   actions?: ReactNode;
   children: ReactNode;
@@ -73,14 +77,13 @@ type AdminSectionProps = {
 function AdminSection({
   title,
   collapsed,
-  compactMode,
   onToggle,
   actions,
   children,
 }: AdminSectionProps) {
   return (
     <section className="shadow-effect shadow-effect-offset mt-2">
-      <div className="backdrop-glass backdrop-glass-offset text-platinum rounded-3xl p-6">
+      <div className="backdrop-glass backdrop-glass-offset text-platinum rounded-2xl p-5 md:rounded-3xl md:p-6">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <button
             type="button"
@@ -120,9 +123,7 @@ function AdminSection({
           }`}
         >
           <div className="overflow-hidden">
-            <div
-              className={compactMode ? "space-y-2 pt-0.5" : "space-y-4 pt-1"}
-            >
+            <div className="space-y-2 pt-0.5 md:space-y-4 md:pt-1">
               {children}
             </div>
           </div>
@@ -379,7 +380,6 @@ export default function AdminPage() {
     tariffIndex: number;
     packageIndex: number;
   } | null>(null);
-  const [compactMode, setCompactMode] = useState(false);
   const [uploadingImageKind, setUploadingImageKind] =
     useState<UploadKind | null>(null);
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
@@ -388,6 +388,8 @@ export default function AdminPage() {
     null,
   );
   const [ogPreviewUrl, setOgPreviewUrl] = useState<string | null>(null);
+  const [mobileActionsOpen, setMobileActionsOpen] = useState(false);
+  const mobileActionsRef = useRef<HTMLDivElement | null>(null);
   const [collapsedSections, setCollapsedSections] = useState<
     Record<SectionKey, boolean>
   >(INITIAL_COLLAPSED_SECTIONS);
@@ -441,6 +443,30 @@ export default function AdminPage() {
   }, [messageTariffs]);
 
   useEffect(() => {
+    if (!errorContent) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setErrorContent(null);
+    }, STATUS_MESSAGE_TIMEOUT_MS);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [errorContent]);
+
+  useEffect(() => {
+    if (!errorTariffs) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setErrorTariffs(null);
+    }, STATUS_MESSAGE_TIMEOUT_MS);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [errorTariffs]);
+
+  useEffect(() => {
     if (!profileImageFile) {
       setProfilePreviewUrl(null);
       return;
@@ -467,6 +493,37 @@ export default function AdminPage() {
       URL.revokeObjectURL(objectUrl);
     };
   }, [ogImageFile]);
+
+  useEffect(() => {
+    if (!mobileActionsOpen) {
+      return;
+    }
+
+    const onPointerDown = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as Node | null;
+      if (!target || mobileActionsRef.current?.contains(target)) {
+        return;
+      }
+
+      setMobileActionsOpen(false);
+    };
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMobileActionsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("touchstart", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("touchstart", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [mobileActionsOpen]);
 
   useEffect(() => {
     const load = async () => {
@@ -840,23 +897,6 @@ export default function AdminPage() {
     setDropTargetPackage(null);
   };
 
-  const onToggleCompactMode = () => {
-    setCompactMode((current) => {
-      if (!current) {
-        setCollapsedSections({
-          tariffs: false,
-          main: true,
-          links: true,
-          markdown: true,
-        });
-      } else {
-        setCollapsedSections(INITIAL_COLLAPSED_SECTIONS);
-      }
-
-      return !current;
-    });
-  };
-
   const toggleSection = (section: SectionKey) => {
     setCollapsedSections((current) => ({
       ...current,
@@ -890,156 +930,211 @@ export default function AdminPage() {
   }
 
   return (
-    <main
-      className={`bg-platinum font-primary mx-auto flex min-h-dvh w-full max-w-6xl flex-col px-4 py-6 ${
-        compactMode ? "gap-2" : "gap-4"
-      }`}
-    >
-      <header
-        className={`bg-soft-linnen/90 sticky top-2 z-40 rounded-2xl border border-black/10 backdrop-blur-md ${
-          compactMode ? "p-2" : "p-3"
-        }`}
-      >
-        <div
-          className={`flex flex-wrap items-center justify-between ${
-            compactMode ? "gap-2" : "gap-3"
-          }`}
-        >
+    <main className="bg-platinum font-primary mx-auto flex min-h-dvh w-full max-w-6xl flex-col gap-2 px-2 py-3 md:gap-4 md:px-4 md:py-6">
+      <header className="bg-soft-linnen/90 relative z-40 rounded-2xl border border-black/10 p-2 backdrop-blur-md md:p-3">
+        <div className="flex flex-col gap-2">
           <div>
-            <h1
-              className={`${
-                compactMode ? "text-xl" : "text-2xl"
-              } font-semibold text-black`}
-            >
-              Админка контента
+            <h1 className="text-lg leading-tight font-semibold text-black md:text-2xl">
+              Админка
             </h1>
-            <p className="text-sm text-black/80">
+            <p className="hidden text-sm text-black/80 md:block">
               Источник общего контента:{" "}
               <span className="font-medium">{source}</span>
             </p>
-            <p className="text-sm text-black/80">
+            <p className="hidden text-sm text-black/80 md:block">
               Источник тарифов:{" "}
               <span className="font-medium">{tariffSource}</span>
             </p>
+
+            <details className="mt-1 md:hidden">
+              <summary className="cursor-pointer text-xs text-black/70">
+                Показать источники данных
+              </summary>
+              <div className="mt-1 space-y-0.5 text-xs text-black/70">
+                <p>
+                  Источник общего контента:{" "}
+                  <span className="font-medium">{source}</span>
+                </p>
+                <p>
+                  Источник тарифов:{" "}
+                  <span className="font-medium">{tariffSource}</span>
+                </p>
+              </div>
+            </details>
           </div>
-          <div
-            className={`flex flex-wrap ${compactMode ? "gap-1.5" : "gap-2"}`}
-          >
+
+          <div className="relative z-50 flex items-center gap-1.5 md:hidden">
             <button
               type="button"
-              onClick={onToggleCompactMode}
-              className={secondaryButtonClass}
+              onClick={onSaveContent}
+              disabled={savingContent}
+              className={`${headerPrimaryButtonClass} inline-flex flex-1 items-center justify-center`}
             >
-              {compactMode ? "Обычный режим" : "Компактный режим"}
+              <span className="mr-1.5 text-xs">✓</span>
+              {savingContent ? "Сохраняем..." : "Сохранить"}
             </button>
-            {compactMode ? (
+
+            <div ref={mobileActionsRef} className="relative">
               <button
                 type="button"
-                onClick={() => setAllSectionsCollapsed(!allSectionsCollapsed)}
-                className={secondaryButtonClass}
+                onClick={() => setMobileActionsOpen((current) => !current)}
+                className={`${headerSecondaryButtonClass} inline-flex items-center`}
+                aria-expanded={mobileActionsOpen}
+                aria-haspopup="menu"
               >
-                {allSectionsCollapsed ? "Развернуть все" : "Свернуть все"}
+                <span className="mr-1.5 text-xs">⋯</span>
+                Действия
               </button>
-            ) : null}
+              {mobileActionsOpen ? (
+                <div className="bg-soft-linnen absolute top-full right-0 z-[70] mt-1 w-56 rounded-xl border border-black/10 p-1.5 shadow-lg">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAllSectionsCollapsed(!allSectionsCollapsed);
+                      setMobileActionsOpen(false);
+                    }}
+                    className="flex w-full cursor-pointer items-center rounded-lg px-2 py-1.5 text-left text-xs text-black transition hover:bg-black/10"
+                  >
+                    <span className="mr-1.5 text-xs">▾</span>
+                    {allSectionsCollapsed ? "Развернуть все" : "Свернуть все"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onResetContent();
+                      setMobileActionsOpen(false);
+                    }}
+                    disabled={!isContentDirty || savingContent}
+                    className="flex w-full cursor-pointer items-center rounded-lg px-2 py-1.5 text-left text-xs text-black transition hover:bg-black/10 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <span className="mr-1.5 text-xs">↺</span>
+                    Сбросить изменения
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileActionsOpen(false);
+                      onLogout();
+                    }}
+                    className="flex w-full cursor-pointer items-center rounded-lg px-2 py-1.5 text-left text-xs text-black transition hover:bg-black/10"
+                  >
+                    <span className="mr-1.5 text-xs">⎋</span>
+                    Выйти
+                  </button>
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="bg-soft-linnen/95 hidden rounded-xl border border-black/10 px-1.5 py-1.5 md:sticky md:top-2 md:z-40 md:flex md:flex-wrap md:gap-2">
+            <button
+              type="button"
+              onClick={() => setAllSectionsCollapsed(!allSectionsCollapsed)}
+              className={headerSecondaryButtonClass}
+            >
+              <span className="mr-1.5 text-xs">▾</span>
+              {allSectionsCollapsed ? "Развернуть все" : "Свернуть все"}
+            </button>
             <button
               type="button"
               onClick={onLogout}
-              className={secondaryButtonClass}
+              className={headerSecondaryButtonClass}
             >
+              <span className="mr-1.5 text-xs">⎋</span>
               Выйти
             </button>
             <button
               type="button"
               onClick={onResetContent}
               disabled={!isContentDirty || savingContent}
-              className={secondaryButtonClass}
+              className={headerSecondaryButtonClass}
             >
+              <span className="mr-1.5 text-xs">↺</span>
               Сбросить изменения
             </button>
             <button
               type="button"
               onClick={onSaveContent}
               disabled={savingContent}
-              className={primaryButtonClass}
+              className={headerPrimaryButtonClass}
             >
+              <span className="mr-1.5 text-xs">✓</span>
               {savingContent ? "Сохраняем контент..." : "Сохранить контент"}
             </button>
           </div>
         </div>
       </header>
 
-      {errorContent ? (
-        <p className="rounded-xl border border-red-300/50 bg-red-900/25 px-4 py-2 text-red-100">
-          {errorContent}
-        </p>
-      ) : null}
-      {messageContent ? (
-        <p className="border-gold/50 bg-gold/25 rounded-xl border px-4 py-2 text-black">
-          {messageContent}
-        </p>
-      ) : null}
+      <div className="pointer-events-none fixed inset-x-0 top-3 z-50 flex justify-center px-2 md:top-4">
+        <div className="flex w-full max-w-xl flex-col gap-2">
+          {errorContent ? (
+            <p className="pointer-events-auto rounded-xl border border-red-300/50 bg-red-900/85 px-3 py-2 text-sm text-red-100 shadow-lg">
+              {errorContent}
+            </p>
+          ) : null}
+          {messageContent ? (
+            <p className="border-gold/60 bg-gold/90 pointer-events-auto rounded-xl border px-3 py-2 text-sm text-black shadow-lg">
+              {messageContent}
+            </p>
+          ) : null}
+          {errorTariffs ? (
+            <p className="pointer-events-auto rounded-xl border border-red-300/50 bg-red-900/85 px-3 py-2 text-sm text-red-100 shadow-lg">
+              {errorTariffs}
+            </p>
+          ) : null}
+          {messageTariffs ? (
+            <p className="border-gold/60 bg-gold/90 pointer-events-auto rounded-xl border px-3 py-2 text-sm text-black shadow-lg">
+              {messageTariffs}
+            </p>
+          ) : null}
+        </div>
+      </div>
 
       <AdminSection
         title={SECTION_TITLES.tariffs}
         collapsed={collapsedSections.tariffs}
-        compactMode={compactMode}
         onToggle={() => toggleSection("tariffs")}
         actions={
-          <>
-            <button
-              type="button"
-              onClick={() =>
-                setTariffs((current) => [
-                  ...current,
-                  createTariff(current.length),
-                ])
-              }
-              className={secondaryButtonClass}
-            >
-              Добавить тариф
-            </button>
-            <button
-              type="button"
-              onClick={onSaveTariffs}
-              disabled={savingTariffs}
-              className={primaryButtonClass}
-            >
-              {savingTariffs ? "Сохраняем тарифы..." : "Сохранить тарифы"}
-            </button>
-          </>
+          collapsedSections.tariffs ? null : (
+            <>
+              <button
+                type="button"
+                onClick={() =>
+                  setTariffs((current) => [
+                    ...current,
+                    createTariff(current.length),
+                  ])
+                }
+                className={secondaryButtonClass}
+              >
+                Добавить тариф
+              </button>
+              <button
+                type="button"
+                onClick={onSaveTariffs}
+                disabled={savingTariffs}
+                className={primaryButtonClass}
+              >
+                {savingTariffs ? "Сохраняем тарифы..." : "Сохранить тарифы"}
+              </button>
+            </>
+          )
         }
       >
-        {errorTariffs ? (
-          <p className="mb-3 rounded-xl border border-red-300/50 bg-red-900/25 px-4 py-2 text-red-100">
-            {errorTariffs}
-          </p>
-        ) : null}
-        {messageTariffs ? (
-          <p className="border-gold/50 bg-gold/25 mb-3 rounded-xl border px-4 py-2 text-black">
-            {messageTariffs}
-          </p>
-        ) : null}
-
-        <div className={`flex flex-col ${compactMode ? "gap-3" : "gap-4"}`}>
+        <div className="flex flex-col gap-3 md:gap-4">
           {tariffs.map((tariff, tariffIndex) => (
             <article
               key={tariff.id}
               onDragOver={(event) => onTariffDragOver(event, tariffIndex)}
               onDrop={(event) => onTariffDrop(event, tariffIndex)}
               onDragEnd={onTariffDragEnd}
-              className={`border-platinum/25 rounded-xl border bg-black/15 ${
-                compactMode ? "p-2" : "p-4"
-              } transition ${
+              className={`border-platinum/25 rounded-xl border bg-black/15 p-2 transition md:p-4 ${
                 dropTargetTariffIndex === tariffIndex
                   ? "border-gold/60 bg-black/30"
                   : ""
               } ${draggingTariffIndex === tariffIndex ? "opacity-70" : ""}`}
             >
-              <div
-                className={`flex flex-wrap items-center justify-between ${
-                  compactMode ? "mb-2 gap-1.5" : "mb-3 gap-2"
-                }`}
-              >
+              <div className="mb-2 flex flex-wrap items-center justify-between gap-1.5 md:mb-3 md:gap-2">
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
@@ -1111,9 +1206,7 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              <div
-                className={`grid md:grid-cols-2 ${compactMode ? "gap-2" : "gap-3"}`}
-              >
+              <div className="grid gap-2 md:grid-cols-2 md:gap-3">
                 <label className="flex flex-col gap-1">
                   <span className="text-platinum/80 text-sm">
                     Название тарифа
@@ -1157,11 +1250,7 @@ export default function AdminPage() {
                 </label>
               </div>
 
-              <label
-                className={`text-platinum/90 flex items-center gap-2 text-sm ${
-                  compactMode ? "mt-2" : "mt-3"
-                }`}
-              >
+              <label className="text-platinum/90 mt-2 flex items-center gap-2 text-sm md:mt-3">
                 <input
                   type="checkbox"
                   checked={tariff.isActive}
@@ -1178,9 +1267,7 @@ export default function AdminPage() {
                 Показывать на сайте
               </label>
 
-              <label
-                className={`flex flex-col gap-1 ${compactMode ? "mt-2" : "mt-3"}`}
-              >
+              <label className="mt-2 flex flex-col gap-1 md:mt-3">
                 <span className="text-platinum/80 text-sm">
                   Описание тарифа (Markdown)
                 </span>
@@ -1196,16 +1283,12 @@ export default function AdminPage() {
                     )
                   }
                   placeholder="Описание тарифа в Markdown"
-                  className={`${textareaClass} ${compactMode ? "h-28" : "h-40"}`}
+                  className={`${textareaClass} h-28 md:h-40`}
                 />
               </label>
 
-              <div className={compactMode ? "mt-3" : "mt-4"}>
-                <div
-                  className={`flex items-center justify-between ${
-                    compactMode ? "mb-1.5" : "mb-2"
-                  }`}
-                >
+              <div className="mt-3 md:mt-4">
+                <div className="mb-1.5 flex items-center justify-between md:mb-2">
                   <h4 className="text-platinum font-medium">Пакеты</h4>
                   <button
                     type="button"
@@ -1230,9 +1313,7 @@ export default function AdminPage() {
                   </button>
                 </div>
 
-                <div
-                  className={`flex flex-col ${compactMode ? "gap-2" : "gap-3"}`}
-                >
+                <div className="flex flex-col gap-2 md:gap-3">
                   {tariff.packages.map((pkg, pkgIndex) => (
                     <div
                       key={pkg.id}
@@ -1243,9 +1324,7 @@ export default function AdminPage() {
                         onPackageDrop(event, tariffIndex, pkgIndex)
                       }
                       onDragEnd={onPackageDragEnd}
-                      className={`border-platinum/20 rounded-lg border bg-black/20 ${
-                        compactMode ? "p-2" : "p-3"
-                      } transition ${
+                      className={`border-platinum/20 rounded-lg border bg-black/20 p-2 transition md:p-3 ${
                         dropTargetPackage?.tariffIndex === tariffIndex &&
                         dropTargetPackage.packageIndex === pkgIndex
                           ? "border-gold/60 bg-black/35"
@@ -1257,11 +1336,7 @@ export default function AdminPage() {
                           : ""
                       }`}
                     >
-                      <div
-                        className={`flex flex-wrap items-center justify-between ${
-                          compactMode ? "mb-1.5 gap-1.5" : "mb-2 gap-2"
-                        }`}
-                      >
+                      <div className="mb-1.5 flex flex-wrap items-center justify-between gap-1.5 md:mb-2 md:gap-2">
                         <div className="flex items-center gap-2">
                           <button
                             type="button"
@@ -1386,9 +1461,7 @@ export default function AdminPage() {
                         </div>
                       </div>
 
-                      <div
-                        className={`grid md:grid-cols-4 ${compactMode ? "gap-1.5" : "gap-2"}`}
-                      >
+                      <div className="grid gap-1.5 md:grid-cols-4 md:gap-2">
                         <label className="flex flex-col gap-1">
                           <span className="text-platinum/80 text-xs">
                             Название пакета
@@ -1533,12 +1606,9 @@ export default function AdminPage() {
       <AdminSection
         title={SECTION_TITLES.main}
         collapsed={collapsedSections.main}
-        compactMode={compactMode}
         onToggle={() => toggleSection("main")}
       >
-        <div
-          className={`grid md:grid-cols-2 ${compactMode ? "gap-3" : "gap-4"}`}
-        >
+        <div className="grid gap-3 md:grid-cols-2 md:gap-4">
           <label className="flex flex-col gap-1">
             <span className="text-platinum/80 text-sm">Имя</span>
             <input
@@ -1603,12 +1673,9 @@ export default function AdminPage() {
       <AdminSection
         title={SECTION_TITLES.links}
         collapsed={collapsedSections.links}
-        compactMode={compactMode}
         onToggle={() => toggleSection("links")}
       >
-        <div
-          className={`grid md:grid-cols-2 ${compactMode ? "gap-3" : "gap-4"}`}
-        >
+        <div className="grid gap-3 md:grid-cols-2 md:gap-4">
           <label className="flex flex-col gap-1">
             <span className="text-platinum/80 text-sm">Ссылка Telegram</span>
             <input
@@ -1680,9 +1747,7 @@ export default function AdminPage() {
           </label>
         </div>
 
-        <div
-          className={`grid md:grid-cols-2 ${compactMode ? "gap-3" : "gap-4"}`}
-        >
+        <div className="grid gap-3 md:grid-cols-2 md:gap-4">
           <div className="border-platinum/25 rounded-xl border bg-black/15 p-3">
             <p className="text-platinum/90 text-sm font-medium">Фото профиля</p>
             <p className="text-platinum/70 mt-1 text-xs">
@@ -1702,20 +1767,28 @@ export default function AdminPage() {
               />
             ) : null}
 
-            <input
-              type="file"
-              accept="image/png,image/jpeg,image/webp"
-              onChange={(event) =>
-                setProfileImageFile(event.target.files?.[0] ?? null)
-              }
-              className="text-platinum/80 file:border-platinum/35 file:text-platinum mt-3 w-full text-sm file:mr-3 file:rounded-lg file:border file:bg-black/20 file:px-3 file:py-1.5"
-            />
+            <label className="border-platinum/25 mt-3 flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg border bg-black/10 px-3 py-2">
+              <span className="border-platinum/35 text-platinum rounded-lg border bg-black/20 px-3 py-1.5 text-sm font-medium">
+                Выбрать фото профиля
+              </span>
+              <span className="text-platinum/70 max-w-[65%] truncate text-right text-sm">
+                {profileImageFile?.name ?? "Файл не выбран"}
+              </span>
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                onChange={(event) =>
+                  setProfileImageFile(event.target.files?.[0] ?? null)
+                }
+                className="hidden"
+              />
+            </label>
 
             <button
               type="button"
               onClick={() => onUploadImage("profile")}
               disabled={!profileImageFile || uploadingImageKind !== null}
-              className={`${compactMode ? subtleButtonClass : secondaryButtonClass} mt-3`}
+              className={`${secondaryButtonClass} mt-3`}
             >
               {uploadingImageKind === "profile"
                 ? "Загружаем..."
@@ -1743,20 +1816,28 @@ export default function AdminPage() {
               />
             ) : null}
 
-            <input
-              type="file"
-              accept="image/png,image/jpeg,image/webp"
-              onChange={(event) =>
-                setOgImageFile(event.target.files?.[0] ?? null)
-              }
-              className="text-platinum/80 file:border-platinum/35 file:text-platinum mt-3 w-full text-sm file:mr-3 file:rounded-lg file:border file:bg-black/20 file:px-3 file:py-1.5"
-            />
+            <label className="border-platinum/25 mt-3 flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg border bg-black/10 px-3 py-2">
+              <span className="border-platinum/35 text-platinum rounded-lg border bg-black/20 px-3 py-1.5 text-sm font-medium">
+                Выбрать OG-изображение
+              </span>
+              <span className="text-platinum/70 max-w-[65%] truncate text-right text-sm">
+                {ogImageFile?.name ?? "Файл не выбран"}
+              </span>
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                onChange={(event) =>
+                  setOgImageFile(event.target.files?.[0] ?? null)
+                }
+                className="hidden"
+              />
+            </label>
 
             <button
               type="button"
               onClick={() => onUploadImage("og")}
               disabled={!ogImageFile || uploadingImageKind !== null}
-              className={`${compactMode ? subtleButtonClass : secondaryButtonClass} mt-3`}
+              className={`${secondaryButtonClass} mt-3`}
             >
               {uploadingImageKind === "og"
                 ? "Загружаем..."
@@ -1769,23 +1850,18 @@ export default function AdminPage() {
       <AdminSection
         title={SECTION_TITLES.markdown}
         collapsed={collapsedSections.markdown}
-        compactMode={compactMode}
         onToggle={() => toggleSection("markdown")}
       >
-        <div className={`flex flex-col ${compactMode ? "gap-3" : "gap-4"}`}>
+        <div className="flex flex-col gap-3 md:gap-4">
           {markdownKeys.map((key) => (
             <div
               key={key}
-              className={`border-platinum/25 rounded-xl border bg-black/15 ${
-                compactMode ? "p-2" : "p-3"
-              }`}
+              className="border-platinum/25 rounded-xl border bg-black/15 p-2 md:p-3"
             >
               <label className="text-platinum/90 mb-2 block text-sm font-medium">
                 {MARKDOWN_LABELS[key] ?? `/${key}`}
               </label>
-              <div
-                className={`grid lg:grid-cols-2 ${compactMode ? "gap-2" : "gap-3"}`}
-              >
+              <div className="grid gap-2 lg:grid-cols-2 lg:gap-3">
                 <textarea
                   value={markdown[key]}
                   onChange={(event) =>
@@ -1794,16 +1870,10 @@ export default function AdminPage() {
                       [key]: event.target.value,
                     }))
                   }
-                  className={`${textareaClass} ${
-                    compactMode ? "h-36" : "h-60"
-                  }`}
+                  className={`${textareaClass} h-36 md:h-60`}
                   spellCheck={false}
                 />
-                <div
-                  className={`markdown content-markdown border-platinum/25 text-platinum overflow-auto rounded-lg border bg-black/25 p-3 ${
-                    compactMode ? "h-36" : "h-60"
-                  }`}
-                >
+                <div className="markdown content-markdown border-platinum/25 text-platinum h-36 overflow-auto rounded-lg border bg-black/25 p-3 md:h-60">
                   {markdown[key]?.trim() ? (
                     parseMarkdown(markdown[key])
                   ) : (
