@@ -60,7 +60,7 @@
 }
 
 .backdrop-glass {
-  background: rgba(0, 0, 0, 0.15);
+  background: rgba(0, 0, 0, 0.05);
   border-radius: 1.5rem;
   position: relative;
   z-index: 0;
@@ -118,8 +118,8 @@
 }
 
 .backdrop-glass-offset:hover {
-  backdrop-filter: blur(2rem) !important;
-  -webkit-backdrop-filter: blur(2rem);
+  backdrop-filter: blur(0rem) !important;
+  -webkit-backdrop-filter: blur(0rem);
 }
 
 .backdrop-glass::before {
