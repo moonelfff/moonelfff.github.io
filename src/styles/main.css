@@ -241,6 +241,7 @@
 .test-survey .sd-selectbase__item,
 .test-survey .sd-item {
   width: 100%;
+  padding-block: 0.25rem;
 }
 
 .test-survey .sd-element__required-text,
@@ -313,10 +314,11 @@
 }
 
 .test-survey .sd-element__title,
-.test-survey .sd-question__title {
+.test-survey .sd-question__title,
+.test-survey .sd-question__title .sv-string-viewer {
   color: var(--color-platinum);
   font-size: 1.25rem;
-  font-weight: 600;
+  font-weight: 400 !important;
 }
 
 .test-survey .sd-selectbase__label {
