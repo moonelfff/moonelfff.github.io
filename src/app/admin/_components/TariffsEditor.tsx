@@ -25,7 +25,7 @@ export function TariffsEditor({ tariffs, setTariffs }: TariffsEditorProps) {
   return (
     <Card
       title="Тарифы"
-      description="Порядок здесь совпадает с порядком на сайте."
+      description="Тарифы идут на сайте в том же порядке, что и здесь. Меняйте порядок стрелками."
       actions={
         <Button
           onClick={() =>
@@ -123,7 +123,7 @@ function TariffCard({ tariff, index, count, dragSort, setTariffs }: TariffCardPr
               }
             />
           </Field>
-          <Field label="Slug" hint="Латиница, цифры и дефис. Используется в адресе." tip="Последняя часть ссылки на тариф. Если изменить, старая ссылка перестанет работать.">
+          <Field label="Адрес тарифа (slug)" hint="Только латиница, цифры и дефис, например online-session." tip="Последняя часть ссылки на тариф. Если изменить адрес, старая ссылка перестанет работать.">
             <TextInput
               value={tariff.slug}
               autoCapitalize="none"

@@ -105,7 +105,7 @@ export default function AdminTestsPage() {
       {!isLoading && !loadFailed ? (
         <Card
           title="Тесты"
-          description="Вопросы настраиваются визуально, описание пишется в Markdown."
+          description="Создавайте тесты, меняйте вопросы и настраивайте, как считается результат. На сайте изменения появятся после нажатия «Сохранить»."
           actions={
             <Button
               onClick={() =>

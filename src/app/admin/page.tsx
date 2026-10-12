@@ -270,19 +270,19 @@ export default function AdminContentPage() {
 
           <Card
             title="Изображения"
-            description="Новое изображение сохраняется сразу после выбора файла."
+            description="Картинка загружается и сохраняется сразу после выбора файла, кнопка «Сохранить» не нужна."
           >
             <div className="grid gap-3 md:grid-cols-2">
               <ImageUpload
                 title="Фото профиля"
-                hint="Вертикальное фото, минимум 1200px по длинной стороне."
+                hint="Вертикальное фото, минимум 1200 px по длинной стороне."
                 imageUrl={draft.content.profileImageUrl}
                 isUploading={uploadingKind === "profile"}
                 onSelect={(file) => void onUploadImage("profile", file)}
               />
               <ImageUpload
-                title="Превью для Google и соцсетей (OG)"
-                hint="Лучше всего подходит изображение 1200x630."
+                title="Картинка для ссылок (Google, соцсети)"
+                hint="Показывается, когда ссылкой на сайт делятся в соцсетях и мессенджерах. Лучше всего 1200×630 px."
                 imageUrl={draft.content.ogImageUrl}
                 isUploading={uploadingKind === "og"}
                 onSelect={(file) => void onUploadImage("og", file)}

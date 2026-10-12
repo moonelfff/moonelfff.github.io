@@ -16,7 +16,7 @@ type TestSettingsProps = {
 export function TestSettings({ settings, onChange }: TestSettingsProps) {
   return (
     <div className="flex flex-col gap-2">
-      <Field label="Как показывать вопросы" tip="«По одному» — на экране один вопрос, удобно на телефоне. «Все сразу» — весь тест одной страницей. «Автоматически» — по одному, если вопросов много." hint={PAGING_HINTS[settings.paging]}>
+      <Field label="Как показывать вопросы" tip="«По одному вопросу» — на экране один вопрос, удобно на телефоне. «Списком» — вопросы идут подряд на странице. «Автоматически» — сайт сам выберет по числу вопросов." hint={PAGING_HINTS[settings.paging]}>
         <Select
           value={settings.paging}
           onChange={(event) =>

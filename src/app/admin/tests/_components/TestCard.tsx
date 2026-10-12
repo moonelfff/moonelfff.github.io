@@ -107,7 +107,7 @@ export function TestCard({ test, index, defaultOpen, setTests }: TestCardProps) 
         </Field>
       </div>
 
-      <Field label="Slug" hint="Адрес теста на сайте. Латиница, цифры и дефис." tip="Последняя часть ссылки на тест, например /tests/stress-level. Если изменить, старая ссылка перестанет работать.">
+      <Field label="Адрес теста (slug)" hint="Только латиница, цифры и дефис, например stress-level." tip="Последняя часть ссылки на тест. Если изменить адрес, старая ссылка перестанет работать. Кнопка «Исправить» заменит лишние символы.">
         <div className="flex gap-2">
           <TextInput
             value={test.slug}
@@ -156,8 +156,7 @@ export function TestCard({ test, index, defaultOpen, setTests }: TestCardProps) 
           <div>
             <h3 className="font-semibold">Вопросы</h3>
             <p className="text-xs text-black/55">
-              Страниц: {pageCount}. Новая страница создаётся после каждых{" "}
-              {QUESTIONS_PER_PAGE} вопросов.
+              Если вопросы показываются списком, они делятся на страницы по {QUESTIONS_PER_PAGE}. Сейчас страниц: {pageCount}.
             </p>
           </div>
           <Button onClick={addQuestion}>
@@ -217,14 +216,14 @@ export function TestCard({ test, index, defaultOpen, setTests }: TestCardProps) 
         />
       </Collapsible>
 
-      <Collapsible summary={<span className="text-sm font-medium">Для опытных: дополнительные настройки SurveyJS (JSON)</span>}>
+      <Collapsible summary={<span className="text-sm font-medium">Дополнительно (для опытных)</span>}>
         <p className="text-xs text-black/55">
-          Остальные параметры схемы SurveyJS. Обычно здесь ничего менять не нужно.
+          Служебные параметры теста в формате JSON. Обычно здесь ничего менять не нужно: ошибка в записи может сломать тест.
         </p>
         <TextArea
           mono
           rows={8}
-          aria-label="Дополнительные настройки схемы (JSON)"
+          aria-label="Служебные параметры теста (JSON)"
           value={test.schemaSettingsText}
           onChange={(event) =>
             editTest((draft) => {
