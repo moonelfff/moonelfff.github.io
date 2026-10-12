@@ -1,0 +1,44 @@
+name: Supabase backup
+
+# Раз в неделю выгружает все таблицы и файлы Supabase, шифрует архив
+# и сохраняет его как артефакт запуска (хранится 90 дней).
+# Репозиторий публичный, поэтому архив шифруется: без BACKUP_PASSPHRASE его не открыть.
+on:
+  schedule:
+    - cron: "0 3 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Dump tables and storage
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/backup-supabase.mjs backup
+
+      - name: Encrypt archive
+        env:
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          test -n "$BACKUP_PASSPHRASE"
+          tar -czf backup.tar.gz backup
+          gpg --batch --yes --pinentry-mode loopback --passphrase "$BACKUP_PASSPHRASE" \
+            --symmetric --cipher-algo AES256 --output backup.tar.gz.gpg backup.tar.gz
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: supabase-backup-${{ github.run_id }}
+          path: backup.tar.gz.gpg
+          retention-days: 90
+          if-no-files-found: error
