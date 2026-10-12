@@ -2,12 +2,12 @@ type SkeletonProps = {
   className?: string;
 };
 
-/** Placeholder block in the theme color; size it with className. */
+/** Placeholder block tinted with the current text color, so it stays visible on any background. */
 export function Skeleton({ className = "h-4 w-full" }: SkeletonProps) {
   return (
     <div
       aria-hidden="true"
-      className={`bg-dusty-grape/10 rounded-lg motion-safe:animate-pulse ${className}`}
+      className={`rounded-lg bg-current/15 motion-safe:animate-pulse ${className}`}
     />
   );
 }

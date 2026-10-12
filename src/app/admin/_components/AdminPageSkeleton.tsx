@@ -20,7 +20,7 @@ function CardSkeleton({ fields }: { fields: number }) {
 /** Placeholder shown while an admin page loads its data. */
 export function AdminPageSkeleton() {
   return (
-    <div className="flex flex-col gap-4" role="status" aria-label="Загрузка">
+    <div className="text-dusty-grape flex flex-col gap-4" role="status" aria-label="Загрузка">
       <CardSkeleton fields={3} />
       <CardSkeleton fields={2} />
       <CardSkeleton fields={2} />
