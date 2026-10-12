@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { getTestBundle } from "@/lib/tests/testStore";
+import { getPublicTestBundle } from "@/lib/tests/testStore";
 import { markdownToHtml } from "@/utils/markdownToHtml";
 
 export const dynamic = "force-dynamic";
 
 export default async function TestsPage() {
-  const { tests } = await getTestBundle();
+  const { tests } = await getPublicTestBundle();
 
   return (
     <main className="bg-platinum font-primary min-h-dvh px-3 py-4 text-black md:px-6 md:py-8">

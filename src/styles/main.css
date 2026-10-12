@@ -1,9 +1,8 @@
-@import "./fonts.css";
 @import "tailwindcss";
 
-@theme {
-  --font-primary: "Mulish", system-ui, sans-serif;
-  --font-numerical: "Play", system-ui, sans-serif;
+@theme inline {
+  --font-primary: var(--font-mulish), system-ui, sans-serif;
+  --font-numerical: var(--font-play), system-ui, sans-serif;
 
   --color-dusty-grape: #6e44c2;
   --color-alabaster-grey: #daddd8;
