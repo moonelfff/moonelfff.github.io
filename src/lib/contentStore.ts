@@ -1,3 +1,5 @@
+import { unstable_cache } from "next/cache";
+import { CACHE_REVALIDATE_SECONDS, CACHE_TAGS, invalidateCache } from "@/lib/cache";
 import { getSupabaseAdminClient } from "@/lib/supabase";
 import type { MarkdownMap, SiteContent } from "@/lib/contentTypes";
 
@@ -105,13 +107,28 @@ export async function saveContentBundle(
     throw new Error(`Failed to save content to Supabase: ${error.message}`);
   }
 
+  invalidateCache(CACHE_TAGS.content);
   return getContentBundle();
 }
+
+// Public readers use this cached version; admin routes call getContentBundle directly.
+export const getPublicContentBundle = unstable_cache(
+  getContentBundle,
+  ["content-bundle"],
+  { tags: [CACHE_TAGS.content], revalidate: CACHE_REVALIDATE_SECONDS },
+);
+
+const getPublicMarkdown = unstable_cache(
+  async (key: string) => {
+    const rows = await readRows([key]);
+    return rows.get(key) ?? null;
+  },
+  ["markdown"],
+  { tags: [CACHE_TAGS.content], revalidate: CACHE_REVALIDATE_SECONDS },
+);
 
 export async function getMarkdownByPath(
   markdownPath: string,
 ): Promise<string | null> {
-  const key = markdownKey(markdownPath);
-  const rows = await readRows([key]);
-  return rows.get(key) ?? null;
+  return getPublicMarkdown(markdownKey(markdownPath));
 }

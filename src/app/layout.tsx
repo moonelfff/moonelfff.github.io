@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { getContentBundle } from "@/lib/contentStore";
+import { getPublicContentBundle } from "@/lib/contentStore";
 import "./globals.css";
 
 const SITE_URL = "https://ekaterinazhuk.ru";
@@ -23,7 +23,7 @@ async function getSeoImageUrls(): Promise<{
   ogImageUrl: string;
 }> {
   try {
-    const bundle = await getContentBundle();
+    const bundle = await getPublicContentBundle();
     const profileImageUrl = toAbsoluteImageUrl(bundle.content.profileImageUrl);
     const ogImageUrl = toAbsoluteImageUrl(
       bundle.content.ogImageUrl || bundle.content.profileImageUrl,

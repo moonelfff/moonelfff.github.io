@@ -52,7 +52,7 @@
 
 ## 5. Принципы работы
 
-1. Главная страница (`page.tsx`, `force-dynamic`) на сервере загружает `getContentBundle()` и передаёт `content` и `markdown` в `HomePage` (`components/organism`) -> `SiteContentProvider` (хуки `useSiteContent`, `useSiteMarkdown`). Клиент контент не запрашивает.
+1. Главная страница (`page.tsx`, `force-dynamic`) на сервере загружает `getPublicContentBundle()` (кэшированная версия) и передаёт `content` и `markdown` в `HomePage` (`components/organism`) -> `SiteContentProvider` (хуки `useSiteContent`, `useSiteMarkdown`). Клиент контент не запрашивает.
 2. **Supabase - единственный источник данных**, локальные файлы и фолбэки не используются. Без `NEXT_PUBLIC_SUPABASE_URL`/`SUPABASE_SERVICE_ROLE_KEY` или без загруженных данных код бросает понятную ошибку (подсказка: `npm run seed`). Общий клиент - `src/lib/supabase.ts`.
 3. **contentStore**: таблица `site_content` (key/value: `content_json` + ключ на каждый md-путь без ведущего `/`). Сохранение из админки - `upsert` в эту таблицу.
 4. **tariffStore**: таблицы `tariffs` и `tariff_packages`; прайс на странице грузится из `/api/tariffs`.
@@ -84,11 +84,15 @@
 - `_lib/` - `draft` (`updateDraft`, `useSavedSnapshot` для dirty-состояния), `api` (`fetchAdmin`, `sendJson`; при 401 редирект на логин), `useDragSort`, `tariffs`, `validation`, `moveItem`.
 - `tests/` - `page.tsx`, `_components/{TestCard,QuestionCard}`, `_lib/editable.ts` (модель и `buildTestsPayload` с валидацией).
 
-## 6. Переменные окружения
+## 6. Кэширование
+
+Публичные чтения из Supabase кэшируются через `unstable_cache` с тегами (`src/lib/cache.ts`: `site-content`, `tariffs`, `tests`): `getPublicContentBundle`, `getMarkdownByPath`, `getPublicTariffBundle`, `getPublicTestBundle` (и `getTestBySlug`). Админка читает данные напрямую (без кэша), чтобы всегда видеть актуальное состояние. Любое сохранение в админке (`saveContentBundle`, `saveTariffs`, `saveTests`, загрузка фото) вызывает `invalidateCache(tag)`, и следующий запрос читает свежие данные. Страховочный TTL - 1 час; keep-alive workflow всё равно обращается к БД, так как реже TTL. Страницы остаются `force-dynamic`, чтобы сборка не требовала ключей Supabase. Новые публичные чтения добавляйте через такой же кэш, а в админских маршрутах используйте некэшированные функции.
+
+## 7. Переменные окружения
 
 См. `.env.example` и README: `ADMIN_PASSWORD`, `ADMIN_SESSION_TOKEN`, `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_STORAGE_BUCKET`, `NEXT_PUBLIC_SURVEYJS_LICENSE_KEY`.
 
-## 7. Запуск и сборка
+## 8. Запуск и сборка
 
 ```bash
 npm ci
@@ -98,7 +102,7 @@ npm start        # next start (порт 3020; prestart запускает build)
 npm run lint
 ```
 
-## 8. Деплой и инфраструктура
+## 9. Деплой и инфраструктура
 
 - Хостинг - Vercel, домен `ekaterinazhuk.ru` через DNS (A `76.76.21.21`, CNAME `www` -> `cname.vercel-dns.com`). Пошаговая инструкция - в README.
 - GitHub Pages не используется: статический экспорт невозможен из-за API и proxy.
@@ -106,11 +110,11 @@ npm run lint
 - `.github/workflows/sync-fallback-photo.yml`: раз в неделю + ручной запуск; скачивает текущее фото профиля из Supabase и при изменении коммитит его в `public/photo.webp` и `src/assets/images/photo.webp` (запасное фото для SEO/OG).
 - Supabase: SQL из `supabase/`, публичный Storage-бакет, `service_role` только на сервере.
 
-## 9. Оформление
+## 10. Оформление
 
 Шрифты Mulish и Play (локальные subset woff/woff2 в `public/fonts`, `fonts.css`); стиль «glass», фон `platinum`, noise-текстура, адаптивные отступы Tailwind.
 
-## 10. Известные замечания
+## 11. Известные замечания
 
 - `npm run lint` показывает предупреждения: `<img>` в `layout.tsx` и `window.location.assign` в `admin/_lib/api.ts`.
 - Для устойчивости рекомендуется периодически выгружать данные Supabase; начальная копия контента лежит в `supabase/seed`.

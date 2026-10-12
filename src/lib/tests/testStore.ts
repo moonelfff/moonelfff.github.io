@@ -1,4 +1,6 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
+import { unstable_cache } from "next/cache";
+import { CACHE_REVALIDATE_SECONDS, CACHE_TAGS, invalidateCache } from "@/lib/cache";
 import { getSupabaseAdminClient } from "@/lib/supabase";
 import type { PublicTestDefinition, TestScoringConfig } from "./types";
 
@@ -97,10 +99,17 @@ export async function getTestBundle(): Promise<TestBundle> {
   return { tests, source: "supabase" };
 }
 
+// Public readers use this cached version; admin routes call getTestBundle directly.
+export const getPublicTestBundle = unstable_cache(
+  getTestBundle,
+  ["test-bundle"],
+  { tags: [CACHE_TAGS.tests], revalidate: CACHE_REVALIDATE_SECONDS },
+);
+
 export async function getTestBySlug(
   slug: string,
 ): Promise<PublicTestDefinition | null> {
-  const bundle = await getTestBundle();
+  const bundle = await getPublicTestBundle();
   return bundle.tests.find((test) => test.slug === slug) ?? null;
 }
 
@@ -159,5 +168,6 @@ export async function saveTests(
     }
   }
 
+  invalidateCache(CACHE_TAGS.tests);
   return getTestBundle();
 }

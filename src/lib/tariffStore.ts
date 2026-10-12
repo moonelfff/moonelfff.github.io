@@ -1,4 +1,6 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
+import { unstable_cache } from "next/cache";
+import { CACHE_REVALIDATE_SECONDS, CACHE_TAGS, invalidateCache } from "@/lib/cache";
 import { normalizeSlug } from "@/lib/slug";
 import { getSupabaseAdminClient } from "@/lib/supabase";
 
@@ -247,5 +249,13 @@ export async function saveTariffs(tariffs: Tariff[]): Promise<TariffBundle> {
       throw cleanupError;
     }
   }
+  invalidateCache(CACHE_TAGS.tariffs);
   return getTariffBundle();
 }
+
+// Public readers use this cached version; admin routes call getTariffBundle directly.
+export const getPublicTariffBundle = unstable_cache(
+  getTariffBundle,
+  ["tariff-bundle"],
+  { tags: [CACHE_TAGS.tariffs], revalidate: CACHE_REVALIDATE_SECONDS },
+);
