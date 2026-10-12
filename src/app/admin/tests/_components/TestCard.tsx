@@ -92,7 +92,7 @@ export function TestCard({ test, index, defaultOpen, setTests }: TestCardProps) 
             }
           />
         </Field>
-        <Field label="Версия">
+        <Field label="Версия" tip="Номер версии теста. Увеличивайте его, когда меняете вопросы или подсчёт: так проще понять, по какой версии человек проходил тест.">
           <TextInput
             type="number"
             inputMode="numeric"
@@ -107,7 +107,7 @@ export function TestCard({ test, index, defaultOpen, setTests }: TestCardProps) 
         </Field>
       </div>
 
-      <Field label="Slug" hint="Адрес теста на сайте. Латиница, цифры и дефис.">
+      <Field label="Slug" hint="Адрес теста на сайте. Латиница, цифры и дефис." tip="Последняя часть ссылки на тест, например /tests/stress-level. Если изменить, старая ссылка перестанет работать.">
         <div className="flex gap-2">
           <TextInput
             value={test.slug}

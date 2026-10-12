@@ -2,7 +2,7 @@
 
 import { PlusIcon } from "../../_components/icons";
 import { RowActions } from "../../_components/RowActions";
-import { Button, Collapsible, Field, Select, TextArea, TextInput } from "../../_components/ui";
+import { Button, Collapsible, Field, Select, TextArea, TextInput, Tip } from "../../_components/ui";
 import { moveItem } from "../../_lib/moveItem";
 import {
   collectAnswerValues,
@@ -77,8 +77,13 @@ function Hint({ children }: { children: React.ReactNode }) {
   return <p className="text-xs text-black/55">{children}</p>;
 }
 
-function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <h4 className="font-semibold">{children}</h4>;
+function SectionTitle({ children, tip }: { children: React.ReactNode; tip?: string }) {
+  return (
+    <h4 className="flex items-center gap-1.5 font-semibold">
+      {children}
+      {tip ? <Tip text={tip} /> : null}
+    </h4>
+  );
 }
 
 export function ScoringEditor({ test, editScoring }: ScoringEditorProps) {
@@ -171,7 +176,7 @@ function ScaleEditor({ test, editScoring }: ScoringEditorProps) {
   return (
     <>
       <div className="flex flex-col gap-2">
-        <SectionTitle>1. Какие вопросы учитывать</SectionTitle>
+        <SectionTitle tip="Отметьте вопросы, баллы за которые нужно сложить. Вопросы без отметки в итог не входят, например открытые вопросы с текстом.">1. Какие вопросы учитывать</SectionTitle>
         <Hint>
           Баллы за выбранные вопросы складываются. «Обратный» переворачивает шкалу для
           утверждений противоположного смысла (например, 3 становится 1).
@@ -196,13 +201,13 @@ function ScaleEditor({ test, editScoring }: ScoringEditorProps) {
       </div>
 
       <div className="flex flex-col gap-2">
-        <SectionTitle>2. Баллы за ответ</SectionTitle>
+        <SectionTitle tip="Балл за ответ берётся из поля «Значение» у варианта. Здесь нужно указать самое маленькое и самое большое значение, чтобы сайт знал, сколько баллов можно набрать.">2. Баллы за ответ</SectionTitle>
         <Hint>
           Балл ответа равен его значению. Укажите значения самого низкого и самого высокого
           варианта (для вариантов 1, 2, 3 это 1 и 3).
         </Hint>
         <div className="grid grid-cols-2 items-end gap-3 md:grid-cols-[8rem_8rem_auto]">
-          <Field label="Минимум">
+          <Field label="Минимум" tip="Значение самого низкого варианта ответа. Для вариантов 1, 2, 3 это 1.">
             <TextInput
               inputMode="decimal"
               value={scoring.minValue}
@@ -213,7 +218,7 @@ function ScaleEditor({ test, editScoring }: ScoringEditorProps) {
               }
             />
           </Field>
-          <Field label="Максимум">
+          <Field label="Максимум" tip="Значение самого высокого варианта ответа. Для вариантов 1, 2, 3 это 3.">
             <TextInput
               inputMode="decimal"
               value={scoring.maxValue}
@@ -238,7 +243,7 @@ function ScaleEditor({ test, editScoring }: ScoringEditorProps) {
       <div className="flex flex-col gap-3">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div>
-            <SectionTitle>3. Диапазоны и толкование</SectionTitle>
+            <SectionTitle tip="Диапазон — это промежуток баллов, например от 6 до 10. Человек увидит название и пояснение того диапазона, в который попал его итог. Диапазоны не должны пересекаться и должны покрывать все возможные баллы.">3. Диапазоны и толкование</SectionTitle>
             <Hint>Для каждого диапазона баллов напишите название и пояснение результата.</Hint>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -267,7 +272,7 @@ function ScaleEditor({ test, editScoring }: ScoringEditorProps) {
             className="border-alabaster-grey bg-soft-linnen/40 flex flex-col gap-3 rounded-xl border p-3"
           >
             <div className="grid grid-cols-[5rem_5rem_minmax(0,1fr)] gap-3">
-              <Field label="От">
+              <Field label="От" tip="Наименьший итоговый балл, при котором показывается этот результат.">
                 <TextInput
                   inputMode="decimal"
                   value={level.min}
@@ -278,7 +283,7 @@ function ScaleEditor({ test, editScoring }: ScoringEditorProps) {
                   }
                 />
               </Field>
-              <Field label="До">
+              <Field label="До" tip="Наибольший итоговый балл, при котором показывается этот результат.">
                 <TextInput
                   inputMode="decimal"
                   value={level.max}
@@ -289,7 +294,7 @@ function ScaleEditor({ test, editScoring }: ScoringEditorProps) {
                   }
                 />
               </Field>
-              <Field label="Название результата">
+              <Field label="Название результата" tip="Короткий заголовок результата, который увидит человек, например «Средний уровень».">
                 <TextInput
                   value={level.label}
                   placeholder="Например: Высокий уровень"
@@ -301,7 +306,7 @@ function ScaleEditor({ test, editScoring }: ScoringEditorProps) {
                 />
               </Field>
             </div>
-            <Field label="Пояснение">
+            <Field label="Пояснение" tip="Текст под заголовком: что означает такой результат и что делать дальше.">
               <TextArea
                 rows={3}
                 value={level.summary}
@@ -355,7 +360,7 @@ function GroupsEditor({ test, editScoring }: ScoringEditorProps) {
   return (
     <>
       <div className="flex flex-col gap-2">
-        <SectionTitle>1. Какие ответы засчитываются</SectionTitle>
+        <SectionTitle tip="Выберите, какие ответы считаются «попаданием». Каждый такой ответ в вопросах группы даёт этой группе одно очко. Побеждают группы с наибольшим числом очков.">1. Какие ответы засчитываются</SectionTitle>
         <Hint>
           Каждый такой ответ добавляет группе одно очко. Остальные ответы очков не дают.
         </Hint>
@@ -390,7 +395,7 @@ function GroupsEditor({ test, editScoring }: ScoringEditorProps) {
       </div>
 
       <div className="grid gap-3 md:grid-cols-[14rem_1fr] md:items-end">
-        <Field label="Сколько групп выделять в результате">
+        <Field label="Сколько групп выделять в результате" tip="Сколько групп с наибольшим числом очков показать крупно, с толкованием. Если выбрать 2, человек увидит две самые сильные группы.">
           <Select
             value={scoring.topCount}
             onChange={(event) =>
@@ -412,7 +417,7 @@ function GroupsEditor({ test, editScoring }: ScoringEditorProps) {
       <div className="flex flex-col gap-3">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div>
-            <SectionTitle>2. Группы</SectionTitle>
+            <SectionTitle tip="Группа — это один возможный тип результата. К ней привязываются вопросы, а очки считаются по выбранным выше ответам.">2. Группы</SectionTitle>
             <Hint>Для каждой группы выберите вопросы и напишите толкование.</Hint>
           </div>
           <Button

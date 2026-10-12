@@ -16,7 +16,7 @@ type TestSettingsProps = {
 export function TestSettings({ settings, onChange }: TestSettingsProps) {
   return (
     <div className="flex flex-col gap-2">
-      <Field label="Как показывать вопросы" hint={PAGING_HINTS[settings.paging]}>
+      <Field label="Как показывать вопросы" tip="«По одному» — на экране один вопрос, удобно на телефоне. «Все сразу» — весь тест одной страницей. «Автоматически» — по одному, если вопросов много." hint={PAGING_HINTS[settings.paging]}>
         <Select
           value={settings.paging}
           onChange={(event) =>
@@ -34,7 +34,8 @@ export function TestSettings({ settings, onChange }: TestSettingsProps) {
       </Field>
 
       <Checkbox
-        label="Показывать номера вопросов («Вопрос 1», «Вопрос 2»…)"
+        label="Показывать номера вопросов"
+        tip="Над каждым вопросом появится подпись «Вопрос 1», «Вопрос 2» и так далее, чтобы человек видел, где он в тесте."
         checked={settings.numbering}
         onChange={(event) =>
           onChange((draft) => {
@@ -44,7 +45,8 @@ export function TestSettings({ settings, onChange }: TestSettingsProps) {
       />
 
       <Checkbox
-        label="Перемешивать порядок вопросов для каждого прохождения"
+        label="Перемешивать порядок вопросов"
+        tip="Вопросы будут идти в случайном порядке при каждом прохождении. Подходит, если порядок не важен; на подсчёт баллов не влияет."
         checked={settings.shuffleQuestions}
         onChange={(event) =>
           onChange((draft) => {

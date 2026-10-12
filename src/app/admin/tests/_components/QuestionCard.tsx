@@ -67,7 +67,7 @@ export function QuestionCard({
         />
       }
     >
-      <Field label="Текст вопроса">
+      <Field label="Текст вопроса" tip="Сам вопрос, как его увидит человек. Пишите коротко и понятно.">
         <TextArea
           rows={3}
           value={question.title}
@@ -79,7 +79,7 @@ export function QuestionCard({
         />
       </Field>
 
-      <Field label="Тип">
+      <Field label="Тип" tip="Как человек будет отвечать: выбрать один вариант, несколько, поставить оценку или написать текст. При смене типа вопрос перестраивается, а варианты ответа сохраняются там, где они нужны.">
         <Select
           value={question.type}
           onChange={(event) => {
@@ -102,7 +102,7 @@ export function QuestionCard({
         </Select>
       </Field>
 
-      <Field label="Пояснение к вопросу">
+      <Field label="Пояснение к вопросу" tip="Необязательная серая подсказка под вопросом, например «Выберите самый близкий вариант». Можно оставить пустым.">
         <TextArea
           rows={2}
           value={question.description}
@@ -116,6 +116,7 @@ export function QuestionCard({
 
       <Checkbox
         label="Обязательный вопрос"
+        tip="Если включено, человек не сможет перейти дальше или завершить тест, пока не ответит."
         checked={question.isRequired}
         onChange={(event) =>
           editQuestion((draft) => {
@@ -126,7 +127,7 @@ export function QuestionCard({
 
       {question.type === "rating" ? (
         <div className="grid gap-3 md:grid-cols-3">
-          <Field label="Число значений" hint="Шкала от 1 до выбранного числа.">
+          <Field label="Число значений" hint="Шкала от 1 до выбранного числа." tip="Сколько вариантов оценки увидит человек. Например, 1–5: от «совсем не согласен» до «полностью согласен». Баллы в подсчёте равны выбранному числу.">
             <Select
               value={question.rateMax}
               onChange={(event) =>
@@ -142,7 +143,7 @@ export function QuestionCard({
               ))}
             </Select>
           </Field>
-          <Field label="Подпись к минимуму">
+          <Field label="Подпись к минимуму" tip="Короткий текст рядом с самой низкой оценкой, например «Совсем не согласен». Можно оставить пустым.">
             <TextInput
               value={question.minRateText}
               placeholder="Совсем не согласен"
@@ -153,7 +154,7 @@ export function QuestionCard({
               }
             />
           </Field>
-          <Field label="Подпись к максимуму">
+          <Field label="Подпись к максимуму" tip="Короткий текст рядом с самой высокой оценкой, например «Полностью согласен». Можно оставить пустым.">
             <TextInput
               value={question.maxRateText}
               placeholder="Полностью согласен"
@@ -193,7 +194,7 @@ export function QuestionCard({
               className="flex flex-col gap-3 rounded-xl border border-alabaster-grey bg-soft-linnen/40 p-3"
             >
               <div className="grid grid-cols-[5rem_minmax(0,1fr)] gap-3">
-                <Field label="Значение">
+                <Field label="Значение" tip="Число, которое идёт в подсчёт баллов, когда человек выбирает этот вариант. Человек его не видит. Если подсчёт не нужен, оставьте как есть.">
                   <TextInput
                     value={choice.value}
                     onChange={(event) =>
@@ -203,7 +204,7 @@ export function QuestionCard({
                     }
                   />
                 </Field>
-                <Field label="Текст">
+                <Field label="Текст" tip="Так вариант выглядит для человека.">
                   <TextInput
                     value={choice.text}
                     onChange={(event) =>
@@ -236,6 +237,7 @@ export function QuestionCard({
 
           <Checkbox
             label="Перемешивать варианты для каждого прохождения"
+            tip="Варианты ответа будут идти в случайном порядке при каждом прохождении. Помогает, если люди склонны выбирать первый вариант. Баллы от порядка не зависят."
             checked={question.shuffleChoices}
             onChange={(event) =>
               editQuestion((draft) => {
@@ -249,6 +251,7 @@ export function QuestionCard({
       <Collapsible summary={<span className="text-sm font-medium">Дополнительно</span>}>
         <Field
           label="Имя поля"
+          tip="Внутреннее название вопроса, нужное для подсчёта результатов. Человек его не видит. Менять без необходимости не стоит: после изменения проверьте раздел подсчёта."
           hint="Технический идентификатор ответа. Должен быть уникальным; подсчёт результатов привязан к вопросу автоматически."
         >
           <TextInput
@@ -261,7 +264,7 @@ export function QuestionCard({
             }
           />
         </Field>
-        <Field label="Другие настройки вопроса (JSON)">
+        <Field label="Другие настройки вопроса (JSON)" tip="Для опытных пользователей: дополнительные параметры вопроса в формате SurveyJS. Если не уверены, что это, ничего не меняйте, ошибка в записи может сломать вопрос.">
           <TextArea
             mono
             rows={6}
