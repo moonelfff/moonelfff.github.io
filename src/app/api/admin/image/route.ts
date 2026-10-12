@@ -3,7 +3,7 @@ import {
   saveContentBundle,
   type SiteContent,
 } from "@/lib/contentStore";
-import { createClient } from "@supabase/supabase-js";
+import { getSupabaseAdminClient } from "@/lib/supabase";
 import { NextResponse } from "next/server";
 import crypto from "node:crypto";
 import sharp from "sharp";
@@ -13,22 +13,6 @@ type UploadKind = "profile" | "og";
 const MAX_UPLOAD_SIZE_BYTES = 8 * 1024 * 1024;
 const ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const DEFAULT_BUCKET = "site-images";
-
-function getSupabaseStorageClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!url || !serviceRoleKey) {
-    return null;
-  }
-
-  return createClient(url, serviceRoleKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  });
-}
 
 function isUploadKind(value: string): value is UploadKind {
   return value === "profile" || value === "og";
@@ -99,13 +83,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const supabase = getSupabaseStorageClient();
-  if (!supabase) {
-    return NextResponse.json(
-      { error: "Supabase is not configured for image uploads" },
-      { status: 500 },
-    );
-  }
+  const supabase = getSupabaseAdminClient();
 
   const sourceBuffer = Buffer.from(await rawFile.arrayBuffer());
   const processed = await processImage(sourceBuffer, rawKind);

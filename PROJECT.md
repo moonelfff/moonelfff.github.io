@@ -10,12 +10,12 @@
 
 ## 2. Технологии
 
-- Next.js 16.3 (App Router, Turbopack, middleware), React 19.2, TypeScript 5
+- Next.js 16.4 (App Router, Turbopack, proxy), React 19.3, TypeScript 5
 - Tailwind CSS 4 (`@tailwindcss/postcss`)
 - Supabase (`@supabase/supabase-js`): Postgres и Storage
 - `sharp` - обработка загружаемых изображений
 - `marked` - Markdown
-- SurveyJS (`survey-core`, `survey-react-ui`, `survey-creator-*`), `zod`, `pdf-lib`, `nanoid` - тесты
+- SurveyJS (`survey-core`, `survey-react-ui`, `survey-creator-*`), `zod`, `nanoid` - тесты
 - ESLint 9 (`eslint-config-next`)
 - Хостинг: Vercel; CI/cron: GitHub Actions
 - `AGENTS.md`: версия Next имеет breaking changes, сверяйтесь с `node_modules/next/dist/docs/`
@@ -24,7 +24,7 @@
 
 ```
 /
-├─ middleware.ts, next.config.ts, tsconfig.json, eslint.config.mjs, postcss.config.mjs
+├─ next.config.ts, tsconfig.json, eslint.config.mjs, postcss.config.mjs
 ├─ .env.example
 ├─ .github/workflows/supabase-keepalive.yml
 ├─ public/        # шрифты, favicons,
@@ -36,7 +36,7 @@
    ├─ app/        # layout, page; admin/ (+login, tests); tests/ и tests/[slug];
    │              # api/{content,markdown,tariffs,tests/[slug](/submit),admin/*}
    ├─ components/ # atom / molecule / organism, providers/SiteContentProvider, tests/SurveyRunner
-   ├─ lib/        # adminAuth, contentStore, tariffStore, supabase, contentTypes, tests/{testStore,scoring,types}
+   ├─ lib/        # adminAuth, adminSession, slug, contentStore, tariffStore, supabase, contentTypes, tests/{testStore,scoring,types}
    ├─ assets/     # шрифты, иконки, изображения
    ├─ styles/     # main.css, fonts.css
    └─ utils/      # markdownParser, markdownToHtml
@@ -74,7 +74,7 @@
 
 - `/admin`, `/admin/login`, `/admin/tests`; пароль - `ADMIN_PASSWORD`.
 - После входа ставится cookie `admin_session` (httpOnly, sameSite=lax, secure в production, 8 часов); значение - `ADMIN_SESSION_TOKEN` или `token:<пароль>`.
-- `middleware.ts` (matcher `/admin/*`, `/api/admin/*`): без валидной cookie API отвечает `401`, страницы редиректят на логин.
+- `src/proxy.ts` (бывший middleware; matcher `/admin/*`, `/api/admin/*`): без валидной cookie (SHA-256 токен, пароль в cookie не хранится) API отвечает `401`, страницы редиректят на логин.
 - Рекомендуется задавать случайный `ADMIN_SESSION_TOKEN`; `SUPABASE_SERVICE_ROLE_KEY` - только на сервере.
 
 ## 6. Переменные окружения
@@ -94,7 +94,7 @@ npm run lint
 ## 8. Деплой и инфраструктура
 
 - Хостинг - Vercel, домен `ekaterinazhuk.ru` через DNS (A `76.76.21.21`, CNAME `www` -> `cname.vercel-dns.com`). Пошаговая инструкция - в README.
-- GitHub Pages и workflow `deploy.yml` удалены: статический экспорт невозможен из-за API и middleware.
+- GitHub Pages и workflow `deploy.yml` удалены: статический экспорт невозможен из-за API и proxy.
 - `.github/workflows/supabase-keepalive.yml`: cron раз в 3 дня + ручной запуск, запрашивает `/api/content` и `/api/tariffs`, чтобы Supabase Free не ставил проект на паузу (7 дней без активности). URL - переменная репозитория `SITE_URL` (по умолчанию `https://ekaterinazhuk.ru`).
 - Supabase: SQL из `supabase/`, публичный Storage-бакет, `service_role` только на сервере.
 

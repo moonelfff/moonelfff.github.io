@@ -1,4 +1,5 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
+import { normalizeSlug } from "@/lib/slug";
 import { getSupabaseAdminClient } from "@/lib/supabase";
 
 const TARIFFS_TABLE = "tariffs";
@@ -47,16 +48,13 @@ type PackageRow = {
   sort_order: number;
 };
 
-function slugify(input: string): string {
-  return input
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-zа-я0-9\s-]/gi, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
-}
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+/** Ids created in the admin UI are temporary ("tmp-..."); replace them with real UUIDs. */
+function persistentId(id: string | undefined): string {
+  return id && UUID_PATTERN.test(id) ? id : crypto.randomUUID();
+}
 function mapRowsToTariffs(
   tariffRows: TariffRow[],
   packageRows: PackageRow[],
@@ -175,9 +173,9 @@ export async function saveTariffs(tariffs: Tariff[]): Promise<TariffBundle> {
   );
 
   const preparedTariffs = tariffs.map((tariff, index) => {
-    const id =
-      tariff.id || crypto.randomUUID();
-    const slug = slugify(tariff.slug || tariff.title) || `tariff-${index + 1}`;
+    const id = persistentId(tariff.id);
+    const slug =
+      normalizeSlug(tariff.slug || tariff.title) || `tariff-${index + 1}`;
 
     return {
       id,
@@ -219,42 +217,35 @@ export async function saveTariffs(tariffs: Tariff[]): Promise<TariffBundle> {
     }
   }
 
-  const retainedIds = preparedTariffs.map((tariff) => tariff.id);
-  if (retainedIds.length > 0) {
-    const deletePackagesResult = await supabase
-      .from(PACKAGES_TABLE)
-      .delete()
-      .in("tariff_id", retainedIds);
-
-    if (deletePackagesResult.error) {
-      throw deletePackagesResult.error;
-    }
-  }
-
   const packageRows = preparedTariffs.flatMap((tariff) =>
     tariff.packages.map((pkg, index) => ({
-      id:
-        pkg.id || crypto.randomUUID(),
+      id: persistentId(pkg.id),
       tariff_id: tariff.id,
       title: (pkg.title ?? "").trim(),
       price_regular: Math.round(pkg.regularAmount),
       price_discounted:
-        pkg.discountedAmount === null || pkg.discountedAmount === undefined
-          ? null
-          : Math.round(pkg.discountedAmount),
+        pkg.discountedAmount == null ? null : Math.round(pkg.discountedAmount),
       currency: pkg.currency || "₽",
       sort_order: index,
     })),
   );
 
   if (packageRows.length > 0) {
-    const insertPackagesResult = await supabase
+    const { error: upsertPackagesError } = await supabase
       .from(PACKAGES_TABLE)
-      .insert(packageRows);
-    if (insertPackagesResult.error) {
-      throw insertPackagesResult.error;
+      .upsert(packageRows, { onConflict: "id" });
+    if (upsertPackagesError) {
+      throw upsertPackagesError;
+    }
+
+    const { error: cleanupError } = await supabase
+      .from(PACKAGES_TABLE)
+      .delete()
+      .in("tariff_id", [...keepIds])
+      .not("id", "in", `(${packageRows.map((row) => row.id).join(",")})`);
+    if (cleanupError) {
+      throw cleanupError;
     }
   }
-
   return getTariffBundle();
 }

@@ -1,18 +1,27 @@
 "use client";
 
-import type { SiteContent } from "@/lib/contentStore";
-import type { Tariff, TariffPackage } from "@/lib/tariffStore";
+import type { SiteContent } from "@/lib/contentTypes";
+import type { Tariff } from "@/lib/tariffStore";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type DragEvent,
-  type ReactNode,
-} from "react";
+import { useEffect, useMemo, useRef, useState, type DragEvent } from "react";
 import { parseMarkdown } from "@/utils/markdownParser";
+import { AdminSection } from "./_components/AdminSection";
+import { useAutoClear, useObjectUrl } from "./_lib/hooks";
+import { moveItem } from "./_lib/moveItem";
+import { makeUniqueSlug, normalizeSlug } from "@/lib/slug";
+import { createPackage, createTariff } from "./_lib/tariffs";
+import {
+  headerPrimaryButtonClass,
+  headerSecondaryButtonClass,
+  inputClass,
+  primaryButtonClass,
+  secondaryButtonClass,
+  subtleButtonClass,
+  subtleDangerButtonClass,
+  textareaClass,
+} from "./_lib/ui";
+import { validateContentUrls, validateTariffSlugs } from "./_lib/validation";
 
 type AdminBundle = {
   content: SiteContent;
@@ -48,302 +57,6 @@ const INITIAL_COLLAPSED_SECTIONS: Record<SectionKey, boolean> = {
   markdown: false,
 };
 
-const buttonBaseClass =
-  "cursor-pointer rounded-xl border px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50";
-const secondaryButtonClass = `${buttonBaseClass} border-platinum/35 bg-black/20 text-platinum hover:bg-black/30`;
-const primaryButtonClass = `${buttonBaseClass} border-gold/45 bg-dusty-grape text-platinum hover:bg-dusty-grape/90`;
-const dangerButtonClass = `${buttonBaseClass} border-red-300/55 bg-red-900/35 text-red-100 hover:bg-red-900/50`;
-const headerButtonBaseClass =
-  "cursor-pointer shrink-0 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-50";
-const headerSecondaryButtonClass = `${headerButtonBaseClass} border-platinum/35 bg-black/20 text-platinum hover:bg-black/30`;
-const headerPrimaryButtonClass = `${headerButtonBaseClass} border-gold/45 bg-dusty-grape text-platinum hover:bg-dusty-grape/90`;
-const subtleButtonClass =
-  "cursor-pointer rounded-lg border border-platinum/25 bg-black/15 px-3 py-1.5 text-xs font-medium text-platinum/90 transition hover:bg-black/25 disabled:cursor-not-allowed disabled:opacity-45";
-const subtleDangerButtonClass =
-  "cursor-pointer rounded-lg border border-red-300/45 bg-red-900/25 px-3 py-1.5 text-xs font-medium text-red-100 transition hover:bg-red-900/40 disabled:cursor-not-allowed disabled:opacity-45";
-const inputClass =
-  "rounded-lg border border-platinum/35 bg-soft-linnen/95 px-3 py-2 text-black outline-none transition focus:border-gold";
-const textareaClass =
-  "w-full rounded-lg border border-platinum/35 bg-soft-linnen/95 p-3 font-mono text-sm text-black outline-none transition focus:border-gold";
-const STATUS_MESSAGE_TIMEOUT_MS = 4000;
-
-type AdminSectionProps = {
-  title: string;
-  collapsed: boolean;
-  onToggle: () => void;
-  actions?: ReactNode;
-  children: ReactNode;
-};
-
-function AdminSection({
-  title,
-  collapsed,
-  onToggle,
-  actions,
-  children,
-}: AdminSectionProps) {
-  return (
-    <section className="shadow-effect shadow-effect-offset mt-2">
-      <div className="backdrop-glass backdrop-glass-offset text-platinum rounded-2xl p-5 md:rounded-3xl md:p-6">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <button
-            type="button"
-            onClick={onToggle}
-            className="inline-flex cursor-pointer items-center gap-2 text-left"
-            aria-expanded={!collapsed}
-          >
-            <span className="text-lg font-medium">{title}</span>
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className={`text-platinum/75 transition-transform duration-500 ease-in-out ${
-                collapsed ? "rotate-0" : "rotate-180"
-              }`}
-              aria-hidden="true"
-            >
-              <path
-                d="M5 7.5L10 12.5L15 7.5"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-          <div className="flex items-center gap-2">{actions}</div>
-        </div>
-
-        <div
-          className={`grid transition-all duration-500 ease-in-out ${
-            collapsed
-              ? "grid-rows-[0fr] opacity-0"
-              : "grid-rows-[1fr] opacity-100"
-          }`}
-        >
-          <div className="overflow-hidden">
-            <div className="space-y-2 pt-0.5 md:space-y-4 md:pt-1">
-              {children}
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function createPackage(index: number): TariffPackage {
-  return {
-    id: `tmp-pkg-${crypto.randomUUID()}`,
-    title: `Пакет ${index + 1}`,
-    regularAmount: 5000,
-    discountedAmount: null,
-    currency: "₽",
-    sortOrder: index,
-  };
-}
-
-function createTariff(index: number): Tariff {
-  return {
-    id: `tmp-tariff-${crypto.randomUUID()}`,
-    slug: "",
-    title: `Новый тариф ${index + 1}`,
-    descriptionMarkdown: "",
-    isActive: true,
-    sortOrder: index,
-    packages: [createPackage(0)],
-  };
-}
-
-function moveTariff(
-  items: Tariff[],
-  fromIndex: number,
-  toIndex: number,
-): Tariff[] {
-  if (toIndex < 0 || toIndex >= items.length || fromIndex === toIndex) {
-    return items;
-  }
-
-  const next = [...items];
-  const [moved] = next.splice(fromIndex, 1);
-  next.splice(toIndex, 0, moved);
-  return next;
-}
-
-function movePackage(
-  items: TariffPackage[],
-  fromIndex: number,
-  toIndex: number,
-): TariffPackage[] {
-  if (toIndex < 0 || toIndex >= items.length || fromIndex === toIndex) {
-    return items;
-  }
-
-  const next = [...items];
-  const [moved] = next.splice(fromIndex, 1);
-  next.splice(toIndex, 0, moved);
-  return next;
-}
-
-const CYRILLIC_TO_LATIN: Record<string, string> = {
-  а: "a",
-  б: "b",
-  в: "v",
-  г: "g",
-  д: "d",
-  е: "e",
-  ё: "e",
-  ж: "zh",
-  з: "z",
-  и: "i",
-  й: "y",
-  к: "k",
-  л: "l",
-  м: "m",
-  н: "n",
-  о: "o",
-  п: "p",
-  р: "r",
-  с: "s",
-  т: "t",
-  у: "u",
-  ф: "f",
-  х: "h",
-  ц: "ts",
-  ч: "ch",
-  ш: "sh",
-  щ: "sch",
-  ъ: "",
-  ы: "y",
-  ь: "",
-  э: "e",
-  ю: "yu",
-  я: "ya",
-};
-
-function normalizeSlug(value: string): string {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9-]+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
-}
-
-function transliterate(value: string): string {
-  return value
-    .toLowerCase()
-    .split("")
-    .map((char) => CYRILLIC_TO_LATIN[char] ?? char)
-    .join("");
-}
-
-function makeSlugFromTitle(title: string): string {
-  return normalizeSlug(transliterate(title));
-}
-
-function makeUniqueSlug(base: string, used: Set<string>): string {
-  const fallback = base || "tariff";
-  let candidate = fallback;
-  let suffix = 2;
-
-  while (used.has(candidate)) {
-    candidate = `${fallback}-${suffix}`;
-    suffix += 1;
-  }
-
-  used.add(candidate);
-  return candidate;
-}
-
-function validateTariffSlugs(items: Tariff[]): string[] {
-  const errors: string[] = [];
-  const seen = new Set<string>();
-
-  for (const [index, tariff] of items.entries()) {
-    const slug = normalizeSlug(tariff.slug ?? "");
-    const row = index + 1;
-
-    if (!slug) {
-      errors.push(`Тариф #${row}: slug не должен быть пустым`);
-      continue;
-    }
-
-    if (!/^[a-z0-9-]+$/.test(slug)) {
-      errors.push(
-        `Тариф #${row}: slug может содержать только a-z, 0-9 и дефис`,
-      );
-      continue;
-    }
-
-    if (seen.has(slug)) {
-      errors.push(`Тариф #${row}: slug \"${slug}\" уже используется`);
-      continue;
-    }
-
-    seen.add(slug);
-  }
-
-  return errors;
-}
-
-function cloneContent(content: SiteContent): SiteContent {
-  return JSON.parse(JSON.stringify(content)) as SiteContent;
-}
-
-function cloneMarkdown(
-  markdown: Record<string, string>,
-): Record<string, string> {
-  return { ...markdown };
-}
-
-function isHttpUrl(value: string): boolean {
-  try {
-    const url = new URL(value);
-    return url.protocol === "http:" || url.protocol === "https:";
-  } catch {
-    return false;
-  }
-}
-
-function validateContentUrls(content: SiteContent): string[] {
-  const candidates = [
-    {
-      field: "telegramLink",
-      value: content.telegramLink,
-      label: "Ссылка Telegram",
-    },
-    {
-      field: "vkMessengerLink",
-      value: content.vkMessengerLink,
-      label: "Ссылка VK мессенджер",
-    },
-    { field: "b17Link", value: content.b17Link, label: "Ссылка B17" },
-    { field: "blogLink", value: content.blogLink, label: "Ссылка блога" },
-    {
-      field: "instagramLink",
-      value: content.instagramLink,
-      label: "Ссылка Instagram",
-    },
-  ];
-
-  const errors: string[] = [];
-  for (const candidate of candidates) {
-    if (!candidate.value?.trim()) {
-      errors.push(`${candidate.label}: поле не должно быть пустым`);
-      continue;
-    }
-
-    if (!isHttpUrl(candidate.value)) {
-      errors.push(
-        `${candidate.label}: укажите полный URL, например https://...`,
-      );
-    }
-  }
-
-  return errors;
-}
 
 export default function AdminPage() {
   const router = useRouter();
@@ -385,11 +98,9 @@ export default function AdminPage() {
     useState<UploadKind | null>(null);
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
   const [ogImageFile, setOgImageFile] = useState<File | null>(null);
-  const [profilePreviewUrl, setProfilePreviewUrl] = useState<string | null>(
-    null,
-  );
-  const [ogPreviewUrl, setOgPreviewUrl] = useState<string | null>(null);
-  const [mobileActionsOpen, setMobileActionsOpen] = useState(false);
+  const profilePreviewUrl = useObjectUrl(profileImageFile);
+  const ogPreviewUrl = useObjectUrl(ogImageFile);
+const [mobileActionsOpen, setMobileActionsOpen] = useState(false);
   const mobileActionsRef = useRef<HTMLDivElement | null>(null);
   const [collapsedSections, setCollapsedSections] = useState<
     Record<SectionKey, boolean>
@@ -419,81 +130,10 @@ export default function AdminPage() {
     [collapsedSections],
   );
 
-  useEffect(() => {
-    if (!messageContent) {
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setMessageContent(null);
-    }, STATUS_MESSAGE_TIMEOUT_MS);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [messageContent]);
-
-  useEffect(() => {
-    if (!messageTariffs) {
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setMessageTariffs(null);
-    }, STATUS_MESSAGE_TIMEOUT_MS);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [messageTariffs]);
-
-  useEffect(() => {
-    if (!errorContent) {
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setErrorContent(null);
-    }, STATUS_MESSAGE_TIMEOUT_MS);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [errorContent]);
-
-  useEffect(() => {
-    if (!errorTariffs) {
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setErrorTariffs(null);
-    }, STATUS_MESSAGE_TIMEOUT_MS);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [errorTariffs]);
-
-  useEffect(() => {
-    if (!profileImageFile) {
-      setProfilePreviewUrl(null);
-      return;
-    }
-
-    const objectUrl = URL.createObjectURL(profileImageFile);
-    setProfilePreviewUrl(objectUrl);
-
-    return () => {
-      URL.revokeObjectURL(objectUrl);
-    };
-  }, [profileImageFile]);
-
-  useEffect(() => {
-    if (!ogImageFile) {
-      setOgPreviewUrl(null);
-      return;
-    }
-
-    const objectUrl = URL.createObjectURL(ogImageFile);
-    setOgPreviewUrl(objectUrl);
-
-    return () => {
-      URL.revokeObjectURL(objectUrl);
-    };
-  }, [ogImageFile]);
+  useAutoClear(messageContent, () => setMessageContent(null));
+  useAutoClear(messageTariffs, () => setMessageTariffs(null));
+  useAutoClear(errorContent, () => setErrorContent(null));
+  useAutoClear(errorTariffs, () => setErrorTariffs(null));
 
   useEffect(() => {
     if (!mobileActionsOpen) {
@@ -557,12 +197,12 @@ export default function AdminPage() {
 
       const contentBody = (await contentResponse.json()) as AdminBundle;
       setSource(contentBody.source);
-      const nextContent = cloneContent(contentBody.content);
-      const nextMarkdown = cloneMarkdown(contentBody.markdown);
+      const nextContent = structuredClone(contentBody.content);
+      const nextMarkdown = { ...contentBody.markdown };
       setContentData(nextContent);
       setMarkdown(nextMarkdown);
-      setInitialContentData(cloneContent(nextContent));
-      setInitialMarkdown(cloneMarkdown(nextMarkdown));
+      setInitialContentData(structuredClone(nextContent));
+      setInitialMarkdown({ ...nextMarkdown });
 
       const tariffBody = (await tariffsResponse.json()) as TariffBundle;
       setTariffSource(tariffBody.source);
@@ -612,12 +252,12 @@ export default function AdminPage() {
 
     const body = (await response.json()) as AdminBundle;
     setSource(body.source);
-    const nextContent = cloneContent(body.content);
-    const nextMarkdown = cloneMarkdown(body.markdown);
+    const nextContent = structuredClone(body.content);
+    const nextMarkdown = { ...body.markdown };
     setContentData(nextContent);
     setMarkdown(nextMarkdown);
-    setInitialContentData(cloneContent(nextContent));
-    setInitialMarkdown(cloneMarkdown(nextMarkdown));
+    setInitialContentData(structuredClone(nextContent));
+    setInitialMarkdown({ ...nextMarkdown });
     setMessageContent("Контент сохранен");
     setSavingContent(false);
   };
@@ -627,8 +267,8 @@ export default function AdminPage() {
       return;
     }
 
-    setContentData(cloneContent(initialContentData));
-    setMarkdown(cloneMarkdown(initialMarkdown));
+    setContentData(structuredClone(initialContentData));
+    setMarkdown({ ...initialMarkdown });
     setErrorContent(null);
     setMessageContent("Изменения сброшены к последнему сохранению");
   };
@@ -663,12 +303,8 @@ export default function AdminPage() {
 
     const usedSlugs = new Set<string>();
     const normalizedTariffs: Tariff[] = tariffs.map((tariff) => {
-      const normalizedInputSlug = normalizeSlug(
-        transliterate(tariff.slug ?? ""),
-      );
-      const generatedBaseSlug = makeSlugFromTitle(tariff.title || "");
       const slug = makeUniqueSlug(
-        normalizedInputSlug || generatedBaseSlug,
+        normalizeSlug(tariff.slug ?? "") || normalizeSlug(tariff.title ?? ""),
         usedSlugs,
       );
       return { ...tariff, slug };
@@ -745,14 +381,14 @@ export default function AdminPage() {
     }
 
     const body = (await response.json()) as AdminBundle;
-    const nextContent = cloneContent(body.content);
-    const nextMarkdown = cloneMarkdown(body.markdown);
+    const nextContent = structuredClone(body.content);
+    const nextMarkdown = { ...body.markdown };
 
     setSource(body.source);
     setContentData(nextContent);
     setMarkdown(nextMarkdown);
-    setInitialContentData(cloneContent(nextContent));
-    setInitialMarkdown(cloneMarkdown(nextMarkdown));
+    setInitialContentData(structuredClone(nextContent));
+    setInitialMarkdown({ ...nextMarkdown });
     setMessageContent(
       kind === "profile"
         ? "Фото профиля успешно загружено"
@@ -804,7 +440,7 @@ export default function AdminPage() {
       return;
     }
 
-    setTariffs((current) => moveTariff(current, fromIndex, targetIndex));
+    setTariffs((current) => moveItem(current, fromIndex, targetIndex));
     setDraggingTariffIndex(null);
     setDropTargetTariffIndex(null);
   };
@@ -879,7 +515,7 @@ export default function AdminPage() {
         index === tariffIndex
           ? {
               ...item,
-              packages: movePackage(
+              packages: moveItem(
                 item.packages,
                 parsed.packageIndex,
                 targetPackageIndex,
@@ -1180,7 +816,7 @@ export default function AdminPage() {
                     disabled={tariffIndex === 0}
                     onClick={() =>
                       setTariffs((current) =>
-                        moveTariff(current, tariffIndex, tariffIndex - 1),
+                        moveItem(current, tariffIndex, tariffIndex - 1),
                       )
                     }
                     className={subtleButtonClass}
@@ -1192,7 +828,7 @@ export default function AdminPage() {
                     disabled={tariffIndex === tariffs.length - 1}
                     onClick={() =>
                       setTariffs((current) =>
-                        moveTariff(current, tariffIndex, tariffIndex + 1),
+                        moveItem(current, tariffIndex, tariffIndex + 1),
                       )
                     }
                     className={subtleButtonClass}
@@ -1243,9 +879,7 @@ export default function AdminPage() {
                           index === tariffIndex
                             ? {
                                 ...item,
-                                slug: normalizeSlug(
-                                  transliterate(event.target.value),
-                                ),
+                                slug: normalizeSlug(event.target.value),
                               }
                             : item,
                         ),
@@ -1407,7 +1041,7 @@ export default function AdminPage() {
                                   index === tariffIndex
                                     ? {
                                         ...item,
-                                        packages: movePackage(
+                                        packages: moveItem(
                                           item.packages,
                                           pkgIndex,
                                           pkgIndex - 1,
@@ -1430,7 +1064,7 @@ export default function AdminPage() {
                                   index === tariffIndex
                                     ? {
                                         ...item,
-                                        packages: movePackage(
+                                        packages: moveItem(
                                           item.packages,
                                           pkgIndex,
                                           pkgIndex + 1,
