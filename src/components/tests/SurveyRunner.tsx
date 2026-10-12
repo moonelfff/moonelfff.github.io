@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
 import NextLink from "next/link";
-import { Model, setLicenseKey } from "survey-core";
+import { Model, setLicenseKey, surveyLocalization } from "survey-core";
+import "survey-core/i18n/russian";
 import { Survey } from "survey-react-ui";
 import "survey-core/survey-core.min.css";
 import Glass from "@/components/atom/Glass";
@@ -26,6 +27,12 @@ type SurveyRunnerProps = {
 };
 
 type Phase = "intro" | "questions" | "submitting" | "result";
+
+const ruStrings = surveyLocalization.locales.ru;
+if (ruStrings) {
+  ruStrings.requiredError = "Выберите ответ, чтобы продолжить";
+  ruStrings.requiredErrorInPanel = "Ответьте хотя бы на один вопрос";
+}
 
 function ArrowIcon({ direction }: { direction: "left" | "right" }) {
   return (
@@ -230,6 +237,7 @@ export default function SurveyRunner({
     }
 
     const nextSurvey = new Model(surveySchema);
+    nextSurvey.locale = "ru";
     nextSurvey.showNavigationButtons = "none";
     nextSurvey.showProgressBar = "off";
     nextSurvey.showTitle = false;
