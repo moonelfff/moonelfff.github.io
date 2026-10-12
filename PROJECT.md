@@ -6,17 +6,17 @@
 
 Сайт клинического психолога: профиль и подход, пакеты консультаций с ценами, контакты и соцсети, онлайн-тесты. Контент редактируется через админку (JSON + Markdown), без правок кода.
 
-Проект - единое приложение на **Next.js** (ранее существовавшая Vite-версия для GitHub Pages удалена).
+Проект - единое приложение на **Next.js**.
 
 ## 2. Технологии
 
-- Next.js 16.4 (App Router, Turbopack, proxy), React 19.3, TypeScript 5
+- Next.js 16.4 (App Router, Turbopack, proxy), React 19.3, TypeScript 6, Node.js 24 LTS
 - Tailwind CSS 4 (`@tailwindcss/postcss`)
 - Supabase (`@supabase/supabase-js`): Postgres и Storage
 - `sharp` - обработка загружаемых изображений
 - `marked` - Markdown
 - SurveyJS (`survey-core`, `survey-react-ui`, `survey-creator-*`), `zod`, `nanoid` - тесты
-- ESLint 9 (`eslint-config-next`)
+- ESLint 10 (`eslint-config-next`)
 - Хостинг: Vercel; CI/cron: GitHub Actions
 - `AGENTS.md`: версия Next имеет breaking changes, сверяйтесь с `node_modules/next/dist/docs/`
 
@@ -26,7 +26,7 @@
 /
 ├─ next.config.ts, tsconfig.json, eslint.config.mjs, postcss.config.mjs
 ├─ .env.example
-├─ .github/workflows/supabase-keepalive.yml
+├─ .github/workflows/   # supabase-keepalive.yml, sync-fallback-photo.yml
 ├─ public/        # шрифты, favicons,
 │                 # robots.txt, sitemap.xml, llms.txt, site.webmanifest
 ├─ supabase/      # site_content.sql, tariffs.sql, tests.sql
@@ -37,12 +37,12 @@
    │              # api/{content,markdown,tariffs,tests/[slug](/submit),admin/*}
    ├─ components/ # atom / molecule / organism, providers/SiteContentProvider, tests/SurveyRunner
    ├─ lib/        # adminAuth, adminSession, slug, contentStore, tariffStore, supabase, contentTypes, tests/{testStore,scoring,types}
-   ├─ assets/     # шрифты, иконки, изображения
+   ├─ assets/     # иконки соцсетей, изображения (noise, запасное фото)
    ├─ styles/     # main.css, fonts.css
    └─ utils/      # markdownParser, markdownToHtml
 ```
 
-Компоненты по Atomic Design: `atom` (Glass, Icon, Typography) -> `molecule` (Card, ContentBox, Image, Link, Number) -> `organism` (Main, Profile, Pricelist, PriceItem, Contact, Social, Footer, Copyright).
+Компоненты по Atomic Design: `atom` (Glass, Typography, Spinner, Skeleton) -> `molecule` (Card, ContentBox, Image, Link, Number) -> `organism` (Main, Profile, Pricelist, PriceItem, Contact, Social, Footer, Copyright).
 
 ## 4. Модель контента
 
@@ -52,7 +52,7 @@
 
 ## 5. Принципы работы
 
-1. Главная страница (`page.tsx`, `force-dynamic`) на сервере загружает `getContentBundle()` и передаёт `content` и `markdown` в `App` -> `SiteContentProvider` (хуки `useSiteContent`, `useSiteMarkdown`). Клиент контент не запрашивает.
+1. Главная страница (`page.tsx`, `force-dynamic`) на сервере загружает `getContentBundle()` и передаёт `content` и `markdown` в `HomePage` (`components/organism`) -> `SiteContentProvider` (хуки `useSiteContent`, `useSiteMarkdown`). Клиент контент не запрашивает.
 2. **Supabase - единственный источник данных**, локальные файлы и фолбэки не используются. Без `NEXT_PUBLIC_SUPABASE_URL`/`SUPABASE_SERVICE_ROLE_KEY` или без загруженных данных код бросает понятную ошибку (подсказка: `npm run seed`). Общий клиент - `src/lib/supabase.ts`.
 3. **contentStore**: таблица `site_content` (key/value: `content_json` + ключ на каждый md-путь без ведущего `/`). Сохранение из админки - `upsert` в эту таблицу.
 4. **tariffStore**: таблицы `tariffs` и `tariff_packages`; прайс на странице грузится из `/api/tariffs`.
@@ -101,8 +101,9 @@ npm run lint
 ## 8. Деплой и инфраструктура
 
 - Хостинг - Vercel, домен `ekaterinazhuk.ru` через DNS (A `76.76.21.21`, CNAME `www` -> `cname.vercel-dns.com`). Пошаговая инструкция - в README.
-- GitHub Pages и workflow `deploy.yml` удалены: статический экспорт невозможен из-за API и proxy.
+- GitHub Pages не используется: статический экспорт невозможен из-за API и proxy.
 - `.github/workflows/supabase-keepalive.yml`: cron раз в 3 дня + ручной запуск, запрашивает `/api/content` и `/api/tariffs`, чтобы Supabase Free не ставил проект на паузу (7 дней без активности). URL - переменная репозитория `SITE_URL` (по умолчанию `https://ekaterinazhuk.ru`).
+- `.github/workflows/sync-fallback-photo.yml`: раз в неделю + ручной запуск; скачивает текущее фото профиля из Supabase и при изменении коммитит его в `public/photo.webp` и `src/assets/images/photo.webp` (запасное фото для SEO/OG).
 - Supabase: SQL из `supabase/`, публичный Storage-бакет, `service_role` только на сервере.
 
 ## 9. Оформление
@@ -111,5 +112,5 @@ npm run lint
 
 ## 10. Известные замечания
 
-- `npm run lint` показывает ошибки `no-explicit-any` в `src/types/global.d.ts` и предупреждения `no-img-element`.
+- `npm run lint` показывает предупреждения: `<img>` в `layout.tsx` и `window.location.assign` в `admin/_lib/api.ts`.
 - Для устойчивости рекомендуется периодически выгружать данные Supabase; начальная копия контента лежит в `supabase/seed`.

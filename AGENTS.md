@@ -19,7 +19,7 @@ Website of clinical psychologist Ekaterina Zhuk (ekaterinazhuk.ru): Next.js App 
 - Pages that read Supabase must be `export const dynamic = "force-dynamic"` so the build works without credentials.
 - Admin auth: cookie + `src/proxy.ts` + `src/lib/adminSession.ts`. `/admin` and `/api/admin/*` are protected.
 - Admin UI (`src/app/admin`): shared components in `_components/` (`AdminShell` with sticky save bar, `useToast()` notifications, `ui.tsx` primitives), helpers in `_lib/`. Mobile-first (44px targets, 16px inputs on mobile), site palette only (`soft-linnen`, `platinum`, `alabaster-grey`, `dusty-grape`). Report results via toasts, not inline text.
-- Hosting: Vercel (GitHub Pages is not supported). Keep-alive workflow: `.github/workflows/supabase-keepalive.yml`.
+- Hosting: Vercel (GitHub Pages is not supported). Workflows: `supabase-keepalive.yml` (keep-alive), `sync-fallback-photo.yml` (weekly fallback photo sync) in `.github/workflows/`.
 
 ## Environment
 
