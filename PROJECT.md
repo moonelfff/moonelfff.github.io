@@ -37,12 +37,12 @@
    │              # api/{content,markdown,tariffs,tests/[slug](/submit),admin/*}
    ├─ components/ # atom / molecule / organism, providers/SiteContentProvider, tests/SurveyRunner
    ├─ lib/        # adminAuth, adminSession, slug, contentStore, tariffStore, supabase, contentTypes, tests/{testStore,scoring,types}
-   ├─ assets/     # шрифты, иконки, изображения
+   ├─ assets/     # иконки соцсетей, изображения (noise, запасное фото)
    ├─ styles/     # main.css, fonts.css
    └─ utils/      # markdownParser, markdownToHtml
 ```
 
-Компоненты по Atomic Design: `atom` (Glass, Icon, Typography) -> `molecule` (Card, ContentBox, Image, Link, Number) -> `organism` (Main, Profile, Pricelist, PriceItem, Contact, Social, Footer, Copyright).
+Компоненты по Atomic Design: `atom` (Glass, Typography, Spinner, Skeleton) -> `molecule` (Card, ContentBox, Image, Link, Number) -> `organism` (Main, Profile, Pricelist, PriceItem, Contact, Social, Footer, Copyright).
 
 ## 4. Модель контента
 
