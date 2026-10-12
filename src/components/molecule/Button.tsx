@@ -41,7 +41,7 @@ function Button({
     <span
       className={`button-grain button-flat mt-2 block rounded-xl border-2 ${
         variant === "solid"
-          ? "text-platinum border-success [--btn-bg-hover:#56b98d] [--btn-bg:#3e9b73]"
+          ? "text-platinum [--btn-bg-hover:#56b98d] [--btn-bg:#3e9b73] border-transparent"
           : "text-dusty-grape [--btn-bg-hover:rgb(110_68_194/0.22)] [--btn-bg:rgb(110_68_194/0.1)] border-transparent"
       }`}
     >
@@ -60,7 +60,7 @@ function Button({
       <span className="backdrop-glass button-glass block">{label}</span>
     </span>
   ) : (
-    <span className="button-grain button-grain--subtle button-flat text-dusty-grape border-dusty-grape mt-2 block rounded-xl border-2 [--btn-bg-hover:rgb(110_68_194/0.18)] [--btn-bg:transparent]">
+    <span className="button-grain button-grain--subtle button-flat button-flat--outline text-dusty-grape border-dusty-grape mt-2 block rounded-xl border-2 [--btn-bg-hover:rgb(110_68_194/0.18)] [--btn-bg:transparent]">
       {label}
     </span>
   );
