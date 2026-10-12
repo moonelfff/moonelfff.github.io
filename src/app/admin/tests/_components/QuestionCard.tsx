@@ -46,7 +46,7 @@ export function QuestionCard({
   return (
     <Collapsible
       defaultOpen={defaultOpen}
-      className="bg-white"
+      className="bg-platinum"
       summary={
         <>
           <span className="block truncate text-sm font-medium">
@@ -157,7 +157,7 @@ export function QuestionCard({
           {question.choices.map((choice, choiceIndex) => (
             <div
               key={choice.id}
-              className="flex flex-col gap-3 rounded-xl border border-black/10 bg-black/[0.02] p-3"
+              className="flex flex-col gap-3 rounded-xl border border-alabaster-grey bg-soft-linnen/40 p-3"
             >
               <div className="grid grid-cols-[5rem_minmax(0,1fr)] gap-3">
                 <Field label="Значение">

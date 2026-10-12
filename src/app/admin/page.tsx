@@ -230,7 +230,7 @@ export default function AdminContentPage() {
       {isLoading ? <p className="text-black/60">Загрузка…</p> : null}
 
       {loadFailed ? (
-        <div className="flex flex-col items-start gap-3 rounded-2xl border border-red-200 bg-white p-4">
+        <div className="flex flex-col items-start gap-3 rounded-2xl border border-red-200 bg-platinum p-4">
           <p className="text-sm">Не удалось загрузить данные.</p>
           <Button
             onClick={() => {

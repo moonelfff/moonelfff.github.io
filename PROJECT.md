@@ -77,6 +77,13 @@
 - `src/proxy.ts` (бывший middleware; matcher `/admin/*`, `/api/admin/*`): без валидной cookie (SHA-256 токен, пароль в cookie не хранится) API отвечает `401`, страницы редиректят на логин.
 - Рекомендуется задавать случайный `ADMIN_SESSION_TOKEN`; `SUPABASE_SERVICE_ROLE_KEY` - только на сервере.
 
+### Структура интерфейса админки (`src/app/admin`)
+
+- `layout.tsx` - светлая тема в палитре сайта (`soft-linnen`, `platinum`, `alabaster-grey`, `dusty-grape`) и `ToastProvider`; `admin.css` - анимация тостов.
+- `_components/` - `AdminShell` (шапка с вкладками, нижняя панель Save/Reset, Ctrl+S, предупреждения о несохранённом), `Toast` (`useToast()`: success/error/info), `ui` (Button, Field, TextInput, TextArea, Select, Checkbox, Card, Collapsible), `RowActions`, `MarkdownEditor`, `ImageUpload`, `TariffsEditor`, `icons`.
+- `_lib/` - `draft` (`updateDraft`, `useSavedSnapshot` для dirty-состояния), `api` (`fetchAdmin`, `sendJson`; при 401 редирект на логин), `useDragSort`, `tariffs`, `validation`, `moveItem`.
+- `tests/` - `page.tsx`, `_components/{TestCard,QuestionCard}`, `_lib/editable.ts` (модель и `buildTestsPayload` с валидацией).
+
 ## 6. Переменные окружения
 
 См. `.env.example` и README: `ADMIN_PASSWORD`, `ADMIN_SESSION_TOKEN`, `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_STORAGE_BUCKET`, `NEXT_PUBLIC_SURVEYJS_LICENSE_KEY`.

@@ -221,8 +221,8 @@ function PackageRow({
   return (
     <div
       {...dragSort.itemProps(index)}
-      className={`rounded-xl border bg-white p-3 transition ${
-        dragSort.isDropTarget(index) ? "border-dusty-grape/60" : "border-black/10"
+      className={`rounded-xl       border bg-platinum p-3 transition ${
+              dragSort.isDropTarget(index) ? "border-dusty-grape/60" : "border-alabaster-grey"
       } ${dragSort.isDragging(index) ? "opacity-60" : ""}`}
     >
       <div className="mb-2 flex items-center justify-between gap-2">

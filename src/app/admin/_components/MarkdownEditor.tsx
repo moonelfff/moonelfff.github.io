@@ -32,7 +32,7 @@ export function MarkdownEditor({ label, value, onChange, hint }: MarkdownEditorP
               aria-selected={mobileTab === tab}
               onClick={() => setMobileTab(tab)}
               className={`min-h-9 cursor-pointer rounded-md px-3 text-sm font-medium transition ${
-                mobileTab === tab ? "bg-white shadow-sm" : "text-black/60"
+                mobileTab === tab ? "bg-dusty-grape text-platinum shadow-sm" : "text-black/60"
               }`}
             >
               {tab === "edit" ? "Текст" : "Предпросмотр"}
@@ -50,7 +50,7 @@ export function MarkdownEditor({ label, value, onChange, hint }: MarkdownEditorP
           className={`h-64 ${mobileTab === "preview" ? "max-lg:hidden" : ""}`}
         />
         <div
-          className={`markdown content-markdown h-64 overflow-auto rounded-xl border border-black/10 bg-black/[0.03] p-3 text-sm ${
+          className={`markdown content-markdown h-64 overflow-auto rounded-xl border border-alabaster-grey bg-soft-linnen/40 p-3 text-sm ${
             mobileTab === "edit" ? "max-lg:hidden" : ""
           }`}
         >

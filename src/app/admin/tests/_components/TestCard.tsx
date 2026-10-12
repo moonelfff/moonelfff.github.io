@@ -54,7 +54,7 @@ export function TestCard({ test, index, defaultOpen, setTests }: TestCardProps) 
   return (
     <Collapsible
       defaultOpen={defaultOpen}
-      className="bg-white shadow-sm"
+      className="bg-platinum shadow-sm"
       summary={
         <>
           <span className="block truncate font-semibold">

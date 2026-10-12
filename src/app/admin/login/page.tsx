@@ -40,7 +40,7 @@ export default function AdminLoginPage() {
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md items-center px-4 py-8">
-      <div className="w-full rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
+      <div className="w-full rounded-2xl border border-alabaster-grey bg-platinum p-6 shadow-sm">
         <h1 className="text-2xl font-semibold">Вход в админку</h1>
         <p className="mt-2 text-sm text-black/65">Введите пароль администратора.</p>
 

@@ -23,7 +23,7 @@ export function ImageUpload({
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-black/10 bg-black/[0.02] p-3">
+    <div className="flex flex-col gap-3 rounded-xl border border-alabaster-grey bg-soft-linnen/40 p-3">
       <div>
         <p className="text-sm font-medium">{title}</p>
         <p className="mt-0.5 text-xs text-black/55">{hint}</p>
@@ -34,7 +34,7 @@ export function ImageUpload({
         <img
           src={imageUrl}
           alt={title}
-          className="max-h-52 w-full rounded-lg border border-black/10 object-cover"
+          className="max-h-52 w-full rounded-lg border border-alabaster-grey object-cover"
         />
       ) : (
         <p className="rounded-lg border border-dashed border-black/20 p-6 text-center text-sm text-black/50">

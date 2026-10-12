@@ -87,7 +87,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             <div
               key={id}
               role={kind === "error" ? "alert" : "status"}
-              className={`admin-toast pointer-events-auto flex w-full max-w-md items-start gap-3 rounded-xl border border-l-4 border-black/10 bg-white p-3 shadow-lg ${accent}`}
+              className={`admin-toast pointer-events-auto flex w-full max-w-md items-start gap-3 rounded-xl border border-l-4 border-alabaster-grey bg-platinum p-3 shadow-lg ${accent}`}
             >
               <Icon className="mt-0.5 shrink-0" />
               <p className="min-w-0 flex-1 text-sm whitespace-pre-line text-black">

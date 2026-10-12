@@ -78,13 +78,13 @@ export function AdminShell({
 
   return (
     <>
-      <header className="sticky top-0 z-30 border-b border-black/10 bg-white/90 backdrop-blur">
+      <header className="sticky top-0 z-30 border-b border-alabaster-grey bg-platinum/90 backdrop-blur">
         <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center gap-x-4 gap-y-1 px-3 py-2 md:px-6">
-          <span className="text-base font-semibold">Админка</span>
+          <span className="text-dusty-grape text-base font-semibold">Админка</span>
 
           <nav
             aria-label="Разделы админки"
-            className="order-last flex w-full gap-1 rounded-xl bg-black/5 p-1 md:order-none md:w-auto"
+            className="order-last flex w-full gap-1 rounded-xl bg-soft-linnen p-1 md:order-none md:w-auto"
           >
             {TABS.map((tab) => (
               <Link
@@ -94,8 +94,8 @@ export function AdminShell({
                 aria-current={tab.id === activeTab ? "page" : undefined}
                 className={`flex min-h-9 flex-1 items-center justify-center rounded-lg px-4 text-sm font-semibold transition md:flex-none ${
                   tab.id === activeTab
-                    ? "bg-white text-black shadow-sm"
-                    : "text-black/60 hover:text-black"
+                    ? "bg-dusty-grape text-platinum shadow-sm"
+                    : "text-black/60 hover:text-dusty-grape"
                 }`}
               >
                 {tab.label}
@@ -124,7 +124,7 @@ export function AdminShell({
         {children}
       </main>
 
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-black/10 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-alabaster-grey bg-platinum/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
         <div className="mx-auto flex w-full max-w-5xl items-center gap-2 px-3 py-2.5 md:px-6">
           <p
             className="hidden min-w-0 flex-1 items-center gap-2 text-sm text-black/70 md:flex"

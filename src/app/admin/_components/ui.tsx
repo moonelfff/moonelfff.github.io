@@ -9,15 +9,16 @@ import { ChevronDownIcon } from "./icons";
 
 // 16px font on mobile prevents iOS from zooming into focused inputs.
 const controlClass =
-  "w-full min-h-11 rounded-xl border border-black/15 bg-white px-3 py-2 text-base text-black outline-none transition placeholder:text-black/35 focus:border-dusty-grape focus:ring-2 focus:ring-dusty-grape/20 disabled:opacity-60 md:text-sm";
+  "w-full min-h-11 rounded-xl border border-alabaster-grey bg-platinum px-3 py-2 text-base text-black outline-none transition placeholder:text-black/35 focus:border-dusty-grape focus:ring-2 focus:ring-dusty-grape/20 disabled:opacity-60 md:text-sm";
 
 type ButtonVariant = "primary" | "secondary" | "danger" | "ghost";
 
 const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
-  primary: "bg-dusty-grape text-white hover:bg-dusty-grape/90",
-  secondary: "border border-black/15 bg-white text-black hover:bg-black/5",
-  danger: "border border-red-200 bg-white text-red-700 hover:bg-red-50",
-  ghost: "text-black/70 hover:bg-black/5 hover:text-black",
+  primary: "bg-dusty-grape text-platinum hover:bg-dusty-grape/90",
+  secondary:
+    "border border-dusty-grape/40 bg-platinum text-dusty-grape hover:bg-dusty-grape/10",
+  danger: "border border-red-200 bg-platinum text-red-700 hover:bg-red-50",
+  ghost: "text-black/70 hover:bg-dusty-grape/10 hover:text-dusty-grape",
 };
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -119,7 +120,7 @@ type CardProps = {
 /** Top-level page block with a heading and optional action buttons. */
 export function Card({ title, description, actions, children }: CardProps) {
   return (
-    <section className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm md:p-5">
+    <section className="rounded-2xl border border-alabaster-grey bg-platinum p-4 shadow-sm md:p-5">
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="text-lg font-semibold">{title}</h2>
@@ -156,8 +157,8 @@ export function Collapsible({
   return (
     <details
       open={defaultOpen}
-      className={`group rounded-xl border bg-black/[0.02] transition ${
-        isHighlighted ? "border-dusty-grape/60 bg-dusty-grape/5" : "border-black/10"
+      className={`group rounded-xl       border bg-soft-linnen/40 transition ${
+              isHighlighted ? "border-dusty-grape/60 bg-dusty-grape/5" : "border-alabaster-grey"
       } ${className}`}
     >
       <summary className="flex cursor-pointer list-none items-center gap-2 p-2 pl-3 marker:hidden [&::-webkit-details-marker]:hidden">
@@ -170,7 +171,7 @@ export function Collapsible({
         </span>
         <ChevronDownIcon className="shrink-0 text-black/50 transition-transform group-open:rotate-180" />
       </summary>
-      <div className="flex flex-col gap-4 border-t border-black/10 p-3 md:p-4">
+      <div className="flex flex-col gap-4 border-t border-alabaster-grey p-3 md:p-4">
         {children}
       </div>
     </details>
