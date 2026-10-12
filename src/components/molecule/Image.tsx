@@ -1,4 +1,5 @@
 import NextImage, { type StaticImageData } from "next/image";
+import { Skeleton } from "../atom/Skeleton";
 
 type Props = {
   src: string | StaticImageData;
@@ -10,14 +11,16 @@ function Image({ src, alt, className }: Props) {
   return (
     <div className={className}>
       <div className="shadow-effect shadow-effect-offset mt-2 w-[clamp(16rem,88vw,32rem)]">
-        <div className="image-glass w-full! overflow-hidden rounded-3xl">
+        <div className="image-glass relative aspect-4/5 w-full! overflow-hidden rounded-3xl">
+          {/* Sits behind the photo, so it is only visible until the image has loaded. */}
+          <Skeleton className="absolute inset-0 rounded-none" />
           <NextImage
             src={src}
             alt={alt}
             width={640}
             height={800}
             sizes="(max-width: 640px) 88vw, 32rem"
-            className="h-auto w-full object-cover"
+            className="relative h-full w-full object-cover"
             priority
           />
           <div className="image-shadow" />
