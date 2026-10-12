@@ -22,6 +22,10 @@ const nextConfig: NextConfig = {
   },
   images: {
     remotePatterns,
+    formats: ["image/avif", "image/webp"],
+    qualities: [75, 90],
+    // Uploaded files get a unique URL each time, so optimized copies can be cached for a year.
+    minimumCacheTTL: 31536000,
   },
 };
 

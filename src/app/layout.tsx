@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { getPublicContentBundle } from "@/lib/contentStore";
 import "./globals.css";
+import { mulish, play } from "./fonts";
 
 const SITE_URL = "https://ekaterinazhuk.ru";
 const FALLBACK_IMAGE_URL = `${SITE_URL}/photo.webp`;
@@ -204,9 +205,9 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const structuredData = createStructuredData(profileImageUrl, ogImageUrl);
 
   return (
-    <html lang="ru" className="h-full antialiased">
+    <html lang="ru" className={`${mulish.variable} ${play.variable} h-full antialiased`}>
       <body suppressHydrationWarning className="flex min-h-full flex-col">
-        <Script id="gtm" strategy="afterInteractive">
+        <Script id="gtm" strategy="lazyOnload">
           {`(function (w, d, s, l, i) {
         w[l] = w[l] || [];
         w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
@@ -218,7 +219,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         f.parentNode.insertBefore(j, f);
       })(window, document, "script", "dataLayer", "GTM-MB6C6PR5");`}
         </Script>
-        <Script id="yandex-metrika" strategy="afterInteractive">
+        <Script id="yandex-metrika"         strategy="lazyOnload">
           {`(function (m, e, t, r, i, k, a) {
         m[i] =
           m[i] ||

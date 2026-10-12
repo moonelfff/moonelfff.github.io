@@ -38,7 +38,7 @@
    ├─ components/ # atom / molecule / organism, providers/SiteContentProvider, tests/SurveyRunner
    ├─ lib/        # adminAuth, adminSession, slug, contentStore, tariffStore, supabase, contentTypes, tests/{testStore,scoring,types}
    ├─ assets/     # иконки соцсетей, изображения (noise, запасное фото)
-   ├─ styles/     # main.css, fonts.css
+   ├─ styles/     # main.css; app/fonts.ts (next/font)
    └─ utils/      # markdownParser, markdownToHtml
 ```
 
@@ -55,9 +55,9 @@
 1. Главная страница (`page.tsx`, `force-dynamic`) на сервере загружает `getPublicContentBundle()` (кэшированная версия) и передаёт `content` и `markdown` в `HomePage` (`components/organism`) -> `SiteContentProvider` (хуки `useSiteContent`, `useSiteMarkdown`). Клиент контент не запрашивает.
 2. **Supabase - единственный источник данных**, локальные файлы и фолбэки не используются. Без `NEXT_PUBLIC_SUPABASE_URL`/`SUPABASE_SERVICE_ROLE_KEY` или без загруженных данных код бросает понятную ошибку (подсказка: `npm run seed`). Общий клиент - `src/lib/supabase.ts`.
 3. **contentStore**: таблица `site_content` (key/value: `content_json` + ключ на каждый md-путь без ведущего `/`). Сохранение из админки - `upsert` в эту таблицу.
-4. **tariffStore**: таблицы `tariffs` и `tariff_packages`; прайс на странице грузится из `/api/tariffs`.
+4. **tariffStore**: таблицы `tariffs` и `tariff_packages`; прайс загружается на сервере в `page.tsx` и передаётся через `SiteContentProvider` (без клиентского запроса; `/api/tariffs` остаётся публичным API).
 5. **testStore**: таблица `psychological_tests` (slug, `schema_json` SurveyJS, `scoring_json`). Страницы `/tests` и `/tests/[slug]` рендерят опросник (`SurveyRunner`), ответы отправляются в `/api/tests/[slug]/submit`, подсчёт - `scoring.ts` (уровни или группы).
-6. **Начальные данные**: `npm run seed` (`scripts/seed-supabase.mjs`) загружает `supabase/seed/*` в пустые таблицы; `-- --force` перезаписывает.7. **Изображения** (`POST /api/admin/image`): `profile` (WebP до 1600 px) и `og` (JPEG 1200x630); JPEG/PNG/WEBP до 8 МБ; загрузка в бакет Supabase (`SUPABASE_STORAGE_BUCKET`, по умолчанию `site-images`); URL пишется в `profileImageUrl`/`ogImageUrl`.
+6. **Начальные данные**: `npm run seed` (`scripts/seed-supabase.mjs`) загружает `supabase/seed/*` в пустые таблицы; `-- --force` перезаписывает.7. **Изображения** (`POST /api/admin/image`): `profile` (WebP до 2400 px, quality 90) и `og` (JPEG 1200x630); JPEG/PNG/WEBP до 8 МБ; загрузка в бакет Supabase (`SUPABASE_STORAGE_BUCKET`, по умолчанию `site-images`); URL пишется в `profileImageUrl`/`ogImageUrl`.
 8. **SEO**: `layout.tsx` формирует metadata, Open Graph, JSON-LD (Person, Service, WebPage); также `robots.txt` (закрыты `/admin`, `/api/`), `sitemap.xml`, `llms.txt`, `site.webmanifest`. Подключены GTM и Яндекс.Метрика.
 
 ### API
@@ -112,7 +112,7 @@ npm run lint
 
 ## 10. Оформление
 
-Шрифты Mulish и Play (локальные subset woff2 в `public/fonts`, `fonts.css`); стиль «glass», фон `platinum`, noise-текстура, адаптивные отступы Tailwind.
+Шрифты Mulish и Play (локальные subset woff2 в `src/assets/fonts`, подключены через `next/font/local` в `src/app/fonts.ts`, preload только у Mulish); стиль «glass», фон `platinum`, noise-текстура, адаптивные отступы Tailwind.
 
 ## 11. Известные замечания
 

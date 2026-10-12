@@ -1,40 +1,12 @@
 import Typography from "../atom/Typography";
 import PriceItem from "./PriceItem";
-import { useEffect, useState } from "react";
 import { parseMarkdown } from "../../utils/markdownParser";
 import Contact from "./Contact";
-import PriceItemSkeleton from "./PriceItemSkeleton";
-import { useSiteContent } from "../providers/SiteContentProvider";
-import type { Tariff } from "@/lib/tariffStore";
-
-type TariffResponse = {
-  tariffs: Tariff[];
-};
+import { useSiteContent, useSiteTariffs } from "../providers/SiteContentProvider";
 
 function Pricelist() {
   const data = useSiteContent();
-  const [tariffs, setTariffs] = useState<Tariff[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const loadTariffs = async () => {
-      try {
-        const response = await fetch("/api/tariffs", { cache: "no-store" });
-        if (!response.ok) {
-          return;
-        }
-
-        const body = (await response.json()) as TariffResponse;
-        setTariffs(body.tariffs.filter((tariff) => tariff.isActive));
-      } catch {
-        setTariffs([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadTariffs();
-  }, []);
+  const tariffs = useSiteTariffs();
 
   return (
     <section id="price">
@@ -43,7 +15,6 @@ function Pricelist() {
       </Typography>
       <div className="flex flex-col gap-6">
         <div className="flex flex-col flex-wrap justify-center gap-3 lg:flex-row">
-          {isLoading ? <PriceItemSkeleton /> : null}
           {tariffs.map((tariff) => (
             <PriceItem
               key={tariff.id}

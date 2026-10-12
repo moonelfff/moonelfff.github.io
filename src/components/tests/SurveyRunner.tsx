@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Model, setLicenseKey } from "survey-core";
 import { Survey } from "survey-react-ui";
+import "survey-core/survey-core.min.css";
 import type { TestResultPayload } from "@/lib/tests/types";
 import { parseMarkdown } from "@/utils/markdownParser";
 

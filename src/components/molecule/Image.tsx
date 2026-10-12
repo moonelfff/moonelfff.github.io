@@ -20,8 +20,9 @@ function Image({ src, alt, className }: Props) {
             width={640}
             height={800}
             sizes="(max-width: 640px) 88vw, 32rem"
+            quality={90}
             className="relative h-full w-full object-cover"
-            priority
+            preload
           />
           <div className="image-shadow" />
         </div>

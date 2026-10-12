@@ -22,8 +22,8 @@ async function processImage(fileBuffer: Buffer, kind: UploadKind) {
   if (kind === "profile") {
     const outputBuffer = await sharp(fileBuffer)
       .rotate()
-      .resize({ width: 1600, withoutEnlargement: true })
-      .webp({ quality: 82 })
+      .resize({ width: 2400, withoutEnlargement: true })
+      .webp({ quality: 90 })
       .toBuffer();
 
     return {
