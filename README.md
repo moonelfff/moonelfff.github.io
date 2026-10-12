@@ -50,7 +50,7 @@ Free-план Supabase ставит проект на паузу после 7 д
 
 ## Публикация (Vercel + домен ekaterinazhuk.ru)
 
-GitHub Pages больше **не подходит**: сайт использует серверные API и middleware. Рекомендуемый хостинг - Vercel (бесплатный план достаточен).
+GitHub Pages больше **не подходит**: сайт использует серверные API и proxy. Рекомендуемый хостинг - Vercel (бесплатный план достаточен).
 
 1. На [vercel.com](https://vercel.com) создайте проект из репозитория (Framework: Next.js, Root Directory: корень репозитория, Production Branch: `main`).
 2. В Settings -> Environment Variables добавьте переменные из таблицы выше (для Production).

@@ -8,6 +8,8 @@ import type {
   TestScoringConfig,
 } from "@/lib/tests/types";
 import { parseMarkdown } from "@/utils/markdownParser";
+import { moveItem } from "../_lib/moveItem";
+import { normalizeSlug } from "@/lib/slug";
 
 type TestBundle = {
   tests: PublicTestDefinition[];
@@ -54,74 +56,6 @@ const DEFAULT_SCHEMA_SETTINGS = {
   progressBarType: "questions",
   completeText: "Показать результат",
 };
-
-const CYRILLIC_TO_LATIN: Record<string, string> = {
-  а: "a",
-  б: "b",
-  в: "v",
-  г: "g",
-  д: "d",
-  е: "e",
-  ё: "e",
-  ж: "zh",
-  з: "z",
-  и: "i",
-  й: "y",
-  к: "k",
-  л: "l",
-  м: "m",
-  н: "n",
-  о: "o",
-  п: "p",
-  р: "r",
-  с: "s",
-  т: "t",
-  у: "u",
-  ф: "f",
-  х: "h",
-  ц: "ts",
-  ч: "ch",
-  ш: "sh",
-  щ: "sch",
-  ъ: "",
-  ы: "y",
-  ь: "",
-  э: "e",
-  ю: "yu",
-  я: "ya",
-};
-
-function transliterate(value: string): string {
-  return value
-    .toLowerCase()
-    .split("")
-    .map((char) => CYRILLIC_TO_LATIN[char] ?? char)
-    .join("");
-}
-
-function normalizeSlug(value: string): string {
-  return transliterate(value)
-    .replace(/[^a-z0-9-]+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
-}
-
-function moveItem<T>(items: T[], fromIndex: number, toIndex: number): T[] {
-  if (
-    fromIndex === toIndex ||
-    fromIndex < 0 ||
-    toIndex < 0 ||
-    fromIndex >= items.length ||
-    toIndex >= items.length
-  ) {
-    return items;
-  }
-
-  const next = [...items];
-  const [moved] = next.splice(fromIndex, 1);
-  next.splice(toIndex, 0, moved);
-  return next;
-}
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && !Array.isArray(value) && typeof value === "object";
