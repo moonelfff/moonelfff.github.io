@@ -80,7 +80,7 @@
 ### Структура интерфейса админки (`src/app/admin`)
 
 - `layout.tsx` - светлая тема в палитре сайта (`soft-linnen`, `platinum`, `alabaster-grey`, `dusty-grape`) и `ToastProvider`; `admin.css` - анимация тостов.
-- `_components/` - `AdminShell` (шапка с вкладками, нижняя панель Save/Reset, Ctrl+S, предупреждения о несохранённом), `Toast` (`useToast()`: success/error/info), `ui` (Button, Field, TextInput, TextArea, Select, Checkbox, Card, Collapsible), `RowActions`, `MarkdownEditor`, `ImageUpload`, `TariffsEditor`, `icons`.
+- `_components/` - `AdminShell` (шапка с вкладками, нижняя панель Save/Reset, Ctrl+S, предупреждения о несохранённом), `Toast` (`useToast()`: success/error/info), `ui` (Button, Field, TextInput, TextArea, Select, Checkbox, Card, Collapsible, Tip - кнопка «?» с всплывающей подсказкой; `Field` и `Checkbox` принимают проп `tip`), `RowActions`, `MarkdownEditor`, `ImageUpload` (проп `aspectClass` задаёт пропорции превью как на сайте: фото профиля 4:5, OG 1200×630), `TariffsEditor`, `icons`.
 - `_lib/` - `draft` (`updateDraft`, `useSavedSnapshot` для dirty-состояния), `api` (`fetchAdmin`, `sendJson`; при 401 редирект на логин), `useDragSort`, `tariffs`, `validation`, `moveItem`.
 - `tests/` - `page.tsx`, `_components/{TestCard,QuestionCard}`, `_lib/editable.ts` (модель и `buildTestsPayload` с валидацией).
 
