@@ -1,0 +1,46 @@
+name: Sync fallback photo
+
+# Keeps the repo fallback photo identical to the profile photo uploaded
+# through the admin panel (used for SEO/OG when Supabase has no photo).
+on:
+  schedule:
+    - cron: "0 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download current profile photo
+        env:
+          SITE_URL: ${{ vars.SITE_URL || 'https://ekaterinazhuk.ru' }}
+        run: |
+          url=$(curl -fsS --retry 3 --retry-delay 10 "$SITE_URL/api/content" | jq -r '.content.profileImageUrl // empty')
+          if [ -z "$url" ]; then
+            echo "No profileImageUrl, nothing to sync"
+            exit 0
+          fi
+          curl -fsS --retry 3 --retry-delay 10 -o /tmp/photo.webp "$url"
+          # Guard against saving an error page: must be a WebP (RIFF....WEBP)
+          if [ "$(head -c 4 /tmp/photo.webp)" != "RIFF" ] || [ "$(tail -c +9 /tmp/photo.webp | head -c 4)" != "WEBP" ]; then
+            echo "Downloaded file is not a WebP" >&2
+            exit 1
+          fi
+          cp /tmp/photo.webp public/photo.webp
+          cp /tmp/photo.webp src/assets/images/photo.webp
+
+      - name: Commit if changed
+        run: |
+          if git diff --quiet; then
+            echo "Fallback photo is up to date"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Sync fallback photo with the uploaded profile photo"
+          git push
