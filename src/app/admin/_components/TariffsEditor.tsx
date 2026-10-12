@@ -25,7 +25,7 @@ export function TariffsEditor({ tariffs, setTariffs }: TariffsEditorProps) {
   return (
     <Card
       title="Тарифы"
-      description="Порядок здесь совпадает с порядком на сайте."
+      description="Тарифы идут на сайте в том же порядке, что и здесь. Меняйте порядок стрелками."
       actions={
         <Button
           onClick={() =>
@@ -123,7 +123,7 @@ function TariffCard({ tariff, index, count, dragSort, setTariffs }: TariffCardPr
               }
             />
           </Field>
-          <Field label="Slug" hint="Латиница, цифры и дефис. Используется в адресе.">
+          <Field label="Адрес тарифа (slug)" hint="Только латиница, цифры и дефис, например online-session." tip="Последняя часть ссылки на тариф. Если изменить адрес, старая ссылка перестанет работать.">
             <TextInput
               value={tariff.slug}
               autoCapitalize="none"
@@ -138,6 +138,7 @@ function TariffCard({ tariff, index, count, dragSort, setTariffs }: TariffCardPr
 
         <Checkbox
           label="Показывать на сайте"
+          tip="Если выключить, тариф останется в админке, но посетители сайта его не увидят. Удобно для черновиков."
           checked={tariff.isActive}
           onChange={(event) =>
             editTariff((draft) => {
@@ -258,7 +259,7 @@ function PackageRow({
             }
           />
         </Field>
-        <Field label="Цена">
+        <Field label="Цена" tip="Обычная цена пакета в выбранной валюте, целым числом.">
           <TextInput
             type="number"
             inputMode="numeric"
@@ -271,7 +272,7 @@ function PackageRow({
             }
           />
         </Field>
-        <Field label="Цена со скидкой">
+        <Field label="Цена со скидкой" tip="Если заполнить, на сайте обычная цена будет зачёркнута, а эта показана как актуальная. Оставьте пустым, если скидки нет.">
           <TextInput
             type="number"
             inputMode="numeric"
@@ -286,7 +287,7 @@ function PackageRow({
             }
           />
         </Field>
-        <Field label="Валюта">
+        <Field label="Валюта" tip="Код или знак валюты, например RUB или ₽.">
           <TextInput
             value={pkg.currency}
             onChange={(event) =>

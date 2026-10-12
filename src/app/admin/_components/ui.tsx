@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import type {
   ButtonHTMLAttributes,
   InputHTMLAttributes,
@@ -60,17 +63,58 @@ export function Button({
   );
 }
 
+/** Round "?" button: the explanation shows on hover, focus or tap. */
+export function Tip({ text }: { text: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <span className="group/tip relative inline-flex align-middle">
+      <button
+        type="button"
+        aria-label="Пояснение"
+        aria-expanded={open}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setOpen((v) => !v);
+        }}
+        onBlur={() => setOpen(false)}
+        onKeyDown={(e) => e.key === "Escape" && setOpen(false)}
+        className="border-dusty-grape/40 text-dusty-grape hover:bg-dusty-grape/10 focus-visible:ring-dusty-grape/30 inline-flex size-5 cursor-help items-center justify-center rounded-full border text-xs leading-none font-semibold outline-none focus-visible:ring-2"
+      >
+        ?
+      </button>
+      <span
+        role="tooltip"
+        className={`tip-bubble text-platinum pointer-events-none absolute top-full left-0 z-40 mt-2 w-64 max-w-[calc(100vw-3rem)] rounded-xl px-3 py-2 text-xs leading-relaxed font-normal group-hover/tip:block ${open ? "block" : "hidden"}`}
+      >
+        {text}
+      </span>
+    </span>
+  );
+}
+
 type FieldProps = {
   label: string;
   hint?: string;
+  /** Plain-language explanation shown in a tooltip next to the label. */
+  tip?: string;
   className?: string;
   children: ReactNode;
 };
 
-export function Field({ label, hint, className = "", children }: FieldProps) {
+export function Field({
+  label,
+  hint,
+  tip,
+  className = "",
+  children,
+}: FieldProps) {
   return (
     <label className={`flex min-w-0 flex-col gap-1.5 ${className}`}>
-      <span className="text-sm font-medium text-black/80">{label}</span>
+      <span className="flex items-center gap-1.5 text-sm font-medium text-black/80">
+        {label}
+        {tip ? <Tip text={tip} /> : null}
+      </span>
       {children}
       {hint ? <span className="text-xs text-black/55">{hint}</span> : null}
     </label>
@@ -112,16 +156,21 @@ export function Select({
 
 export function Checkbox({
   label,
+  tip,
   ...props
-}: Omit<InputHTMLAttributes<HTMLInputElement>, "type"> & { label: string }) {
+}: Omit<InputHTMLAttributes<HTMLInputElement>, "type"> & {
+  label: string;
+  tip?: string;
+}) {
   return (
     <label className="flex min-h-11 cursor-pointer items-center gap-3 text-sm text-black/85 select-none">
       <input
         type="checkbox"
-        className="accent-dusty-grape size-5 cursor-pointer"
+        className="accent-dusty-grape size-5 shrink-0 cursor-pointer"
         {...props}
       />
-      {label}
+      <span>{label}</span>
+      {tip ? <Tip text={tip} /> : null}
     </label>
   );
 }
