@@ -179,6 +179,44 @@ GitHub Pages больше **не подходит**: сайт используе
 
 - **`supabase-keepalive.yml`** - раз в 3 дня запрашивает `/api/content` и `/api/tariffs` (оба читают БД). Free-план Supabase ставит проект на паузу после 7 дней без запросов к БД.
 - **`sync-fallback-photo.yml`** - раз в неделю (понедельник) скачивает текущее фото профиля из Supabase и, если оно изменилось, коммитит его в `public/photo.webp` и `src/assets/images/photo.webp`. Это запасное фото для SEO/OG и страницы, когда в Supabase фото нет. Если на `main` включена защита веток, разрешите боту `github-actions` пушить в неё.
+- **`supabase-backup.yml`** - раз в неделю (воскресенье) выгружает **все таблицы схемы `public` и все файлы Storage**, шифрует архив и сохраняет его как артефакт запуска на 90 дней. Скрипт сам находит таблицы и колонки, поэтому при изменении структуры данных ничего править не нужно. Архив шифруется, потому что репозиторий публичный.
+
+### Резервные копии Supabase
+
+На бесплатном плане Supabase нет собственных бэкапов, поэтому используется этот workflow.
+
+**Настройка (один раз)**
+
+1. Settings -> Secrets and variables -> Actions -> **Secrets** -> New repository secret. Добавьте:
+   - `SUPABASE_URL` - адрес проекта (то же, что `NEXT_PUBLIC_SUPABASE_URL`);
+   - `SUPABASE_SERVICE_ROLE_KEY` - сервисный ключ (Supabase -> Project Settings -> API);
+   - `BACKUP_PASSPHRASE` - придуманный длинный пароль для шифрования. **Сохраните его отдельно** (менеджер паролей): без него архив не открыть.
+2. Вкладка Actions -> **Supabase backup** -> Run workflow, чтобы проверить, что всё работает.
+
+**Как скачать копию**
+
+1. Actions -> Supabase backup -> нужный запуск -> раздел Artifacts -> `supabase-backup-…` (файл `backup.tar.gz.gpg`).
+2. Расшифровать и распаковать:
+
+```bash
+gpg --batch --pinentry-mode loopback --passphrase "ВАШ_ПАРОЛЬ" -o backup.tar.gz -d backup.tar.gz.gpg
+tar -xzf backup.tar.gz
+```
+
+Получится папка `backup/`: `tables/*.json` (по файлу на таблицу), `storage/<бакет>/…` (файлы, например фото), `schema.openapi.json` (описание структуры) и `manifest.json` (количество строк и файлов).
+
+**Как восстановить**
+
+1. В пустом или новом проекте Supabase создайте структуру таблиц (SQL из раздела «Настройка Supabase»).
+2. Запустите восстановление (нужны `SUPABASE_URL` и `SUPABASE_SERVICE_ROLE_KEY` нового проекта, например из `.env.local`):
+
+```bash
+node --env-file=.env.local scripts/restore-supabase.mjs backup
+```
+
+Скрипт записывает строки по первичному ключу (существующие обновляются, недостающие добавляются) в порядке внешних ключей, создаёт бакеты и загружает файлы. Локально такую же копию можно сделать командой `node --env-file=.env.local scripts/backup-supabase.mjs backup` (папку `backup/` не коммитьте: в ней данные сайта).
+
+Если в схеме появилась **новая таблица**, она попадёт в бэкап автоматически, но структуру (SQL) нужно хранить в репозитории отдельно: бэкап сохраняет данные, а не `CREATE TABLE`.
 
 ## Формат данных
 

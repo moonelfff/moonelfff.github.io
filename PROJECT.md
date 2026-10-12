@@ -26,7 +26,7 @@
 /
 ├─ next.config.ts, tsconfig.json, eslint.config.mjs, postcss.config.mjs
 ├─ .env.example
-├─ .github/workflows/   # supabase-keepalive.yml, sync-fallback-photo.yml
+├─ .github/workflows/   # supabase-keepalive.yml, sync-fallback-photo.yml, supabase-backup.yml
 ├─ public/        # шрифты, favicons,
 │                 # robots.txt, sitemap.xml, llms.txt, site.webmanifest
 ├─ supabase/      # site_content.sql, tariffs.sql, tests.sql
@@ -108,6 +108,7 @@ npm run lint
 - GitHub Pages не используется: статический экспорт невозможен из-за API и proxy.
 - `.github/workflows/supabase-keepalive.yml`: cron раз в 3 дня + ручной запуск, запрашивает `/api/content` и `/api/tariffs`, чтобы Supabase Free не ставил проект на паузу (7 дней без активности). URL - переменная репозитория `SITE_URL` (по умолчанию `https://ekaterinazhuk.ru`).
 - `.github/workflows/sync-fallback-photo.yml`: раз в неделю + ручной запуск; скачивает текущее фото профиля из Supabase и при изменении коммитит его в `public/photo.webp` и `src/assets/images/photo.webp` (запасное фото для SEO/OG).
+- `.github/workflows/supabase-backup.yml`: раз в неделю + ручной запуск; `scripts/backup-supabase.mjs` находит все таблицы `public` через OpenAPI PostgREST и все бакеты Storage (универсально, без списка таблиц в коде), архив шифруется gpg (`BACKUP_PASSPHRASE`) и сохраняется артефактом на 90 дней. Секреты: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `BACKUP_PASSPHRASE`. Восстановление: `scripts/restore-supabase.mjs` (upsert по PK в порядке FK + загрузка файлов). Инструкция в README.
 - Supabase: SQL из `supabase/`, публичный Storage-бакет, `service_role` только на сервере.
 
 ## 10. Оформление
