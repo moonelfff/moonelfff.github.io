@@ -1,0 +1,74 @@
+name: Supabase backup
+
+# Раз в сутки выгружает все таблицы и файлы Supabase. Если данные не изменились
+# с последнего сохранённого бэкапа, ничего не сохраняется. Иначе архив шифруется
+# и загружается как артефакт запуска (хранится 90 дней).
+# Репозиторий публичный, поэтому архив шифруется: без BACKUP_PASSPHRASE его не открыть.
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Сохранить бэкап, даже если данные не изменились"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Dump tables and storage
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/backup-supabase.mjs backup
+
+      # Отпечаток считается по всем файлам, кроме manifest.json (в нём время запуска).
+      - name: Fingerprint data
+        id: fingerprint
+        run: |
+          hash=$(cd backup && find . -type f ! -name manifest.json -print0 | LC_ALL=C sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)
+          echo "hash=$hash" >> "$GITHUB_OUTPUT"
+          echo "Data fingerprint: $hash"
+          echo "$hash" > backup-fingerprint.txt
+
+      # Кэш с таким ключом есть, только если этот набор данных уже сохранялся.
+      - name: Check whether this data was already backed up
+        id: previous
+        uses: actions/cache@v6
+        with:
+          path: backup-fingerprint.txt
+          key: supabase-backup-${{ steps.fingerprint.outputs.hash }}
+
+      - name: No changes
+        if: steps.previous.outputs.cache-hit == 'true' && inputs.force != true
+        run: echo "Данные не изменились с последнего бэкапа, новый не создаётся."
+
+      - name: Encrypt archive
+        if: steps.previous.outputs.cache-hit != 'true' || inputs.force == true
+        env:
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          test -n "$BACKUP_PASSPHRASE"
+          tar -czf backup.tar.gz backup
+          gpg --batch --yes --pinentry-mode loopback --passphrase "$BACKUP_PASSPHRASE" \
+            --symmetric --cipher-algo AES256 --output backup.tar.gz.gpg backup.tar.gz
+
+      - name: Upload backup
+        if: steps.previous.outputs.cache-hit != 'true' || inputs.force == true
+        uses: actions/upload-artifact@v7
+        with:
+          name: supabase-backup-${{ github.run_id }}
+          path: backup.tar.gz.gpg
+          retention-days: 90
+          if-no-files-found: error

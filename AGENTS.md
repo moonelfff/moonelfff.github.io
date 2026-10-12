@@ -20,7 +20,7 @@ Website of clinical psychologist Ekaterina Zhuk (ekaterinazhuk.ru): Next.js App 
 - Public reads use cached `getPublic*` functions (`unstable_cache` + tags, `src/lib/cache.ts`); admin routes use uncached `get*Bundle`. Any new save path must call `invalidateCache(tag)`.
 - Admin auth: cookie + `src/proxy.ts` + `src/lib/adminSession.ts`. `/admin` and `/api/admin/*` are protected.
 - Admin UI (`src/app/admin`): shared components in `_components/` (`AdminShell` with sticky save bar, `useToast()` notifications, `ui.tsx` primitives), helpers in `_lib/`. Mobile-first (44px targets, 16px inputs on mobile), site palette only (`soft-linnen`, `platinum`, `alabaster-grey`, `dusty-grape`). Report results via toasts, not inline text.
-- Hosting: Vercel (GitHub Pages is not supported). Workflows: `supabase-keepalive.yml` (keep-alive), `sync-fallback-photo.yml` (weekly fallback photo sync) in `.github/workflows/`.
+- Hosting: Vercel (GitHub Pages is not supported). Workflows: `supabase-keepalive.yml` (keep-alive), `sync-fallback-photo.yml` (weekly fallback photo sync), `supabase-backup.yml` (daily encrypted backup of all tables and storage, skipped when data is unchanged; scripts in `scripts/`) in `.github/workflows/`.
 
 ## Environment
 
