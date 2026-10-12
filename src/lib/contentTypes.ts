@@ -27,7 +27,6 @@ export type SiteContent = {
   b17: string;
   b17Link: string;
   bookConsultation: string;
-  loading: string;
   testLink: string;
   testTitle: string;
 };

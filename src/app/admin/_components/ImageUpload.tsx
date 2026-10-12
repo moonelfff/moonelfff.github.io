@@ -55,9 +55,9 @@ export function ImageUpload({
           }
         }}
       />
-      <Button disabled={isUploading} onClick={() => inputRef.current?.click()}>
-        <PlusIcon width={18} height={18} />
-        {isUploading ? "Загружаем…" : imageUrl ? "Заменить изображение" : "Выбрать изображение"}
+      <Button isLoading={isUploading} onClick={() => inputRef.current?.click()}>
+        {isUploading ? null : <PlusIcon width={18} height={18} />}
+        {imageUrl ? "Заменить изображение" : "Выбрать изображение"}
       </Button>
     </div>
   );

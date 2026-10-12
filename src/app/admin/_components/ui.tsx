@@ -5,6 +5,7 @@ import type {
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
 } from "react";
+import Spinner from "@/components/atom/Spinner";
 import { ChevronDownIcon } from "./icons";
 
 // 16px font on mobile prevents iOS from zooming into focused inputs.
@@ -26,15 +27,20 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   /** Square button that only shows an icon; `label` is used for accessibility. */
   icon?: boolean;
   label?: string;
+  /** Shows a spinner instead of the leading icon and blocks clicks. */
+  isLoading?: boolean;
 };
 
 export function Button({
   variant = "secondary",
   icon = false,
   label,
+  isLoading = false,
   className = "",
   type = "button",
   title,
+  children,
+  disabled,
   ...props
 }: ButtonProps) {
   const size = icon ? "size-11 md:size-9" : "min-h-11 px-4 md:min-h-10";
@@ -42,10 +48,15 @@ export function Button({
     <button
       type={type}
       aria-label={label}
+      aria-busy={isLoading || undefined}
       title={title ?? label}
-      className={`focus-visible:outline-dusty-grape inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-xl text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-40 ${size} ${BUTTON_VARIANTS[variant]} ${className}`}
+      disabled={disabled || isLoading}
+      className={`focus-visible:outline-dusty-grape inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-xl text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-40 ${isLoading ? "disabled:cursor-progress disabled:opacity-80" : ""} ${size} ${BUTTON_VARIANTS[variant]} ${className}`}
       {...props}
-    />
+    >
+      {isLoading ? <Spinner className="size-[18px]" /> : null}
+      {children}
+    </button>
   );
 }
 

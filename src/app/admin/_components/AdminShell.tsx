@@ -156,10 +156,11 @@ export function AdminShell({
             variant="primary"
             className="max-md:flex-1"
             disabled={!canSave}
+            isLoading={isSaving}
             onClick={onSave}
           >
-            <CheckIcon width={18} height={18} />
-            {isSaving ? "Сохраняем…" : "Сохранить"}
+            {isSaving ? null : <CheckIcon width={18} height={18} />}
+            Сохранить
           </Button>
         </div>
       </div>

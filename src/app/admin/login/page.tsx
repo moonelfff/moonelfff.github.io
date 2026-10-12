@@ -54,8 +54,8 @@ export default function AdminLoginPage() {
             aria-label="Пароль"
             required
           />
-          <Button type="submit" variant="primary" disabled={loading}>
-            {loading ? "Входим…" : "Войти"}
+          <Button type="submit" variant="primary" isLoading={loading}>
+            Войти
           </Button>
         </form>
       </div>

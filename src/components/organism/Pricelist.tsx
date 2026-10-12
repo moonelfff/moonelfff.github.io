@@ -3,6 +3,7 @@ import PriceItem from "./PriceItem";
 import { useEffect, useState } from "react";
 import { parseMarkdown } from "../../utils/markdownParser";
 import Contact from "./Contact";
+import PriceItemSkeleton from "./PriceItemSkeleton";
 import { useSiteContent } from "../providers/SiteContentProvider";
 import type { Tariff } from "@/lib/tariffStore";
 
@@ -13,6 +14,7 @@ type TariffResponse = {
 function Pricelist() {
   const data = useSiteContent();
   const [tariffs, setTariffs] = useState<Tariff[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadTariffs = async () => {
@@ -26,6 +28,8 @@ function Pricelist() {
         setTariffs(body.tariffs.filter((tariff) => tariff.isActive));
       } catch {
         setTariffs([]);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -39,18 +43,15 @@ function Pricelist() {
       </Typography>
       <div className="flex flex-col gap-6">
         <div className="flex flex-col flex-wrap justify-center gap-3 lg:flex-row">
+          {isLoading ? <PriceItemSkeleton /> : null}
           {tariffs.map((tariff) => (
             <PriceItem
               key={tariff.id}
               title={tariff.title}
               description={
-                tariff.descriptionMarkdown ? (
-                  parseMarkdown(tariff.descriptionMarkdown)
-                ) : (
-                  <div className="flex h-50 items-center justify-center">
-                    {data.loading}
-                  </div>
-                )
+                tariff.descriptionMarkdown
+                  ? parseMarkdown(tariff.descriptionMarkdown)
+                  : null
               }
               packages={tariff.packages.map((pkg) => ({
                 name: pkg.title,
