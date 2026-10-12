@@ -1,0 +1,79 @@
+name: Supabase restore
+
+# Ручное восстановление данных Supabase из бэкапа (артефакт workflow «Supabase backup»).
+# Перед восстановлением сохраняется снимок текущего состояния, чтобы можно было откатиться.
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "ID запуска Supabase backup (число из адреса запуска). Пусто = самый свежий бэкап"
+        required: false
+        type: string
+      confirm:
+        description: "Введите RESTORE, чтобы подтвердить перезапись данных"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    if: inputs.confirm == 'RESTORE'
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Find backup artifact
+        id: find
+        env:
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          if [ -n "$RUN_ID" ]; then
+            name="supabase-backup-$RUN_ID"
+            run_id="$RUN_ID"
+          else
+            read -r name run_id < <(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts?per_page=100" \
+              --jq '[.artifacts[] | select(.expired == false and (.name | startswith("supabase-backup-")))][0] | "\(.name) \(.workflow_run.id)"')
+          fi
+          if [ -z "$name" ] || [ "$name" = "null null" ]; then
+            echo "Бэкап не найден (возможно, истёк срок хранения 90 дней)"; exit 1
+          fi
+          echo "Используется бэкап: $name"
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+
+      - name: Snapshot current state (safety copy)
+        run: |
+          node scripts/backup-supabase.mjs pre-restore
+          tar -czf pre-restore.tar.gz pre-restore
+          gpg --batch --yes --pinentry-mode loopback --passphrase "$BACKUP_PASSPHRASE" \
+            --symmetric --cipher-algo AES256 --output pre-restore.tar.gz.gpg pre-restore.tar.gz
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: pre-restore-${{ github.run_id }}
+          path: pre-restore.tar.gz.gpg
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Download and decrypt backup
+        run: |
+          gh run download "${{ steps.find.outputs.run_id }}" -R "$GITHUB_REPOSITORY" -n "${{ steps.find.outputs.name }}" -D downloaded
+          gpg --batch --pinentry-mode loopback --passphrase "$BACKUP_PASSPHRASE" \
+            -o backup.tar.gz -d downloaded/backup.tar.gz.gpg
+          tar -xzf backup.tar.gz
+          cat backup/manifest.json
+
+      - name: Restore
+        run: node scripts/restore-supabase.mjs backup
