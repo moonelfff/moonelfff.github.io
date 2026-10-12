@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { PublicTestDefinition } from "@/lib/tests/types";
 import { AdminShell } from "../_components/AdminShell";
+import { AdminPageSkeleton } from "../_components/AdminPageSkeleton";
 import { PlusIcon } from "../_components/icons";
 import { useToast } from "../_components/Toast";
 import { Button, Card } from "../_components/ui";
@@ -86,7 +87,7 @@ export default function AdminTestsPage() {
       onSave={onSave}
       onReset={onReset}
     >
-      {isLoading ? <p className="text-black/60">Загрузка…</p> : null}
+      {isLoading ? <AdminPageSkeleton /> : null}
 
       {loadFailed ? (
         <div className="flex flex-col items-start gap-3 rounded-2xl border border-red-200 bg-platinum p-4">

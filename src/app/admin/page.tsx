@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { SiteContent } from "@/lib/contentTypes";
 import type { Tariff } from "@/lib/tariffStore";
 import { AdminShell } from "./_components/AdminShell";
+import { AdminPageSkeleton } from "./_components/AdminPageSkeleton";
 import { ImageUpload } from "./_components/ImageUpload";
 import { MarkdownEditor } from "./_components/MarkdownEditor";
 import { TariffsEditor } from "./_components/TariffsEditor";
@@ -48,7 +49,6 @@ const MAIN_FIELDS: TextFieldConfig[] = [
   { key: "fullName", label: "Имя" },
   { key: "priceHeader", label: "Заголовок блока тарифов" },
   { key: "professionDescription", label: "Короткое описание профессии", wide: true },
-  { key: "loading", label: "Текст загрузки" },
 ];
 
 const LINK_FIELDS: TextFieldConfig[] = [
@@ -227,7 +227,7 @@ export default function AdminContentPage() {
       onSave={onSave}
       onReset={onReset}
     >
-      {isLoading ? <p className="text-black/60">Загрузка…</p> : null}
+      {isLoading ? <AdminPageSkeleton /> : null}
 
       {loadFailed ? (
         <div className="flex flex-col items-start gap-3 rounded-2xl border border-red-200 bg-platinum p-4">
