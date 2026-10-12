@@ -67,7 +67,7 @@ export function Button({
 export function Tip({ text }: { text: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <span className="group relative inline-flex align-middle">
+    <span className="group/tip relative inline-flex align-middle">
       <button
         type="button"
         aria-label="Пояснение"
@@ -85,7 +85,7 @@ export function Tip({ text }: { text: string }) {
       </button>
       <span
         role="tooltip"
-        className={`pointer-events-none absolute top-full left-0 z-40 mt-2 w-64 max-w-[calc(100vw-3rem)] rounded-xl bg-black px-3 py-2 text-xs leading-relaxed font-normal text-white shadow-lg group-hover:block ${open ? "block" : "hidden"}`}
+        className={`tip-bubble text-platinum pointer-events-none absolute top-full left-0 z-40 mt-2 w-64 max-w-[calc(100vw-3rem)] rounded-xl px-3 py-2 text-xs leading-relaxed font-normal group-hover/tip:block ${open ? "block" : "hidden"}`}
       >
         {text}
       </span>
