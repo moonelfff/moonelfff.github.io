@@ -16,11 +16,21 @@ import { updateDraft } from "../../_lib/draft";
 import { moveItem } from "../../_lib/moveItem";
 import {
   createQuestion,
+  pruneScoring,
   QUESTIONS_PER_PAGE,
   type EditableQuestion,
   type EditableTest,
+  type ScoringMode,
 } from "../_lib/editable";
 import { QuestionCard } from "./QuestionCard";
+import { ScoringEditor } from "./ScoringEditor";
+import { TestSettings } from "./TestSettings";
+
+const SCORING_SUMMARY: Record<ScoringMode, string> = {
+  none: "не настроено",
+  scale: "сумма баллов по диапазонам",
+  groups: "типы (группы)",
+};
 
 type TestCardProps = {
   test: EditableTest;
@@ -44,7 +54,7 @@ export function TestCard({ test, index, defaultOpen, setTests }: TestCardProps) 
   };
 
   const addQuestion = () => {
-    const question = createQuestion(test.questions.length);
+    const question = createQuestion(test.questions);
     setJustAddedQuestionId(question.id);
     editTest((draft) => {
       draft.questions.push(question);
@@ -173,42 +183,52 @@ export function TestCard({ test, index, defaultOpen, setTests }: TestCardProps) 
             }
             onRemove={() =>
               editTest((draft) => {
-                draft.questions.splice(questionIndex, 1);
+                const [removed] = draft.questions.splice(questionIndex, 1);
+                pruneScoring(draft.scoring, removed.id);
               })
             }
           />
         ))}
       </div>
 
-      <Collapsible summary={<span className="text-sm font-medium">Настройки схемы SurveyJS (JSON)</span>}>
+      <Collapsible
+        summary={<span className="text-sm font-semibold">Как проходить тест</span>}
+        defaultOpen={false}
+      >
+        <TestSettings
+          settings={test.settings}
+          onChange={(recipe) => editTest((draft) => recipe(draft.settings))}
+        />
+      </Collapsible>
+
+      <Collapsible
+        summary={
+          <>
+            <span className="block text-sm font-semibold">Подсчёт и толкование результатов</span>
+            <span className="block text-xs text-black/55">
+              {SCORING_SUMMARY[test.scoring.mode]}
+            </span>
+          </>
+        }
+      >
+        <ScoringEditor
+          test={test}
+          editScoring={(recipe) => editTest((draft) => recipe(draft.scoring))}
+        />
+      </Collapsible>
+
+      <Collapsible summary={<span className="text-sm font-medium">Для опытных: дополнительные настройки SurveyJS (JSON)</span>}>
         <p className="text-xs text-black/55">
-          Общие параметры теста, кроме title, description и pages.
+          Остальные параметры схемы SurveyJS. Обычно здесь ничего менять не нужно.
         </p>
         <TextArea
           mono
-          rows={10}
-          aria-label="Настройки схемы теста (JSON)"
+          rows={8}
+          aria-label="Дополнительные настройки схемы (JSON)"
           value={test.schemaSettingsText}
           onChange={(event) =>
             editTest((draft) => {
               draft.schemaSettingsText = event.target.value;
-            })
-          }
-        />
-      </Collapsible>
-
-      <Collapsible summary={<span className="text-sm font-medium">Подсчёт результатов, scoring (JSON)</span>}>
-        <p className="text-xs text-black/55">
-          Шкалы, группы вопросов и интерпретация результатов.
-        </p>
-        <TextArea
-          mono
-          rows={12}
-          aria-label="Подсчёт результатов (JSON)"
-          value={test.scoringText}
-          onChange={(event) =>
-            editTest((draft) => {
-              draft.scoringText = event.target.value;
             })
           }
         />
