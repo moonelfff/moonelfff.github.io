@@ -41,8 +41,8 @@ function Button({
     <span
       className={`button-grain mt-2 block rounded-xl border-2 transition-colors ${
         variant === "solid"
-          ? "bg-success border-success text-platinum hover:border-success-light hover:bg-[#4fb589] hover:-translate-y-0.5 hover:shadow-md"
-          : "text-dusty-grape bg-dusty-grape/10 hover:bg-dusty-grape/20 hover:-translate-y-0.5 border-transparent"
+          ? "bg-success border-success text-platinum hover:border-success-light hover:bg-[#4fb589]"
+          : "text-dusty-grape bg-dusty-grape/10 hover:bg-dusty-grape/20 border-transparent"
       }`}
     >
       {label}
