@@ -39,7 +39,7 @@ function Button({
   const flat = variant === "solid" || variant === "tonal";
   const inner = flat ? (
     <span
-      className={`mt-2 block rounded-xl border-2 transition-colors ${
+      className={`button-grain mt-2 block rounded-xl border-2 transition-colors ${
         variant === "solid"
           ? "bg-success border-success text-platinum hover:bg-success-dark hover:border-success-dark"
           : "text-dusty-grape bg-dusty-grape/10 hover:bg-dusty-grape/20 border-transparent"
@@ -60,7 +60,7 @@ function Button({
         <span className="backdrop-glass button-glass block">{label}</span>
       </span>
     ) : (
-      <span className="text-dusty-grape border-dusty-grape hover:bg-dusty-grape/10 mt-2 block rounded-xl border-2 transition-colors">
+      <span className="button-grain button-grain--subtle text-dusty-grape border-dusty-grape hover:bg-dusty-grape/10 mt-2 block rounded-xl border-2 transition-colors">
         {label}
       </span>
     );
