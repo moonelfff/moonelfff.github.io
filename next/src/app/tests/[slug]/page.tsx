@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import SurveyRunner from "@/components/tests/SurveyRunner";
-import { getMockTestBySlug } from "@/lib/tests/mockTests";
+import { getTestBySlug } from "@/lib/tests/testStore";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -8,7 +8,7 @@ type PageProps = {
 
 export default async function TestPage({ params }: PageProps) {
   const { slug } = await params;
-  const test = getMockTestBySlug(slug);
+  const test = await getTestBySlug(slug);
 
   if (!test) {
     notFound();

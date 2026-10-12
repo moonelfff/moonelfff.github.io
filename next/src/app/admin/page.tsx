@@ -2,6 +2,7 @@
 
 import type { SiteContent } from "@/lib/contentStore";
 import type { Tariff, TariffPackage } from "@/lib/tariffStore";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   useEffect,
@@ -945,6 +946,12 @@ export default function AdminPage() {
               Источник тарифов:{" "}
               <span className="font-medium">{tariffSource}</span>
             </p>
+            <Link
+              href="/admin/tests"
+              className="mt-2 inline-flex rounded-lg border border-black/15 px-3 py-2 text-sm font-medium text-black hover:bg-black/5"
+            >
+              Открыть раздел тестов
+            </Link>
 
             <details className="mt-1 md:hidden">
               <summary className="cursor-pointer text-xs text-black/70">

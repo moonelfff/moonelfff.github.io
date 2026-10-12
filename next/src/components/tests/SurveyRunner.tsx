@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Model, setLicenseKey } from "survey-core";
 import { Survey } from "survey-react-ui";
 import type { TestResultPayload } from "@/lib/tests/types";
+import { parseMarkdown } from "@/utils/markdownParser";
 
 type SurveyRunnerProps = {
   slug: string;
@@ -34,7 +35,11 @@ export default function SurveyRunner({
       setLicenseKey(licenseKey);
     }
 
-    const nextSurvey = new Model(schema);
+    const surveySchema = { ...schema };
+    delete surveySchema.title;
+    delete surveySchema.description;
+
+    const nextSurvey = new Model(surveySchema);
     nextSurvey.focusFirstQuestionAutomatic = true;
     return nextSurvey;
   }, [schema]);
@@ -74,7 +79,13 @@ export default function SurveyRunner({
     <main className="bg-platinum font-primary min-h-dvh px-3 py-4 text-black md:px-6 md:py-8">
       <div className="mx-auto w-full max-w-4xl">
         <h1 className="text-2xl font-semibold md:text-3xl">{title}</h1>
-        <p className="mt-2 text-sm text-black/75 md:text-base">{description}</p>
+        <div className="markdown content-markdown mt-2 text-sm text-black/75 md:text-base">
+          {description.trim() ? (
+            parseMarkdown(description)
+          ) : (
+            <p>Описание теста пока не заполнено.</p>
+          )}
+        </div>
 
         {submitError ? (
           <p className="mt-3 rounded-lg border border-red-300/60 bg-red-100 px-3 py-2 text-sm text-red-900">

@@ -1,5 +1,5 @@
-import { getMockTestBySlug } from "@/lib/tests/mockTests";
 import { evaluateTestResult } from "@/lib/tests/scoring";
+import { getTestBySlug } from "@/lib/tests/testStore";
 import { NextResponse } from "next/server";
 import { nanoid } from "nanoid";
 import { z } from "zod";
@@ -14,7 +14,7 @@ type Params = {
 
 export async function POST(request: Request, { params }: Params) {
   const { slug } = await params;
-  const test = getMockTestBySlug(slug);
+  const test = await getTestBySlug(slug);
 
   if (!test) {
     return NextResponse.json({ error: "Тест не найден" }, { status: 404 });
