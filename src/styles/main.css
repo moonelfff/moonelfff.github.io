@@ -279,14 +279,21 @@
 
 .test-survey .sd-question__num,
 .test-survey .sd-element__num {
-  display: inline !important;
+  display: block !important;
   position: static !important;
   width: auto !important;
-  margin: 0 !important;
+  margin: 0 0 0.25rem !important;
   color: var(--color-gold) !important;
   font-family: var(--font-play), sans-serif;
-  font-size: 1.25rem !important;
-  line-height: inherit !important;
+  font-size: 0.875rem !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.2 !important;
+  text-align: left !important;
+}
+
+.test-survey [data-key="num-sp"] {
+  display: none;
 }
 
 .test-survey .sd-body__page,

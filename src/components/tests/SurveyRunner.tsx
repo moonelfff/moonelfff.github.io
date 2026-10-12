@@ -235,6 +235,7 @@ export default function SurveyRunner({
     nextSurvey.showTitle = false;
     if (!surveySchema.showQuestionNumbers) {
       nextSurvey.showQuestionNumbers = "on";
+      nextSurvey.questionStartIndex = "Вопрос 1";
     }
     nextSurvey.showCompletedPage = false;
     nextSurvey.focusFirstQuestionAutomatic = false;
