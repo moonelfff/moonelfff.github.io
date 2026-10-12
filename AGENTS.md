@@ -7,3 +7,26 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+# Project context
+
+Website of clinical psychologist Ekaterina Zhuk (ekaterinazhuk.ru): Next.js App Router, React 19, Tailwind 4, Supabase, SurveyJS. Full description: `PROJECT.md`; setup and deploy: `README.md`. User communicates in Russian; reply in Russian, concisely.
+
+## Rules
+
+- **Supabase is the only runtime data source** (`site_content`, `tariffs`, `tariff_packages`, `psychological_tests`, Storage). Never add local file reads or fallbacks. `supabase/seed/` is only input for `npm run seed`.
+- Server code gets the client via `src/lib/supabase.ts` (service role key, server only; never expose it to the client).
+- Pages that read Supabase must be `export const dynamic = "force-dynamic"` so the build works without credentials.
+- Admin auth: cookie + `middleware.ts` + `src/lib/adminAuth.ts`. `/admin` and `/api/admin/*` are protected.
+- Hosting: Vercel (GitHub Pages is not supported). Keep-alive workflow: `.github/workflows/supabase-keepalive.yml`.
+
+## Environment
+
+- Secrets live in `.env.local` (gitignored). A shared copy is at `C:\Users\mrsav\.copilot\secrets\.env.local`; in a new worktree copy it to the repo root. Never print, log or commit its values.
+- Dev server: `npm run dev` on `127.0.0.1:3020`; restart after env changes.
+- Checks: `npx tsc --noEmit`, `npm run build` (`npm run lint` has pre-existing `no-explicit-any` errors in `src/types/global.d.ts`).
+- Windows PowerShell 5.1: write files as UTF-8 without BOM; paths with `[slug]` need `-LiteralPath`.
+
+## Git
+
+- Work on a feature branch, open PRs against `main`. Commit trailer: `Co-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>`.
