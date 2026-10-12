@@ -171,3 +171,134 @@
   width: calc(100%);
   transform: translateY(0) translateX(0);
 }
+
+/* Тема SurveyJS под стиль сайта (стеклянные карточки) */
+.test-survey {
+  --sjs-general-backcolor: transparent;
+  --sjs-general-backcolor-dim: transparent;
+  --sjs-general-backcolor-dim-light: transparent;
+  --sjs-general-forecolor: var(--color-platinum);
+  --sjs-general-forecolor-light: rgb(249 255 250 / 0.75);
+  --sjs-general-dim-forecolor: var(--color-platinum);
+  --sjs-general-dim-forecolor-light: rgb(249 255 250 / 0.75);
+  --sjs-primary-backcolor: var(--color-gold);
+  --sjs-primary-backcolor-light: rgb(240 208 102 / 0.25);
+  --sjs-primary-backcolor-dark: var(--color-gold);
+  --sjs-primary-forecolor: var(--color-black);
+  --sjs-border-default: rgb(249 255 250 / 0.5);
+  --sjs-border-light: rgb(249 255 250 / 0.3);
+  --sjs-font-family: var(--font-mulish), sans-serif;
+  --sjs-corner-radius: 12px;
+  --sjs-base-unit: 8px;
+}
+
+.test-survey .sd-root-modern::before {
+  background: transparent;
+}
+
+.test-survey .sd-page__title,
+.test-survey .sd-page__description {
+  display: none;
+}
+
+.test-survey .sd-selectbase__label,
+.test-survey .sd-item__control-label,
+.test-survey .sd-selectbase__label span {
+  color: var(--color-platinum);
+  font-size: 1rem;
+}
+
+.test-survey .sd-item__decorator {
+  display: none;
+}
+
+.test-survey .sd-selectbase__label {
+  gap: 0;
+  width: 100%;
+}
+
+.test-survey .sd-selectbase__item,
+.test-survey .sd-item {
+  width: 100%;
+}
+
+.test-survey .sd-element__required-text,
+.test-survey .sd-question__required-text {
+  color: var(--color-gold);
+}
+
+.test-survey .sd-element--complex > .sd-element__header,
+.test-survey .sd-question__content,
+.test-survey .sd-element__content {
+  padding-inline: 0;
+}
+
+.test-survey .sd-root-modern,
+.test-survey .sd-body,
+.test-survey .sd-page,
+.test-survey .sd-element,
+.test-survey .sd-row {
+  background: transparent;
+  box-shadow: none;
+}
+
+.test-survey .sd-body {
+  padding: 0;
+  max-width: none;
+}
+
+.test-survey .sd-body__page,
+.test-survey .sd-row,
+.test-survey .sd-page,
+.test-survey .sd-element {
+  padding-inline: 0;
+  margin-inline: 0;
+}
+
+.test-survey .sd-element__title,
+.test-survey .sd-question__title {
+  color: var(--color-platinum);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.test-survey .sd-selectbase__label {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgb(249 255 250 / 0.5);
+  border-radius: 0.75rem;
+  background: rgb(255 255 255 / 0.08);
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.test-survey .sd-selectbase__label:hover {
+  background: rgb(255 255 255 / 0.2);
+}
+
+.test-survey .sd-item--checked .sd-selectbase__label,
+.test-survey .sd-selectbase__label:has(input:checked) {
+  background: var(--color-gold);
+  border-color: var(--color-gold);
+}
+
+.test-survey .sd-item--checked .sd-selectbase__label,
+.test-survey .sd-item--checked .sd-item__control-label,
+.test-survey .sd-selectbase__label:has(input:checked) span {
+  color: var(--color-black);
+}
+
+.test-survey .sd-input,
+.test-survey textarea {
+  background: rgb(255 255 255 / 0.12);
+  color: var(--color-platinum);
+  border: 1px solid rgb(249 255 250 / 0.5);
+}
+
+.test-survey .sd-error,
+.test-survey .sd-element__erbox {
+  color: var(--color-gold);
+  background: rgb(0 0 0 / 0.25);
+  border-radius: 0.5rem;
+}
