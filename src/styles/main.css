@@ -183,6 +183,45 @@
   opacity: 0.1;
 }
 
+.button-flat {
+  overflow: visible;
+  background: none !important;
+  transition: border-color 0.3s ease-in-out;
+}
+
+.button-flat::before {
+  border-radius: inherit;
+  transition: inset 0.3s ease-in-out;
+}
+
+.button-flat::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  border-radius: inherit;
+  background: var(--btn-bg);
+  transition:
+    filter 0.3s ease-in-out,
+    inset 0.3s ease-in-out,
+    background-color 0.3s ease-in-out;
+}
+
+.button-flat:hover {
+  border-color: transparent;
+}
+
+.button-flat:hover::before {
+  inset: 3px;
+  border-radius: 0.5rem;
+}
+
+.button-flat:hover::after {
+  background: var(--btn-bg-hover);
+  filter: blur(5px);
+  inset: 2px;
+}
+
 .button-shadow::after {
   transition:
     transform 0.3s ease-in-out,

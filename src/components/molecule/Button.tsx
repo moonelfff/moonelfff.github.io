@@ -39,10 +39,10 @@ function Button({
   const flat = variant === "solid" || variant === "tonal";
   const inner = flat ? (
     <span
-      className={`button-grain mt-2 block rounded-xl border-2 transition-[background-color,border-color,box-shadow] duration-300 ${
+      className={`button-grain button-flat mt-2 block rounded-xl border-2 ${
         variant === "solid"
-          ? "bg-success border-success text-platinum hover:border-transparent hover:bg-[#4fb589] hover:shadow-[0_0_12px_4px_rgb(79_181_137/0.65)]"
-          : "text-dusty-grape bg-dusty-grape/10 hover:bg-dusty-grape/20 hover:shadow-[0_0_12px_4px_rgb(110_68_194/0.25)] border-transparent"
+          ? "text-platinum border-success [--btn-bg-hover:#56b98d] [--btn-bg:#3e9b73]"
+          : "text-dusty-grape [--btn-bg-hover:rgb(110_68_194/0.22)] [--btn-bg:rgb(110_68_194/0.1)] border-transparent"
       }`}
     >
       {label}
@@ -60,7 +60,7 @@ function Button({
       <span className="backdrop-glass button-glass block">{label}</span>
     </span>
   ) : (
-    <span className="button-grain button-grain--subtle text-dusty-grape border-dusty-grape hover:bg-dusty-grape/10 hover:border-dusty-grape/20 hover:shadow-[0_0_12px_4px_rgb(110_68_194/0.25)] mt-2 block rounded-xl border-2 transition-[background-color,border-color,box-shadow] duration-300">
+    <span className="button-grain button-grain--subtle button-flat text-dusty-grape border-dusty-grape mt-2 block rounded-xl border-2 [--btn-bg-hover:rgb(110_68_194/0.18)] [--btn-bg:transparent]">
       {label}
     </span>
   );
