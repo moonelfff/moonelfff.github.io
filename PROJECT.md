@@ -86,7 +86,7 @@
 
 ## 6. Кэширование
 
-Публичные чтения из Supabase кэшируются через `unstable_cache` с тегами (`src/lib/cache.ts`: `site-content`, `tariffs`, `tests`): `getPublicContentBundle`, `getMarkdownByPath`, `getPublicTariffBundle`, `getPublicTestBundle` (и `getTestBySlug`). Админка читает данные напрямую (без кэша), чтобы всегда видеть актуальное состояние. Любое сохранение в админке (`saveContentBundle`, `saveTariffs`, `saveTests`, загрузка фото) вызывает `invalidateCache(tag)`, и следующий запрос читает свежие данные. Страховочный TTL - 1 час; keep-alive workflow всё равно обращается к БД, так как реже TTL. Страницы остаются `force-dynamic`, чтобы сборка не требовала ключей Supabase. Новые публичные чтения добавляйте через такой же кэш, а в админских маршрутах используйте некэшированные функции.
+Публичные чтения из Supabase кэшируются через `unstable_cache` с тегами (`src/lib/cache.ts`: `site-content`, `tariffs`, `tests`): `getPublicContentBundle`, `getMarkdownByPath`, `getPublicTariffBundle`, `getPublicTestBundle` (и `getTestBySlug`). Админка читает данные напрямую (без кэша), чтобы всегда видеть актуальное состояние. Любое сохранение в админке (`saveContentBundle`, `saveTariffs`, `saveTests`, загрузка фото) вызывает `invalidateCache(tag)`, и следующий запрос читает свежие данные. Страховочный TTL - 1 час. Публичные `/api/content`, `/api/tariffs`, `/api/markdown` дополнительно отдают `Cache-Control: s-maxage=60, stale-while-revalidate=300` (CDN), поэтому на этих эндпоинтах правка видна в течение ~минуты; keep-alive workflow всё равно обращается к БД, так как реже TTL. Страницы остаются `force-dynamic`, чтобы сборка не требовала ключей Supabase. Новые публичные чтения добавляйте через такой же кэш, а в админских маршрутах используйте некэшированные функции.
 
 ## 7. Переменные окружения
 
@@ -112,9 +112,9 @@ npm run lint
 
 ## 10. Оформление
 
-Шрифты Mulish и Play (локальные subset woff/woff2 в `public/fonts`, `fonts.css`); стиль «glass», фон `platinum`, noise-текстура, адаптивные отступы Tailwind.
+Шрифты Mulish и Play (локальные subset woff2 в `public/fonts`, `fonts.css`); стиль «glass», фон `platinum`, noise-текстура, адаптивные отступы Tailwind.
 
 ## 11. Известные замечания
 
-- `npm run lint` показывает предупреждения: `<img>` в `layout.tsx` и `window.location.assign` в `admin/_lib/api.ts`.
+- `npm run lint` показывает одно предупреждение: `window.location.assign` в `admin/_lib/api.ts` (намеренная жёсткая навигация на логин при 401). `<img>` пикселя Метрики в `layout.tsx` помечен eslint-disable.
 - Для устойчивости рекомендуется периодически выгружать данные Supabase; начальная копия контента лежит в `supabase/seed`.

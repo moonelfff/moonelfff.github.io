@@ -265,6 +265,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         </noscript>
         <noscript>
           <div>
+            {/* Metrika tracking pixel for no-JS visitors: next/image does not fit here. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="https://mc.yandex.ru/watch/109120558"
               style={{ position: "absolute", left: "-9999px" }}

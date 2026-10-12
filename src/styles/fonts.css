@@ -1,8 +1,7 @@
 @font-face {
   font-family: "Mulish";
   src:
-    url("/fonts/subset-Mulish-LightItalic.woff2") format("woff2"),
-    url("/fonts/subset-Mulish-LightItalic.woff") format("woff");
+    url("/fonts/subset-Mulish-LightItalic.woff2") format("woff2");
   font-weight: 300;
   font-style: italic;
   font-display: swap;
@@ -11,8 +10,7 @@
 @font-face {
   font-family: "Mulish";
   src:
-    url("/fonts/subset-Mulish-Regular.woff2") format("woff2"),
-    url("/fonts/subset-Mulish-Regular.woff") format("woff");
+    url("/fonts/subset-Mulish-Regular.woff2") format("woff2");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -21,8 +19,7 @@
 @font-face {
   font-family: "Mulish";
   src:
-    url("/fonts/subset-Mulish-MediumItalic.woff2") format("woff2"),
-    url("/fonts/subset-Mulish-MediumItalic.woff") format("woff");
+    url("/fonts/subset-Mulish-MediumItalic.woff2") format("woff2");
   font-weight: 500;
   font-style: italic;
   font-display: swap;
@@ -31,8 +28,7 @@
 @font-face {
   font-family: "Mulish";
   src:
-    url("/fonts/subset-Mulish-Light.woff2") format("woff2"),
-    url("/fonts/subset-Mulish-Light.woff") format("woff");
+    url("/fonts/subset-Mulish-Light.woff2") format("woff2");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
@@ -41,8 +37,7 @@
 @font-face {
   font-family: "Mulish";
   src:
-    url("/fonts/subset-Mulish-Black.woff2") format("woff2"),
-    url("/fonts/subset-Mulish-Black.woff") format("woff");
+    url("/fonts/subset-Mulish-Black.woff2") format("woff2");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
@@ -51,8 +46,7 @@
 @font-face {
   font-family: "Mulish";
   src:
-    url("/fonts/subset-Mulish-ExtraLight.woff2") format("woff2"),
-    url("/fonts/subset-Mulish-ExtraLight.woff") format("woff");
+    url("/fonts/subset-Mulish-ExtraLight.woff2") format("woff2");
   font-weight: 200;
   font-style: normal;
   font-display: swap;
@@ -61,8 +55,7 @@
 @font-face {
   font-family: "Mulish";
   src:
-    url("/fonts/subset-Mulish-Bold.woff2") format("woff2"),
-    url("/fonts/subset-Mulish-Bold.woff") format("woff");
+    url("/fonts/subset-Mulish-Bold.woff2") format("woff2");
   font-weight: bold;
   font-style: normal;
   font-display: swap;
@@ -71,8 +64,7 @@
 @font-face {
   font-family: "Mulish";
   src:
-    url("/fonts/subset-Mulish-ExtraLightItalic.woff2") format("woff2"),
-    url("/fonts/subset-Mulish-ExtraLightItalic.woff") format("woff");
+    url("/fonts/subset-Mulish-ExtraLightItalic.woff2") format("woff2");
   font-weight: 200;
   font-style: italic;
   font-display: swap;
@@ -81,8 +73,7 @@
 @font-face {
   font-family: "Mulish";
   src:
-    url("/fonts/subset-Mulish-BoldItalic.woff2") format("woff2"),
-    url("/fonts/subset-Mulish-BoldItalic.woff") format("woff");
+    url("/fonts/subset-Mulish-BoldItalic.woff2") format("woff2");
   font-weight: bold;
   font-style: italic;
   font-display: swap;
@@ -91,8 +82,7 @@
 @font-face {
   font-family: "Mulish";
   src:
-    url("/fonts/subset-Mulish-SemiBold.woff2") format("woff2"),
-    url("/fonts/subset-Mulish-SemiBold.woff") format("woff");
+    url("/fonts/subset-Mulish-SemiBold.woff2") format("woff2");
   font-weight: 600;
   font-style: normal;
   font-display: swap;
@@ -101,8 +91,7 @@
 @font-face {
   font-family: "Mulish";
   src:
-    url("/fonts/subset-Mulish-Medium.woff2") format("woff2"),
-    url("/fonts/subset-Mulish-Medium.woff") format("woff");
+    url("/fonts/subset-Mulish-Medium.woff2") format("woff2");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -111,8 +100,7 @@
 @font-face {
   font-family: "Mulish";
   src:
-    url("/fonts/subset-Mulish-BlackItalic.woff2") format("woff2"),
-    url("/fonts/subset-Mulish-BlackItalic.woff") format("woff");
+    url("/fonts/subset-Mulish-BlackItalic.woff2") format("woff2");
   font-weight: 900;
   font-style: italic;
   font-display: swap;
@@ -121,8 +109,7 @@
 @font-face {
   font-family: "Mulish";
   src:
-    url("/fonts/subset-Mulish-ExtraBoldItalic.woff2") format("woff2"),
-    url("/fonts/subset-Mulish-ExtraBoldItalic.woff") format("woff");
+    url("/fonts/subset-Mulish-ExtraBoldItalic.woff2") format("woff2");
   font-weight: bold;
   font-style: italic;
   font-display: swap;
@@ -131,8 +118,7 @@
 @font-face {
   font-family: "Mulish";
   src:
-    url("/fonts/subset-Mulish-ExtraBold.woff2") format("woff2"),
-    url("/fonts/subset-Mulish-ExtraBold.woff") format("woff");
+    url("/fonts/subset-Mulish-ExtraBold.woff2") format("woff2");
   font-weight: bold;
   font-style: normal;
   font-display: swap;
@@ -141,8 +127,7 @@
 @font-face {
   font-family: "Mulish";
   src:
-    url("/fonts/subset-Mulish-Italic.woff2") format("woff2"),
-    url("/fonts/subset-Mulish-Italic.woff") format("woff");
+    url("/fonts/subset-Mulish-Italic.woff2") format("woff2");
   font-weight: normal;
   font-style: italic;
   font-display: swap;
@@ -151,8 +136,7 @@
 @font-face {
   font-family: "Mulish";
   src:
-    url("/fonts/subset-Mulish-SemiBoldItalic.woff2") format("woff2"),
-    url("/fonts/subset-Mulish-SemiBoldItalic.woff") format("woff");
+    url("/fonts/subset-Mulish-SemiBoldItalic.woff2") format("woff2");
   font-weight: 600;
   font-style: italic;
   font-display: swap;
@@ -161,8 +145,7 @@
 @font-face {
   font-family: "Play";
   src:
-    url("/fonts/subset-Play-Bold.woff2") format("woff2"),
-    url("/fonts/subset-Play-Bold.woff") format("woff");
+    url("/fonts/subset-Play-Bold.woff2") format("woff2");
   font-weight: bold;
   font-style: normal;
   font-display: swap;
@@ -171,8 +154,7 @@
 @font-face {
   font-family: "Play";
   src:
-    url("/fonts/subset-Play-Regular.woff2") format("woff2"),
-    url("/fonts/subset-Play-Regular.woff") format("woff");
+    url("/fonts/subset-Play-Regular.woff2") format("woff2");
   font-weight: normal;
   font-style: normal;
   font-display: swap;

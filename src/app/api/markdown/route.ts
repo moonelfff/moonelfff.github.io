@@ -1,3 +1,4 @@
+import { PUBLIC_API_CACHE_CONTROL } from "@/lib/cache";
 import { getMarkdownByPath } from "@/lib/contentStore";
 import { NextResponse } from "next/server";
 
@@ -34,6 +35,7 @@ export async function GET(request: Request) {
     status: 200,
     headers: {
       "Content-Type": "text/markdown; charset=utf-8",
+      "Cache-Control": PUBLIC_API_CACHE_CONTROL,
     },
   });
 }
