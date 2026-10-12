@@ -1,144 +1,105 @@
-# Сайт-визитка психолога Екатерины Жук — описание проекта
+# Сайт психолога Екатерины Жук - описание проекта
 
 Домен: <https://ekaterinazhuk.ru>. Репозиторий: `moonelfff/moonelfff.github.io`.
 
 ## 1. Назначение
 
-Одностраничный сайт клинического психолога: профиль и подход, пакеты консультаций с ценами, контакты и соцсети. Весь контент редактируемый (JSON + Markdown), без правок кода.
+Сайт клинического психолога: профиль и подход, пакеты консультаций с ценами, контакты и соцсети, онлайн-тесты. Контент редактируется через админку (JSON + Markdown), без правок кода.
 
-В репозитории **два независимых приложения**:
-
-| Приложение | Расположение | Назначение |
-|---|---|---|
-| Статический сайт (Vite + React) | корень (`src/`, `public/`) | Продакшн на GitHub Pages |
-| Next.js-версия с админкой | `next/` | Миграция: SSR/API, админка, Supabase, деплой (напр. Vercel) |
+Проект - единое приложение на **Next.js** (ранее существовавшая Vite-версия для GitHub Pages удалена).
 
 ## 2. Технологии
 
-**Корневой сайт (Vite)**
-- React 19, TypeScript ~5.9, Vite 7, `@vitejs/plugin-react`
-- Tailwind CSS 4 (`@tailwindcss/vite`), `tailwindcss-patch` + `unplugin-tailwindcss-mangle` (минификация/мангл классов; `npx tw-patch extract` в сборке; `.tw-patch/tw-class-list.json`)
-- `@responsive-image/*` — адаптивные изображения
-- `marked` — парсинг Markdown
-- ESLint 9 (+react-hooks, react-refresh), Prettier (+tailwind plugin)
-- Алиас `@` → `src`
-
-**Next-версия (`next/`)**
-- Next.js 16.3 (App Router, Turbopack), React 19.2, TypeScript 5, Tailwind 4 (`@tailwindcss/postcss`)
-- `@supabase/supabase-js` — БД и Storage
-- `sharp` — обработка загружаемых изображений
-- `marked`, ESLint (`eslint-config-next`)
-- Dev/start: `127.0.0.1:3020` (в README указан 3010 — расхождение)
-- `AGENTS.md` предупреждает: версия Next имеет breaking changes, сверяйтесь с `node_modules/next/dist/docs/`.
+- Next.js 16.3 (App Router, Turbopack, middleware), React 19.2, TypeScript 5
+- Tailwind CSS 4 (`@tailwindcss/postcss`)
+- Supabase (`@supabase/supabase-js`): Postgres и Storage
+- `sharp` - обработка загружаемых изображений
+- `marked` - Markdown
+- SurveyJS (`survey-core`, `survey-react-ui`, `survey-creator-*`), `zod`, `pdf-lib`, `nanoid` - тесты
+- ESLint 9 (`eslint-config-next`)
+- Хостинг: Vercel; CI/cron: GitHub Actions
+- `AGENTS.md`: версия Next имеет breaking changes, сверяйтесь с `node_modules/next/dist/docs/`
 
 ## 3. Структура
 
 ```
 /
-├─ index.html, vite.config.ts, tsconfig*.json, eslint.config.js, .prettierrc
-├─ src/                    # Vite-приложение
-│  ├─ main.tsx, App.tsx
-│  ├─ assets/data/content.json   # основной контент (+ content.ts — типы/экспорт)
-│  ├─ assets/{fonts,icons,images}
-│  ├─ components/{atom,molecule,organism}
-│  ├─ styles/{main.css,fonts.css}
-│  └─ utils/markdownParser.tsx
-├─ public/                 # статика: profile.md, blog.md, pricelist/*.md,
-│                          # шрифты, favicons, robots.txt, sitemap.xml,
-│                          # llms.txt, site.webmanifest
-├─ .github/workflows/deploy.yml
-└─ next/
-   ├─ middleware.ts        # защита /admin и /api/admin
-   ├─ next.config.ts       # remotePatterns для Supabase Storage
-   ├─ supabase/{site_content,tariffs}.sql
-   └─ src/
-      ├─ app/              # layout, page, admin/, api/
-      ├─ components/       # те же atom/molecule/organism + providers/SiteContentProvider
-      ├─ lib/{adminAuth,contentStore,tariffStore}.ts
-      └─ utils/{fetchMarkdown,markdownParser}
+├─ middleware.ts, next.config.ts, tsconfig.json, eslint.config.mjs, postcss.config.mjs
+├─ .env.example
+├─ .github/workflows/supabase-keepalive.yml
+├─ public/        # md-тексты (profile, blog, pricelist/*), шрифты, favicons,
+│                 # robots.txt, sitemap.xml, llms.txt, site.webmanifest
+├─ supabase/      # site_content.sql, tariffs.sql, tests.sql
+└─ src/
+   ├─ app/        # layout, page; admin/ (+login, tests); tests/ и tests/[slug];
+   │              # api/{content,markdown,tariffs,tests/[slug](/submit),admin/*}
+   ├─ components/ # atom / molecule / organism, providers/SiteContentProvider, tests/SurveyRunner
+   ├─ lib/        # adminAuth, contentStore, tariffStore, tests/{testStore,scoring,types,mockTests}
+   ├─ assets/     # data/content.json, шрифты, иконки, изображения
+   ├─ styles/     # main.css, fonts.css
+   └─ utils/      # markdownParser, markdownToHtml, fetchMarkdown
 ```
 
-Компоненты организованы по Atomic Design: `atom` (Glass, Icon, Typography) → `molecule` (Card, ContentBox, Image, Link, Number) → `organism` (Main, Profile, Pricelist, PriceItem, Contact, Social, Footer, Copyright).
+Компоненты по Atomic Design: `atom` (Glass, Icon, Typography) -> `molecule` (Card, ContentBox, Image, Link, Number) -> `organism` (Main, Profile, Pricelist, PriceItem, Contact, Social, Footer, Copyright).
 
 ## 4. Модель контента
 
-- **`content.json`** — короткие данные: `fullName`, `info` (`title`, `contentPath`), `professionDescription`, `profileImageUrl`, `ogImageUrl`, `priceHeader`, `blogDescriptionPath`, контакты/соцсети и `pricelist`.
-- **Markdown** в `public/` — длинные тексты: `profile.md`, `blog.md`, `pricelist/*.md` (одноразовая консультация, индивидуальная и парная терапия, диагностика, карта личности). Поддерживаются заголовки, абзацы, маркированные списки.
-- Файл отображается только если путь к нему указан в `content.json`.
-- Элемент `pricelist`: `title`, `descriptionPath`, `packages[]` (`name`, `price.regular{amount,currency}`, опционально `price.discounted`). Порядок в файле = порядок на сайте.
-- Ключи в `content.json` удалять нельзя (кроме элементов списков); комментарии в JSON недопустимы.
+- `content.json`: `fullName`, `info` (`title`, `contentPath`), `professionDescription`, `profileImageUrl`, `ogImageUrl`, `priceHeader`, `blogDescriptionPath`, контакты и `pricelist`.
+- Markdown в `public/`: `profile.md`, `blog.md`, `pricelist/*.md`. Файл отображается, только если путь к нему есть в `content.json`.
+- Элемент `pricelist`: `title`, `descriptionPath`, `packages[]` (`name`, `price.regular{amount,currency}`, опционально `price.discounted`).
 
 ## 5. Принципы работы
 
-### Vite-сайт
-Чистый клиентский SPA: `main.tsx` рендерит `App` → `Main` + `Footer`. Контент импортируется из JSON, Markdown загружается и разбирается `markdownParser`. `npm run build` = `tw-patch extract` → `tsc -b` → `vite build` → `dist/`.
-
-### Next-версия
-1. Главная страница рендерит тот же `App`. `SiteContentProvider` стартует с `content.json` из бандла и затем запрашивает `/api/content` (`no-store`), подменяя данные актуальными.
-2. **Хранилище (`contentStore.ts`)** — двойной режим:
-   - Supabase настроен (`NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`): данные из таблицы `site_content` (key/value; ключ `content_json` + по ключу на каждый md-путь). Недостающий markdown берётся из локальных файлов.
-   - Иначе: чтение/запись локальных файлов (`content.json`, `public/*.md`). На serverless-хостингах запись в ФС не сохраняется, поэтому для продакшна нужен Supabase.
-   - Сохранение: сначала Supabase, при неудаче — локально.
-3. **Тарифы (`tariffStore.ts`)** — таблицы `tariffs` и `tariff_packages` (uuid, slug, `description_md`, `is_active`, `sort_order`, цены `price_regular`/`price_discounted`, валюта ₽). Если таблиц нет/пусто — «legacy»-тарифы строятся из `content.json`; возможен посев в Supabase из legacy-данных.
-4. **Изображения** (`/api/admin/image`): типы `profile` и `og`; JPEG/PNG/WEBP до 8 МБ; `sharp` приводит профиль к WebP шириной ≤1600, OG — к JPEG 1200×630; загрузка в бакет Supabase Storage (`SUPABASE_STORAGE_BUCKET`, по умолчанию `site-images`), публичный URL записывается в `profileImageUrl`/`ogImageUrl`.
+1. Главная страница рендерит `App`. `SiteContentProvider` стартует с `content.json` из бандла, затем запрашивает `/api/content` (`no-store`) и подменяет данные актуальными.
+2. **contentStore**: если заданы `NEXT_PUBLIC_SUPABASE_URL` и `SUPABASE_SERVICE_ROLE_KEY` - данные из `site_content` (key/value: `content_json` + ключ на каждый md-путь; недостающий markdown берётся из локальных файлов). Иначе - локальные файлы. Сохранение: сначала Supabase, при неудаче локально (на Vercel ФС read-only).
+3. **tariffStore**: таблицы `tariffs` и `tariff_packages`; если пусто/недоступно - «legacy»-тарифы из `content.json`, возможен посев в Supabase.
+4. **testStore**: таблица `psychological_tests` (slug, `schema_json` SurveyJS, `scoring_json`). Без Supabase используются `MOCK_TESTS`; при пустой таблице выполняется посев из моков. Редактирование тестов требует Supabase. Страницы `/tests` и `/tests/[slug]` рендерят опросник (`SurveyRunner`), ответы отправляются в `/api/tests/[slug]/submit`, подсчёт - `scoring.ts` (уровни или группы).
+5. **Изображения** (`POST /api/admin/image`): `profile` (WebP до 1600 px) и `og` (JPEG 1200x630); JPEG/PNG/WEBP до 8 МБ; загрузка в бакет Supabase (`SUPABASE_STORAGE_BUCKET`, по умолчанию `site-images`); URL пишется в `profileImageUrl`/`ogImageUrl`.
+6. **SEO**: `layout.tsx` формирует metadata, Open Graph, JSON-LD (Person, Service, WebPage); также `robots.txt` (закрыты `/admin`, `/api/`), `sitemap.xml`, `llms.txt`, `site.webmanifest`. Подключены GTM и Яндекс.Метрика.
 
 ### API
+
 | Маршрут | Назначение |
 |---|---|
-| `GET /api/content` | публичный контент |
-| `GET /api/markdown` | markdown по пути |
-| `GET /api/tariffs` | публичные тарифы |
-| `POST /api/admin/login`, `/logout` | вход/выход |
-| `GET/PUT /api/admin/content` | чтение/сохранение контента |
-| `GET/PUT /api/admin/tariffs` | управление тарифами |
+| `GET /api/content`, `/api/markdown`, `/api/tariffs` | публичные данные |
+| `GET /api/tests/[slug]`, `POST /api/tests/[slug]/submit` | тест и отправка ответов |
+| `POST /api/admin/login`, `/logout` | вход и выход |
+| `GET/PUT /api/admin/content`, `/tariffs`, `/tests` | управление данными |
 | `POST /api/admin/image` | загрузка изображений |
 
 ### Админка и безопасность
-- `/admin` (UI) и `/admin/login`; пароль — `ADMIN_PASSWORD`.
-- После входа ставится cookie `admin_session` (httpOnly, sameSite=lax, secure в production, 8 часов). Значение — `ADMIN_SESSION_TOKEN` либо `token:<пароль>`.
-- `middleware.ts` пропускает только запросы с верным cookie: API → `401`, страницы → редирект на логин.
-- Замечания: при отсутствии `ADMIN_SESSION_TOKEN` токен выводится из пароля (рекомендуется задавать случайный токен); `service_role`-ключ Supabase использовать только на сервере.
 
-## 6. Переменные окружения (`next/.env.local`)
+- `/admin`, `/admin/login`, `/admin/tests`; пароль - `ADMIN_PASSWORD`.
+- После входа ставится cookie `admin_session` (httpOnly, sameSite=lax, secure в production, 8 часов); значение - `ADMIN_SESSION_TOKEN` или `token:<пароль>`.
+- `middleware.ts` (matcher `/admin/*`, `/api/admin/*`): без валидной cookie API отвечает `401`, страницы редиректят на логин.
+- Рекомендуется задавать случайный `ADMIN_SESSION_TOKEN`; `SUPABASE_SERVICE_ROLE_KEY` - только на сервере.
 
-| Переменная | Описание |
-|---|---|
-| `ADMIN_PASSWORD` | пароль админки |
-| `ADMIN_SESSION_TOKEN` | (опц.) значение сессионной cookie |
-| `NEXT_PUBLIC_SUPABASE_URL` | URL проекта Supabase |
-| `SUPABASE_SERVICE_ROLE_KEY` | серверный ключ |
-| `SUPABASE_STORAGE_BUCKET` | (опц.) бакет, по умолчанию `site-images` |
+## 6. Переменные окружения
+
+См. `.env.example` и README: `ADMIN_PASSWORD`, `ADMIN_SESSION_TOKEN`, `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_STORAGE_BUCKET`, `NEXT_PUBLIC_SURVEYJS_LICENSE_KEY`.
 
 ## 7. Запуск и сборка
 
 ```bash
-# Vite-сайт (корень)
 npm ci
-npm run dev       # разработка
-npm run build     # сборка в dist/
+npm run dev      # http://127.0.0.1:3020
+npm run build    # next build
+npm start        # next start (порт 3020; prestart запускает build)
 npm run lint
-
-# Next-версия
-cd next
-npm ci
-npm run dev       # http://127.0.0.1:3020
-npm run build && npm start
 ```
 
-Supabase: выполнить `next/supabase/site_content.sql` и `next/supabase/tariffs.sql` (создают таблицы, триггер `updated_at`, права `service_role`); создать публичный бакет для изображений.
+## 8. Деплой и инфраструктура
 
-## 8. Деплой
+- Хостинг - Vercel, домен `ekaterinazhuk.ru` через DNS (A `76.76.21.21`, CNAME `www` -> `cname.vercel-dns.com`). Пошаговая инструкция - в README.
+- GitHub Pages и workflow `deploy.yml` удалены: статический экспорт невозможен из-за API и middleware.
+- `.github/workflows/supabase-keepalive.yml`: cron раз в 3 дня + ручной запуск, запрашивает `/api/content` и `/api/tariffs`, чтобы Supabase Free не ставил проект на паузу (7 дней без активности). URL - переменная репозитория `SITE_URL` (по умолчанию `https://ekaterinazhuk.ru`).
+- Supabase: SQL из `supabase/`, публичный Storage-бакет, `service_role` только на сервере.
 
-GitHub Actions (`.github/workflows/deploy.yml`): при push в `main` → `npm ci` → `npm run build` → запись `CNAME` (`ekaterinazhuk.ru`) в `dist/` → публикация на GitHub Pages. Деплоится только корневое Vite-приложение; `next/` деплоится отдельно (например, Vercel).
+## 9. Оформление
 
-## 9. SEO и AI-доступность
+Шрифты Mulish и Play (локальные subset woff/woff2 в `public/fonts`, `fonts.css`); стиль «glass», фон `platinum`, noise-текстура, адаптивные отступы Tailwind.
 
-`robots.txt`, `sitemap.xml`, `site.webmanifest`, favicons, OG-изображение (`ogImageUrl`), `llms.txt` (ключевые страницы для LLM-агентов), публичные `.md`-файлы с текстами.
+## 10. Известные замечания
 
-## 10. Типографика и оформление
-
-Шрифты Mulish (все начертания) и Play — локальные subset-файлы woff/woff2 (`fonts.css`); стиль «glass» (компонент `Glass`), фон `platinum`, noise-текстура, адаптивные отступы Tailwind (`md/xl/2xl`).
-
-## 11. Рекомендации по редактированию
-
-После правок JSON/Markdown проверьте скобки, кавычки и запятые. Для новой позиции прайса добавьте объект в `pricelist` и md-файл в `public/pricelist/`. Новые типы полей требуют изменений в коде.
+- `npm run lint` показывает ошибки `no-explicit-any` в `src/types/global.d.ts` и предупреждения `no-img-element`.
+- Для устойчивости рекомендуется периодически выгружать данные Supabase; копия контента лежит в `content.json` и `public/*.md`.

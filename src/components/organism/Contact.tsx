@@ -1,10 +1,10 @@
-import getContent from "../../assets/data/content";
 import TelegramIcon from "../../assets/icons/TelegramIcon";
 import VKIcon from "../../assets/icons/VKIcon";
 import Link from "../molecule/Link";
+import { useSiteContent } from "../providers/SiteContentProvider";
 
 function Contact() {
-  const data = getContent();
+  const data = useSiteContent();
   return (
     <div>
       <Link

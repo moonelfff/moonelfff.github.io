@@ -1,5 +1,0 @@
-User-agent: *
-Allow: /
-
-Host: ekaterinazhuk.ru
-Sitemap: https://ekaterinazhuk.ru/sitemap.xml
