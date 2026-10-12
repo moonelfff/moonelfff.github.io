@@ -27,35 +27,38 @@
 ├─ middleware.ts, next.config.ts, tsconfig.json, eslint.config.mjs, postcss.config.mjs
 ├─ .env.example
 ├─ .github/workflows/supabase-keepalive.yml
-├─ public/        # md-тексты (profile, blog, pricelist/*), шрифты, favicons,
+├─ public/        # шрифты, favicons,
 │                 # robots.txt, sitemap.xml, llms.txt, site.webmanifest
 ├─ supabase/      # site_content.sql, tariffs.sql, tests.sql
+│  └─ seed/       # content.json, markdown/**, tests.json (для npm run seed)
+├─ scripts/       # seed-supabase.mjs
 └─ src/
    ├─ app/        # layout, page; admin/ (+login, tests); tests/ и tests/[slug];
    │              # api/{content,markdown,tariffs,tests/[slug](/submit),admin/*}
    ├─ components/ # atom / molecule / organism, providers/SiteContentProvider, tests/SurveyRunner
-   ├─ lib/        # adminAuth, contentStore, tariffStore, tests/{testStore,scoring,types,mockTests}
-   ├─ assets/     # data/content.json, шрифты, иконки, изображения
+   ├─ lib/        # adminAuth, contentStore, tariffStore, supabase, contentTypes, tests/{testStore,scoring,types}
+   ├─ assets/     # шрифты, иконки, изображения
    ├─ styles/     # main.css, fonts.css
-   └─ utils/      # markdownParser, markdownToHtml, fetchMarkdown
+   └─ utils/      # markdownParser, markdownToHtml
 ```
 
 Компоненты по Atomic Design: `atom` (Glass, Icon, Typography) -> `molecule` (Card, ContentBox, Image, Link, Number) -> `organism` (Main, Profile, Pricelist, PriceItem, Contact, Social, Footer, Copyright).
 
 ## 4. Модель контента
 
-- `content.json`: `fullName`, `info` (`title`, `contentPath`), `professionDescription`, `profileImageUrl`, `ogImageUrl`, `priceHeader`, `blogDescriptionPath`, контакты и `pricelist`.
-- Markdown в `public/`: `profile.md`, `blog.md`, `pricelist/*.md`. Файл отображается, только если путь к нему есть в `content.json`.
+- `content_json` (Supabase, `site_content`): `fullName`, `info` (`title`, `contentPath`), `professionDescription`, `profileImageUrl`, `ogImageUrl`, `priceHeader`, `blogDescriptionPath`, контакты и `pricelist`.
+- Markdown (Supabase, `site_content`, ключи `profile.md`, `blog.md`, `pricelist/*.md`). Текст отображается, только если путь к нему есть в `content_json`.
 - Элемент `pricelist`: `title`, `descriptionPath`, `packages[]` (`name`, `price.regular{amount,currency}`, опционально `price.discounted`).
 
 ## 5. Принципы работы
 
-1. Главная страница рендерит `App`. `SiteContentProvider` стартует с `content.json` из бандла, затем запрашивает `/api/content` (`no-store`) и подменяет данные актуальными.
-2. **contentStore**: если заданы `NEXT_PUBLIC_SUPABASE_URL` и `SUPABASE_SERVICE_ROLE_KEY` - данные из `site_content` (key/value: `content_json` + ключ на каждый md-путь; недостающий markdown берётся из локальных файлов). Иначе - локальные файлы. Сохранение: сначала Supabase, при неудаче локально (на Vercel ФС read-only).
-3. **tariffStore**: таблицы `tariffs` и `tariff_packages`; если пусто/недоступно - «legacy»-тарифы из `content.json`, возможен посев в Supabase.
-4. **testStore**: таблица `psychological_tests` (slug, `schema_json` SurveyJS, `scoring_json`). Без Supabase используются `MOCK_TESTS`; при пустой таблице выполняется посев из моков. Редактирование тестов требует Supabase. Страницы `/tests` и `/tests/[slug]` рендерят опросник (`SurveyRunner`), ответы отправляются в `/api/tests/[slug]/submit`, подсчёт - `scoring.ts` (уровни или группы).
-5. **Изображения** (`POST /api/admin/image`): `profile` (WebP до 1600 px) и `og` (JPEG 1200x630); JPEG/PNG/WEBP до 8 МБ; загрузка в бакет Supabase (`SUPABASE_STORAGE_BUCKET`, по умолчанию `site-images`); URL пишется в `profileImageUrl`/`ogImageUrl`.
-6. **SEO**: `layout.tsx` формирует metadata, Open Graph, JSON-LD (Person, Service, WebPage); также `robots.txt` (закрыты `/admin`, `/api/`), `sitemap.xml`, `llms.txt`, `site.webmanifest`. Подключены GTM и Яндекс.Метрика.
+1. Главная страница (`page.tsx`, `force-dynamic`) на сервере загружает `getContentBundle()` и передаёт `content` и `markdown` в `App` -> `SiteContentProvider` (хуки `useSiteContent`, `useSiteMarkdown`). Клиент контент не запрашивает.
+2. **Supabase - единственный источник данных**, локальные файлы и фолбэки не используются. Без `NEXT_PUBLIC_SUPABASE_URL`/`SUPABASE_SERVICE_ROLE_KEY` или без загруженных данных код бросает понятную ошибку (подсказка: `npm run seed`). Общий клиент - `src/lib/supabase.ts`.
+3. **contentStore**: таблица `site_content` (key/value: `content_json` + ключ на каждый md-путь без ведущего `/`). Сохранение из админки - `upsert` в эту таблицу.
+4. **tariffStore**: таблицы `tariffs` и `tariff_packages`; прайс на странице грузится из `/api/tariffs`.
+5. **testStore**: таблица `psychological_tests` (slug, `schema_json` SurveyJS, `scoring_json`). Страницы `/tests` и `/tests/[slug]` рендерят опросник (`SurveyRunner`), ответы отправляются в `/api/tests/[slug]/submit`, подсчёт - `scoring.ts` (уровни или группы).
+6. **Начальные данные**: `npm run seed` (`scripts/seed-supabase.mjs`) загружает `supabase/seed/*` в пустые таблицы; `-- --force` перезаписывает.7. **Изображения** (`POST /api/admin/image`): `profile` (WebP до 1600 px) и `og` (JPEG 1200x630); JPEG/PNG/WEBP до 8 МБ; загрузка в бакет Supabase (`SUPABASE_STORAGE_BUCKET`, по умолчанию `site-images`); URL пишется в `profileImageUrl`/`ogImageUrl`.
+8. **SEO**: `layout.tsx` формирует metadata, Open Graph, JSON-LD (Person, Service, WebPage); также `robots.txt` (закрыты `/admin`, `/api/`), `sitemap.xml`, `llms.txt`, `site.webmanifest`. Подключены GTM и Яндекс.Метрика.
 
 ### API
 
@@ -102,4 +105,4 @@ npm run lint
 ## 10. Известные замечания
 
 - `npm run lint` показывает ошибки `no-explicit-any` в `src/types/global.d.ts` и предупреждения `no-img-element`.
-- Для устойчивости рекомендуется периодически выгружать данные Supabase; копия контента лежит в `content.json` и `public/*.md`.
+- Для устойчивости рекомендуется периодически выгружать данные Supabase; начальная копия контента лежит в `supabase/seed`.

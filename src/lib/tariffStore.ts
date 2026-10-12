@@ -1,5 +1,5 @@
-import { getContentBundle, markdownKey } from "@/lib/contentStore";
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { type SupabaseClient } from "@supabase/supabase-js";
+import { getSupabaseAdminClient } from "@/lib/supabase";
 
 const TARIFFS_TABLE = "tariffs";
 const PACKAGES_TABLE = "tariff_packages";
@@ -25,7 +25,7 @@ export type Tariff = {
 
 export type TariffBundle = {
   tariffs: Tariff[];
-  source: "local" | "supabase";
+  source: "supabase";
 };
 
 type TariffRow = {
@@ -47,22 +47,6 @@ type PackageRow = {
   sort_order: number;
 };
 
-function getSupabaseAdminClient(): SupabaseClient | null {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!url || !serviceRoleKey) {
-    return null;
-  }
-
-  return createClient(url, serviceRoleKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  });
-}
-
 function slugify(input: string): string {
   return input
     .toLowerCase()
@@ -71,33 +55,6 @@ function slugify(input: string): string {
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "");
-}
-
-async function getLegacyTariffs(): Promise<Tariff[]> {
-  const bundle = await getContentBundle();
-
-  return bundle.content.pricelist.map((item, tariffIndex) => {
-    const descriptionKey = markdownKey(item.descriptionPath);
-    const descriptionMarkdown = bundle.markdown[descriptionKey] ?? "";
-    const slug = slugify(item.title) || `tariff-${tariffIndex + 1}`;
-
-    return {
-      id: `legacy-${slug}`,
-      slug,
-      title: item.title,
-      descriptionMarkdown,
-      isActive: true,
-      sortOrder: tariffIndex,
-      packages: item.packages.map((pkg, pkgIndex) => ({
-        id: `legacy-${slug}-pkg-${pkgIndex + 1}`,
-        title: pkg.name,
-        regularAmount: pkg.price.regular.amount,
-        discountedAmount: pkg.price.discounted?.amount ?? null,
-        currency: pkg.price.regular.currency,
-        sortOrder: pkgIndex,
-      })),
-    };
-  });
 }
 
 function mapRowsToTariffs(
@@ -165,117 +122,15 @@ async function readSupabaseTariffs(
   return mapRowsToTariffs(tariffRows, packageRowsRaw as PackageRow[]);
 }
 
-async function seedSupabaseTariffsFromLegacy(
-  supabase: SupabaseClient,
-): Promise<void> {
-  const legacy = await getLegacyTariffs();
-
-  const tariffRows = legacy.map((tariff, index) => ({
-    slug: tariff.slug || `tariff-${index + 1}`,
-    title: tariff.title,
-    description_md: tariff.descriptionMarkdown,
-    is_active: tariff.isActive,
-    sort_order: index,
-  }));
-
-  const upsertResult = await supabase.from(TARIFFS_TABLE).upsert(tariffRows, {
-    onConflict: "slug",
-  });
-
-  if (upsertResult.error) {
-    throw upsertResult.error;
-  }
-
-  const slugs = tariffRows.map((row) => row.slug);
-  const { data: persistedTariffsRaw, error: persistedError } = await supabase
-    .from(TARIFFS_TABLE)
-    .select("id,slug")
-    .in("slug", slugs);
-
-  if (persistedError || !persistedTariffsRaw) {
-    throw persistedError ?? new Error("Failed to read seeded tariffs");
-  }
-
-  const persistedTariffs = persistedTariffsRaw as Array<{
-    id: string;
-    slug: string;
-  }>;
-  const persistedMap = new Map<string, string>(
-    persistedTariffs.map((row) => [row.slug, row.id]),
-  );
-  const tariffIds = [...persistedMap.values()];
-
-  if (tariffIds.length > 0) {
-    const deletePackagesResult = await supabase
-      .from(PACKAGES_TABLE)
-      .delete()
-      .in("tariff_id", tariffIds);
-
-    if (deletePackagesResult.error) {
-      throw deletePackagesResult.error;
-    }
-  }
-
-  const packageRows = legacy.flatMap((tariff) => {
-    const tariffId = persistedMap.get(tariff.slug);
-    if (!tariffId) {
-      return [];
-    }
-
-    return tariff.packages.map((pkg, index) => ({
-      id: crypto.randomUUID(),
-      tariff_id: tariffId,
-      title: pkg.title,
-      price_regular: pkg.regularAmount,
-      price_discounted: pkg.discountedAmount,
-      currency: pkg.currency,
-      sort_order: index,
-    }));
-  });
-
-  if (packageRows.length === 0) {
-    return;
-  }
-
-  const insertPackagesResult = await supabase
-    .from(PACKAGES_TABLE)
-    .insert(packageRows);
-  if (insertPackagesResult.error) {
-    throw insertPackagesResult.error;
-  }
-}
-
 export async function getTariffBundle(): Promise<TariffBundle> {
   const supabase = getSupabaseAdminClient();
-  if (!supabase) {
-    return {
-      tariffs: await getLegacyTariffs(),
-      source: "local",
-    };
+  const tariffs = await readSupabaseTariffs(supabase);
+
+  if (tariffs === null) {
+    throw new Error("Failed to read tariffs from Supabase");
   }
 
-  const loaded = await readSupabaseTariffs(supabase);
-  if (loaded === null) {
-    return {
-      tariffs: await getLegacyTariffs(),
-      source: "local",
-    };
-  }
-
-  if (loaded.length > 0) {
-    return {
-      tariffs: loaded,
-      source: "supabase",
-    };
-  }
-
-  await seedSupabaseTariffsFromLegacy(supabase);
-  const seeded = await readSupabaseTariffs(supabase);
-
-  return {
-    tariffs: seeded ?? [],
-    source: seeded ? "supabase" : "local",
-  };
+  return { tariffs, source: "supabase" };
 }
 
 function validateTariffs(tariffs: Tariff[]) {
@@ -306,9 +161,6 @@ export async function saveTariffs(tariffs: Tariff[]): Promise<TariffBundle> {
   validateTariffs(tariffs);
 
   const supabase = getSupabaseAdminClient();
-  if (!supabase) {
-    throw new Error("Supabase is not configured for tariff editing");
-  }
 
   const { data: existingRaw, error: existingError } = await supabase
     .from(TARIFFS_TABLE)
@@ -324,9 +176,7 @@ export async function saveTariffs(tariffs: Tariff[]): Promise<TariffBundle> {
 
   const preparedTariffs = tariffs.map((tariff, index) => {
     const id =
-      tariff.id && !tariff.id.startsWith("legacy-")
-        ? tariff.id
-        : crypto.randomUUID();
+      tariff.id || crypto.randomUUID();
     const slug = slugify(tariff.slug || tariff.title) || `tariff-${index + 1}`;
 
     return {
@@ -384,7 +234,7 @@ export async function saveTariffs(tariffs: Tariff[]): Promise<TariffBundle> {
   const packageRows = preparedTariffs.flatMap((tariff) =>
     tariff.packages.map((pkg, index) => ({
       id:
-        pkg.id && !pkg.id.startsWith("legacy-") ? pkg.id : crypto.randomUUID(),
+        pkg.id || crypto.randomUUID(),
       tariff_id: tariff.id,
       title: (pkg.title ?? "").trim(),
       price_regular: Math.round(pkg.regularAmount),

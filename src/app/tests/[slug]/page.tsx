@@ -6,6 +6,8 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function TestPage({ params }: PageProps) {
   const { slug } = await params;
   const test = await getTestBySlug(slug);

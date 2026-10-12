@@ -8,11 +8,11 @@ primary_topic: Clinical psychology, psychotherapy, consultations in Moscow and o
 
 preferred_pages:
 - https://ekaterinazhuk.ru/ | Main page: psychologist profile, services, pricing, contacts.
-- https://ekaterinazhuk.ru/profile.md | Extended profile text and approach.
-- https://ekaterinazhuk.ru/pricelist/individual_therapy.md | Individual psychotherapy details.
-- https://ekaterinazhuk.ru/pricelist/couple_therapy.md | Couple therapy details.
-- https://ekaterinazhuk.ru/pricelist/diagnostics.md | Clinical diagnostics details.
-- https://ekaterinazhuk.ru/pricelist/one_time_consultation.md | One-time consultation details.
+- https://ekaterinazhuk.ru/api/markdown?path=profile.md | Extended profile text and approach.
+- https://ekaterinazhuk.ru/api/markdown?path=pricelist/individual_therapy.md | Individual psychotherapy details.
+- https://ekaterinazhuk.ru/api/markdown?path=pricelist/couple_therapy.md | Couple therapy details.
+- https://ekaterinazhuk.ru/api/markdown?path=pricelist/diagnostics.md | Clinical diagnostics details.
+- https://ekaterinazhuk.ru/api/markdown?path=pricelist/one_time_consultation.md | One-time consultation details.
 - https://ekaterinazhuk.ru/sitemap.xml | Canonical URL list.
 
 entity_signals:

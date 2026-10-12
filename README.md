@@ -6,7 +6,8 @@
 
 ```bash
 npm ci
-cp .env.example .env.local   # задайте ADMIN_PASSWORD
+cp .env.example .env.local   # задайте ADMIN_PASSWORD и ключи Supabase
+npm run seed                # однократно: загрузить начальные данные в Supabase
 npm run dev                  # http://127.0.0.1:3020
 npm run build && npm start   # продакшн-режим (порт 3020)
 ```
@@ -17,28 +18,34 @@ npm run build && npm start   # продакшн-режим (порт 3020)
 |---|---|
 | `ADMIN_PASSWORD` | пароль админки (обязательно) |
 | `ADMIN_SESSION_TOKEN` | случайная строка для сессионной cookie (рекомендуется в продакшне) |
-| `NEXT_PUBLIC_SUPABASE_URL` | URL проекта Supabase |
-| `SUPABASE_SERVICE_ROLE_KEY` | серверный ключ Supabase (никогда не публиковать) |
+| `NEXT_PUBLIC_SUPABASE_URL` | URL проекта Supabase (обязательно) |
+| `SUPABASE_SERVICE_ROLE_KEY` | серверный ключ Supabase (обязательно, никогда не публиковать) |
 | `SUPABASE_STORAGE_BUCKET` | бакет для изображений, по умолчанию `site-images` |
 | `NEXT_PUBLIC_SURVEYJS_LICENSE_KEY` | лицензионный ключ SurveyJS (опционально) |
 
 ## Админка
 
 1. Откройте `/admin/login` и введите `ADMIN_PASSWORD`.
-2. `/admin` - редактирование `content.json`, markdown-текстов, тарифов и загрузка изображений (профиль, OG).
-3. `/admin/tests` - редактирование психологических тестов (требует Supabase).
+2. `/admin` - редактирование общего контента (JSON), markdown-текстов, тарифов и загрузка изображений (профиль, OG).
+3. `/admin/tests` - редактирование психологических тестов.
 
 ## Где хранятся данные
 
-- Без Supabase: чтение и запись локальных файлов (`src/assets/data/content.json`, `public/**/*.md`). На хостингах с read-only файловой системой (Vercel) изменения не сохранятся.
-- С Supabase: таблицы `site_content`, `tariffs`, `tariff_packages`, `psychological_tests` и Storage-бакет для изображений.
+Единственный источник данных - **Supabase**. Локальные файлы во время работы не читаются; если переменные Supabase не заданы или данные не загружены, страницы возвращают понятную ошибку.
+
+- `site_content`: ключ `content_json` (общая информация, контакты) и по ключу на каждый markdown (`profile.md`, `blog.md`, `pricelist/*.md`).
+- `tariffs`, `tariff_packages`: прайс (страница читает `/api/tariffs`).
+- `psychological_tests`: тесты.
+- Storage-бакет: изображения.
+
+Каталог `supabase/seed/` содержит только начальные данные для `npm run seed` (`content.json`, `markdown/**`, `tests.json`).
 
 ### Настройка Supabase
 
 1. Выполните в SQL Editor файлы `supabase/site_content.sql`, `supabase/tariffs.sql`, `supabase/tests.sql`.
 2. Создайте **публичный** Storage-бакет (по умолчанию `site-images`).
-3. Задайте `NEXT_PUBLIC_SUPABASE_URL` и `SUPABASE_SERVICE_ROLE_KEY`.
-
+3. Задайте `NEXT_PUBLIC_SUPABASE_URL` и `SUPABASE_SERVICE_ROLE_KEY` в `.env.local` (и в Vercel).
+4. Загрузите начальные данные: `npm run seed`. Скрипт заполняет только пустые таблицы; `npm run seed -- --force` перезаписывает данные.
 Free-план Supabase ставит проект на паузу после 7 дней без запросов к БД. Эту проблему решает workflow `.github/workflows/supabase-keepalive.yml` (см. ниже).
 
 ## Публикация (Vercel + домен ekaterinazhuk.ru)
@@ -63,15 +70,15 @@ Workflow `supabase-keepalive.yml` раз в 3 дня запрашивает `/ap
 
 > Если сайт сломался после изменений, проверьте, не потерялась ли где-то скобка, кавычка или запятая.
 
-Большая часть контента находится в [src/assets/data/content.json](src/assets/data/content.json). Длинные тексты - в `.md`-файлах в `public/` (например, [public/profile.md](public/profile.md)). Всё это можно править через админку.
+Весь контент хранится в Supabase и редактируется через `/admin`. Начальные значения лежат в [supabase/seed](supabase/seed) (изменение этих файлов влияет на сайт только после `npm run seed -- --force`).
 
-### content.json (общая информация, прайс)
+### Общий контент (`content_json`)
 
 У каждого значения есть свой ключ, например `"fullName": "Екатерина Жук"`. Любое значение можно менять; новые типы значений требуют изменений в коде.
 
 > Удалять значения (за исключением элементов списков) нельзя!
 
-Прайс - список объектов одинаковой структуры; порядок в файле = порядок на сайте:
+Пример структуры элемента прайса (в `content_json`; актуальный прайс на сайте берётся из таблиц `tariffs`):
 
 ```json
 {
@@ -97,4 +104,4 @@ Workflow `supabase-keepalive.yml` раз в 3 дня запрашивает `/ap
 
 ### Markdown
 
-[Шпаргалка по Markdown](https://gist.github.com/fomvasss/8dd8cd7f88c67a4e3727f9d39224a84c). Поддерживаются заголовки, обычный текст и маркированные списки. Ссылка на каждый файл должна быть в `content.json`, иначе текст не отображается.
+[Шпаргалка по Markdown](https://gist.github.com/fomvasss/8dd8cd7f88c67a4e3727f9d39224a84c). Поддерживаются заголовки, обычный текст и маркированные списки. Markdown отображается, только если путь к нему указан в общем контенте.
