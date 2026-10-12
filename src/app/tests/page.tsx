@@ -40,7 +40,9 @@ export default async function TestsPage() {
                     <h2 className="text-xl font-semibold lg:text-2xl">
                       {test.title}
                     </h2>
-                    <p className="line-clamp-5 flex-1 text-base">{excerpt}</p>
+                    <div className="flex-1">
+                      <p className="line-clamp-5 text-base">{excerpt}</p>
+                    </div>
                     <div className="flex flex-wrap gap-2 text-sm">
                       <span className="rounded-full bg-white/20 px-3 py-1">
                         {questions}{" "}
@@ -55,7 +57,27 @@ export default async function TestsPage() {
                         {pluralize(minutes, ["минута", "минуты", "минут"])}
                       </span>
                     </div>
-                    <Button href={`/tests/${test.slug}`}>Пройти тест</Button>
+                    <Button
+                      href={`/tests/${test.slug}`}
+                      variant="solid"
+                      icon={
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          aria-hidden="true"
+                        >
+                          <path d="M5 12h14M13 6l6 6-6 6" />
+                        </svg>
+                      }
+                    >
+                      Пройти тест
+                    </Button>
                   </div>
                 </Glass>
               </article>

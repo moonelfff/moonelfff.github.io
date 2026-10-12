@@ -20,11 +20,14 @@ export function evaluateTestResult(
   scoring: TestScoringConfig,
 ): TestResultPayload {
   if (scoring.groups && scoring.groups.length > 0) {
+    const positive = new Set(scoring.positiveValues ?? [1, 2]);
+    const topCount = Math.max(1, scoring.topCount ?? 2);
+
     const groupScores = scoring.groups
       .map((group) => {
         const score = group.questions.reduce((total, questionId) => {
           const raw = toNumericAnswer(answers[questionId]);
-          if (raw === 1 || raw === 2) {
+          if (raw !== null && positive.has(raw)) {
             return total + 1;
           }
           return total;
@@ -55,7 +58,7 @@ export function evaluateTestResult(
       level: "Лидирующие группы",
       summary: "Наиболее выраженные типы по итогам ответа.",
       groupScores,
-      topGroups: groupScores.slice(0, 2),
+      topGroups: groupScores.slice(0, topCount),
     };
   }
 

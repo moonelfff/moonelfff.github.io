@@ -79,42 +79,28 @@ export function QuestionCard({
         />
       </Field>
 
-      <div className="grid gap-3 md:grid-cols-2">
-        <Field label="Тип">
-          <Select
-            value={question.type}
-            onChange={(event) => {
-              const nextType = toQuestionType(event.target.value);
-              editQuestion((draft) => {
-                draft.type = nextType;
-                draft.choices = isChoiceBasedQuestion(nextType)
-                  ? draft.choices.length > 0
-                    ? draft.choices
-                    : createDefaultChoices()
-                  : [];
-              });
-            }}
-          >
-            {Object.entries(QUESTION_TYPE_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </Select>
-        </Field>
-
-        <Field label="Имя поля" hint="Используется в подсчёте результатов.">
-          <TextInput
-            value={question.name}
-            autoCapitalize="none"
-            onChange={(event) =>
-              editQuestion((draft) => {
-                draft.name = event.target.value;
-              })
-            }
-          />
-        </Field>
-      </div>
+      <Field label="Тип">
+        <Select
+          value={question.type}
+          onChange={(event) => {
+            const nextType = toQuestionType(event.target.value);
+            editQuestion((draft) => {
+              draft.type = nextType;
+              draft.choices = isChoiceBasedQuestion(nextType)
+                ? draft.choices.length > 0
+                  ? draft.choices
+                  : createDefaultChoices()
+                : [];
+            });
+          }}
+        >
+          {Object.entries(QUESTION_TYPE_LABELS).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </Select>
+      </Field>
 
       <Field label="Пояснение к вопросу">
         <TextArea
@@ -138,6 +124,49 @@ export function QuestionCard({
         }
       />
 
+      {question.type === "rating" ? (
+        <div className="grid gap-3 md:grid-cols-3">
+          <Field label="Число значений" hint="Шкала от 1 до выбранного числа.">
+            <Select
+              value={question.rateMax}
+              onChange={(event) =>
+                editQuestion((draft) => {
+                  draft.rateMax = Number(event.target.value);
+                })
+              }
+            >
+              {[3, 4, 5, 6, 7, 8, 9, 10].map((value) => (
+                <option key={value} value={value}>
+                  1–{value}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field label="Подпись к минимуму">
+            <TextInput
+              value={question.minRateText}
+              placeholder="Совсем не согласен"
+              onChange={(event) =>
+                editQuestion((draft) => {
+                  draft.minRateText = event.target.value;
+                })
+              }
+            />
+          </Field>
+          <Field label="Подпись к максимуму">
+            <TextInput
+              value={question.maxRateText}
+              placeholder="Полностью согласен"
+              onChange={(event) =>
+                editQuestion((draft) => {
+                  draft.maxRateText = event.target.value;
+                })
+              }
+            />
+          </Field>
+        </div>
+      ) : null}
+
       {isChoiceBasedQuestion(question.type) ? (
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between gap-2">
@@ -153,6 +182,10 @@ export function QuestionCard({
               Добавить вариант
             </Button>
           </div>
+          <p className="text-xs text-black/55">
+            «Значение» — число, по которому считаются баллы (например, 1, 2, 3). «Текст» —
+            то, что видит человек.
+          </p>
 
           {question.choices.map((choice, choiceIndex) => (
             <div
@@ -200,21 +233,46 @@ export function QuestionCard({
               </div>
             </div>
           ))}
+
+          <Checkbox
+            label="Перемешивать варианты для каждого прохождения"
+            checked={question.shuffleChoices}
+            onChange={(event) =>
+              editQuestion((draft) => {
+                draft.shuffleChoices = event.target.checked;
+              })
+            }
+          />
         </div>
       ) : null}
 
-      <Collapsible summary={<span className="text-sm font-medium">Дополнительные настройки (JSON)</span>}>
-        <TextArea
-          mono
-          rows={8}
-          aria-label="Дополнительные настройки вопроса (JSON)"
-          value={question.extraSettingsText}
-          onChange={(event) =>
-            editQuestion((draft) => {
-              draft.extraSettingsText = event.target.value;
-            })
-          }
-        />
+      <Collapsible summary={<span className="text-sm font-medium">Дополнительно</span>}>
+        <Field
+          label="Имя поля"
+          hint="Технический идентификатор ответа. Должен быть уникальным; подсчёт результатов привязан к вопросу автоматически."
+        >
+          <TextInput
+            value={question.name}
+            autoCapitalize="none"
+            onChange={(event) =>
+              editQuestion((draft) => {
+                draft.name = event.target.value;
+              })
+            }
+          />
+        </Field>
+        <Field label="Другие настройки вопроса (JSON)">
+          <TextArea
+            mono
+            rows={6}
+            value={question.extraSettingsText}
+            onChange={(event) =>
+              editQuestion((draft) => {
+                draft.extraSettingsText = event.target.value;
+              })
+            }
+          />
+        </Field>
       </Collapsible>
     </Collapsible>
   );

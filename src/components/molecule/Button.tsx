@@ -7,7 +7,7 @@ type Props = {
   external?: boolean;
   onClick?: () => void;
   disabled?: boolean;
-  variant?: "glass" | "outline" | "soft" | "success";
+  variant?: "glass" | "outline" | "soft" | "success" | "solid" | "tonal";
   icon?: ReactNode;
   iconPosition?: "left" | "right";
   className?: string;
@@ -36,24 +36,34 @@ function Button({
     disabled ? "pointer-events-none opacity-50" : ""
   } ${className}`;
 
-  const inner =
-    variant !== "outline" ? (
-      <span
-        className={`shadow-effect button-shadow text-platinum mt-2 block ${
-          variant === "soft"
-            ? "button-soft"
-            : variant === "success"
-              ? "button-success"
-              : ""
-        }`}
-      >
-        <span className="backdrop-glass button-glass block">{label}</span>
-      </span>
-    ) : (
-      <span className="text-dusty-grape border-dusty-grape hover:bg-dusty-grape/10 mt-2 block rounded-xl border-2 transition-colors">
-        {label}
-      </span>
-    );
+  const flat = variant === "solid" || variant === "tonal";
+  const inner = flat ? (
+    <span
+      className={`button-grain button-flat mt-2 block rounded-xl border-2 ${
+        variant === "solid"
+          ? "text-platinum [--btn-bg-hover:#56b98d] [--btn-bg:#3e9b73] border-transparent"
+          : "text-dusty-grape [--btn-bg-hover:rgb(110_68_194/0.22)] [--btn-bg:rgb(110_68_194/0.1)] border-transparent"
+      }`}
+    >
+      {label}
+    </span>
+  ) : variant !== "outline" ? (
+    <span
+      className={`shadow-effect button-shadow text-platinum mt-2 block ${
+        variant === "soft"
+          ? "button-soft"
+          : variant === "success"
+            ? "button-success"
+            : ""
+      }`}
+    >
+      <span className="backdrop-glass button-glass block">{label}</span>
+    </span>
+  ) : (
+    <span className="button-grain button-grain--subtle button-flat button-flat--outline text-dusty-grape border-dusty-grape mt-2 block rounded-xl border-2 [--btn-bg-hover:rgb(110_68_194/0.18)] [--btn-bg:transparent]">
+      {label}
+    </span>
+  );
 
   if (href) {
     return external ? (

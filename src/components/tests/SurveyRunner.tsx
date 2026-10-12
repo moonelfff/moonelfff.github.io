@@ -189,7 +189,7 @@ function ResultView({
 
       <div className="flex flex-col gap-4 lg:flex-row">
         {contactHref ? (
-          <Button href={contactHref} external>
+          <Button href={contactHref} external variant="solid">
             {contactTitle || "Записаться на консультацию"}
           </Button>
         ) : null}
@@ -243,6 +243,8 @@ export default function SurveyRunner({
     nextSurvey.showTitle = false;
     if (!surveySchema.showQuestionNumbers) {
       nextSurvey.showQuestionNumbers = "on";
+    }
+    if (nextSurvey.showQuestionNumbers === "on") {
       nextSurvey.questionStartIndex = "Вопрос 1";
     }
     nextSurvey.showCompletedPage = false;
@@ -398,7 +400,13 @@ export default function SurveyRunner({
                 </div>
               </Glass>
             </div>
-            <Button onClick={() => setPhase("questions")}>Начать</Button>
+            <Button
+              variant="solid"
+              icon={<ArrowIcon direction="right" />}
+              onClick={() => setPhase("questions")}
+            >
+              Начать
+            </Button>
           </div>
         ) : null}
 
@@ -417,7 +425,7 @@ export default function SurveyRunner({
               </p>
             ) : null}
 
-            <div className="pb-2">
+            <div className="relative z-20 pb-2">
               <Glass>
                 <div className="test-survey text-platinum p-6 lg:p-8">
                   <Survey model={survey} />
@@ -427,7 +435,7 @@ export default function SurveyRunner({
 
             <div className="flex gap-3 lg:justify-between">
               <Button
-                variant="soft"
+                variant="tonal"
                 className="flex-1 lg:flex-none"
                 icon={<ArrowIcon direction="left" />}
                 iconPosition="left"
@@ -437,8 +445,7 @@ export default function SurveyRunner({
                 Назад
               </Button>
               <Button
-                variant={isLast ? "success" : "glass"}
-                className="flex-1 lg:flex-none"
+                variant="solid"
                 icon={isLast ? <CheckIcon /> : <ArrowIcon direction="right" />}
                 onClick={goNext}
                 disabled={phase === "submitting"}

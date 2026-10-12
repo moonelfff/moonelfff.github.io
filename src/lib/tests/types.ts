@@ -28,6 +28,10 @@ export type TestScoringConfig = {
   maxPerQuestion?: number;
   levels?: TestScaleLevel[];
   groups?: TestGroupDefinition[];
+  /** Group mode: answer values that count as "yes" (default [1, 2]). */
+  positiveValues?: number[];
+  /** Group mode: how many leading groups to highlight (default 2). */
+  topCount?: number;
 };
 
 export type PublicTestDefinition = {

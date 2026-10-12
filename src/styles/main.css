@@ -160,6 +160,74 @@
   -webkit-backdrop-filter: blur(0);
 }
 
+.button-grain {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.button-grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url("../assets/images/noise.svg#grainy");
+  background-repeat: repeat;
+  background-size: 6rem 6rem;
+  filter: grayscale(100%);
+  opacity: 0.2;
+}
+
+.button-grain--subtle::before {
+  opacity: 0.1;
+}
+
+.button-flat {
+  overflow: visible;
+  background: none !important;
+  transition: border-color 0.3s ease-in-out;
+}
+
+.button-flat::before {
+  border-radius: inherit;
+  inset: -2px;
+  transition: inset 0.3s ease-in-out;
+}
+
+.button-flat::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  z-index: -2;
+  border-radius: inherit;
+  background: var(--btn-bg);
+  transition:
+    filter 0.3s ease-in-out,
+    inset 0.3s ease-in-out,
+    background-color 0.3s ease-in-out;
+}
+
+.button-flat--outline::before,
+.button-flat--outline::after {
+  inset: 0;
+}
+
+.button-flat:hover {
+  border-color: transparent;
+}
+
+.button-flat:hover::before {
+  inset: 1px;
+  border-radius: 0.5rem;
+}
+
+.button-flat:hover::after {
+  background: var(--btn-bg-hover);
+  filter: blur(5px);
+  inset: 0;
+}
+
 .button-shadow::after {
   transition:
     transform 0.3s ease-in-out,
@@ -360,11 +428,97 @@
   color: var(--color-platinum);
 }
 
+.test-survey .sd-rating {
+  color: var(--color-platinum);
+}
+
+.test-survey .sd-rating__item {
+  background: rgb(255 255 255 / 0.12);
+  border: 1px solid rgb(249 255 250 / 0.5);
+  box-shadow: none;
+}
+
+.test-survey .sd-rating__item-text,
+.test-survey .sd-rating__item-text span,
+.test-survey .sd-rating__item-text .sv-string-viewer {
+  color: var(--color-platinum);
+}
+
+.test-survey .sd-rating__item--selected {
+  background: var(--color-success);
+  border-color: var(--color-success-light);
+}
+
+.test-survey .sd-rating__item:hover {
+  background: rgb(255 255 255 / 0.25);
+}
+
+.test-survey .sd-rating__item-text--fixed-width,
+.test-survey .sd-rating__min-text,
+.test-survey .sd-rating__max-text,
+.test-survey .sd-rating__min-text .sv-string-viewer,
+.test-survey .sd-rating__max-text .sv-string-viewer {
+  color: rgb(249 255 250 / 0.85);
+}
+
 .test-survey .sd-input,
 .test-survey textarea {
   background: rgb(255 255 255 / 0.12);
   color: var(--color-platinum);
   border: 1px solid rgb(249 255 250 / 0.5);
+}
+
+.test-survey textarea,
+.test-survey .sd-comment,
+.test-survey .sd-dropdown {
+  background: rgb(255 255 255 / 0.12) !important;
+  color: var(--color-platinum) !important;
+  border: 1px solid rgb(249 255 250 / 0.5) !important;
+  border-radius: 0.75rem;
+  box-shadow: none !important;
+}
+
+.test-survey textarea {
+  background: transparent !important;
+  border: none !important;
+  padding: 0.75rem 1rem;
+}
+
+.test-survey .sd-comment {
+  overflow: hidden;
+}
+
+.test-survey textarea::placeholder,
+.test-survey .sd-dropdown__filter-string-input::placeholder {
+  color: rgb(249 255 250 / 0.6) !important;
+}
+
+.test-survey textarea:focus,
+.test-survey .sd-dropdown:focus-within {
+  border-color: var(--color-success-light) !important;
+  outline: none;
+}
+
+.test-survey .sd-dropdown {
+  padding: 0 0.5rem 0 1rem;
+  min-height: 3rem;
+}
+
+.test-survey .sd-dropdown__filter-string-input,
+.test-survey .sd-dropdown__value,
+.test-survey .sd-dropdown__value .sv-string-viewer {
+  background: transparent !important;
+  color: var(--color-platinum) !important;
+  cursor: pointer;
+}
+
+.test-survey .sd-dropdown .sd-action {
+  background: transparent !important;
+}
+
+.test-survey .sd-dropdown .sd-action svg,
+.test-survey .sd-dropdown .sd-action use {
+  fill: var(--color-platinum) !important;
 }
 
 .test-survey .sd-error,
@@ -393,4 +547,14 @@
   height: 1.25rem;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffb3b9' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7.5v5.5M12 16.5h.01'/%3E%3C/svg%3E")
     center / contain no-repeat;
+}
+
+.admin-select {
+  appearance: none;
+  padding-right: 2.5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b46c1' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.875rem center;
+  background-size: 1.125rem;
+  cursor: pointer;
 }
