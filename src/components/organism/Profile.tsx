@@ -2,42 +2,17 @@ import photo from "@/assets/images/photo.webp";
 import Image from "../molecule/Image";
 import Link from "../molecule/Link";
 import ContentBox from "../molecule/ContentBox";
-import { useEffect, useState } from "react";
 import Typography from "../atom/Typography";
 import TelegramIcon from "../../assets/icons/TelegramIcon";
 import Contact from "./Contact";
-import { fetchMarkdown } from "../../utils/fetchMarkdown";
-import { useSiteContent } from "../providers/SiteContentProvider";
+import { useSiteContent, useSiteMarkdown } from "../providers/SiteContentProvider";
 
 function Profile() {
   const data = useSiteContent();
   const profileImageSrc = data.profileImageUrl || photo;
 
-  const [content, setContent] = useState<string | undefined>(undefined);
-
-  const [blogContent, setBlogContent] = useState<string | undefined>(undefined);
-
-  useEffect(() => {
-    fetchMarkdown(data.info.contentPath)
-      .then((value) => {
-        setContent(value);
-      })
-      .catch(() => {
-        setContent(
-          "Не удалось загрузить описание. Проверьте запуск Next.js приложения.",
-        );
-      });
-
-    fetchMarkdown(data.blogDescriptionPath)
-      .then((value) => {
-        setBlogContent(value);
-      })
-      .catch(() => {
-        setBlogContent(
-          "Не удалось загрузить описание блога. Проверьте запуск Next.js приложения.",
-        );
-      });
-  }, [data.blogDescriptionPath, data.info.contentPath]);
+  const content = useSiteMarkdown(data.info.contentPath);
+  const blogContent = useSiteMarkdown(data.blogDescriptionPath);
 
   return (
     <section

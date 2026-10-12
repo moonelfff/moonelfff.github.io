@@ -17,12 +17,12 @@ import { parseMarkdown } from "@/utils/markdownParser";
 type AdminBundle = {
   content: SiteContent;
   markdown: Record<string, string>;
-  source: "local" | "supabase";
+  source: "supabase";
 };
 
 type TariffBundle = {
   tariffs: Tariff[];
-  source: "local" | "supabase";
+  source: "supabase";
 };
 
 type UploadKind = "profile" | "og";
@@ -354,9 +354,9 @@ export default function AdminPage() {
   const [errorTariffs, setErrorTariffs] = useState<string | null>(null);
   const [messageContent, setMessageContent] = useState<string | null>(null);
   const [messageTariffs, setMessageTariffs] = useState<string | null>(null);
-  const [source, setSource] = useState<"local" | "supabase">("local");
-  const [tariffSource, setTariffSource] = useState<"local" | "supabase">(
-    "local",
+  const [source, setSource] = useState<"supabase">("supabase");
+  const [tariffSource, setTariffSource] = useState<"supabase">(
+    "supabase",
   );
 
   const [contentData, setContentData] = useState<SiteContent | null>(null);

@@ -2,6 +2,8 @@ import Link from "next/link";
 import { getTestBundle } from "@/lib/tests/testStore";
 import { markdownToHtml } from "@/utils/markdownToHtml";
 
+export const dynamic = "force-dynamic";
+
 export default async function TestsPage() {
   const { tests } = await getTestBundle();
 

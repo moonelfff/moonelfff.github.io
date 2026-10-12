@@ -1,12 +1,12 @@
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { MOCK_TESTS } from "./mockTests";
+import { type SupabaseClient } from "@supabase/supabase-js";
+import { getSupabaseAdminClient } from "@/lib/supabase";
 import type { PublicTestDefinition, TestScoringConfig } from "./types";
 
 const TESTS_TABLE = "psychological_tests";
 
 export type TestBundle = {
   tests: PublicTestDefinition[];
-  source: "local" | "supabase";
+  source: "supabase";
 };
 
 type TestRow = {
@@ -19,22 +19,6 @@ type TestRow = {
   scoring_json: TestScoringConfig;
   sort_order: number;
 };
-
-function getSupabaseAdminClient(): SupabaseClient | null {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!url || !serviceRoleKey) {
-    return null;
-  }
-
-  return createClient(url, serviceRoleKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  });
-}
 
 function mapRowToTest(row: TestRow): PublicTestDefinition {
   return {
@@ -63,28 +47,6 @@ async function readSupabaseTests(
   }
 
   return (data as TestRow[]).map(mapRowToTest);
-}
-
-async function seedSupabaseTestsFromMocks(
-  supabase: SupabaseClient,
-): Promise<void> {
-  const rows = MOCK_TESTS.map((test, index) => ({
-    slug: test.slug,
-    title: test.title,
-    description: test.description,
-    version: test.version,
-    schema_json: test.schema,
-    scoring_json: test.scoring,
-    sort_order: index,
-  }));
-
-  const { error } = await supabase.from(TESTS_TABLE).upsert(rows, {
-    onConflict: "slug",
-  });
-
-  if (error) {
-    throw error;
-  }
 }
 
 function validateTests(tests: PublicTestDefinition[]) {
@@ -126,36 +88,13 @@ function validateTests(tests: PublicTestDefinition[]) {
 }
 
 export async function getTestBundle(): Promise<TestBundle> {
-  const supabase = getSupabaseAdminClient();
-  if (!supabase) {
-    return {
-      tests: MOCK_TESTS,
-      source: "local",
-    };
+  const tests = await readSupabaseTests(getSupabaseAdminClient());
+
+  if (tests === null) {
+    throw new Error("Failed to read tests from Supabase");
   }
 
-  const loaded = await readSupabaseTests(supabase);
-  if (loaded === null) {
-    return {
-      tests: MOCK_TESTS,
-      source: "local",
-    };
-  }
-
-  if (loaded.length > 0) {
-    return {
-      tests: loaded,
-      source: "supabase",
-    };
-  }
-
-  await seedSupabaseTestsFromMocks(supabase);
-  const seeded = await readSupabaseTests(supabase);
-
-  return {
-    tests: seeded ?? MOCK_TESTS,
-    source: seeded ? "supabase" : "local",
-  };
+  return { tests, source: "supabase" };
 }
 
 export async function getTestBySlug(
@@ -171,9 +110,6 @@ export async function saveTests(
   validateTests(tests);
 
   const supabase = getSupabaseAdminClient();
-  if (!supabase) {
-    throw new Error("Supabase is not configured for test editing");
-  }
 
   const { data: existingRaw, error: existingError } = await supabase
     .from(TESTS_TABLE)
@@ -189,7 +125,7 @@ export async function saveTests(
 
   const preparedTests = tests.map((test, index) => ({
     id:
-      test.id && !test.id.startsWith("legacy-") && !test.id.startsWith("tmp-")
+      test.id && !test.id.startsWith("tmp-")
         ? test.id
         : crypto.randomUUID(),
     slug: test.slug.trim(),

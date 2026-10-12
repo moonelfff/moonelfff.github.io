@@ -11,7 +11,7 @@ import { parseMarkdown } from "@/utils/markdownParser";
 
 type TestBundle = {
   tests: PublicTestDefinition[];
-  source: "local" | "supabase";
+  source: "supabase";
 };
 
 type ChoiceValue = string | number;
@@ -387,7 +387,7 @@ export default function AdminTestsPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [source, setSource] = useState<"local" | "supabase">("local");
+  const [source, setSource] = useState<"supabase">("supabase");
   const [tests, setTests] = useState<EditableTest[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
