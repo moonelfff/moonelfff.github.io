@@ -276,6 +276,7 @@ export default function AdminContentPage() {
               <ImageUpload
                 title="Фото профиля"
                 hint="Вертикальное фото, минимум 1200 px по длинной стороне."
+                aspectClass="aspect-4/5 max-w-xs mx-auto"
                 imageUrl={draft.content.profileImageUrl}
                 isUploading={uploadingKind === "profile"}
                 onSelect={(file) => void onUploadImage("profile", file)}
@@ -283,6 +284,7 @@ export default function AdminContentPage() {
               <ImageUpload
                 title="Картинка для ссылок (Google, соцсети)"
                 hint="Показывается, когда ссылкой на сайт делятся в соцсетях и мессенджерах. Лучше всего 1200×630 px."
+                aspectClass="aspect-[1200/630]"
                 imageUrl={draft.content.ogImageUrl}
                 isUploading={uploadingKind === "og"}
                 onSelect={(file) => void onUploadImage("og", file)}

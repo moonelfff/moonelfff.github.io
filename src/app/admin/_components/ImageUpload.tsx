@@ -9,6 +9,8 @@ type ImageUploadProps = {
   hint: string;
   imageUrl: string;
   isUploading: boolean;
+  /** Tailwind aspect class matching how the image is shown on the site. */
+  aspectClass: string;
   onSelect: (file: File) => void;
 };
 
@@ -18,6 +20,7 @@ export function ImageUpload({
   hint,
   imageUrl,
   isUploading,
+  aspectClass,
   onSelect,
 }: ImageUploadProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -34,10 +37,10 @@ export function ImageUpload({
         <img
           src={imageUrl}
           alt={title}
-          className="max-h-52 w-full rounded-lg border border-alabaster-grey object-cover"
+          className={`${aspectClass} w-full rounded-2xl border border-alabaster-grey object-cover`}
         />
       ) : (
-        <p className="rounded-lg border border-dashed border-black/20 p-6 text-center text-sm text-black/50">
+        <p className={`${aspectClass} flex w-full items-center justify-center rounded-2xl border border-dashed border-black/20 p-6 text-center text-sm text-black/50`}>
           Изображение не загружено
         </p>
       )}
