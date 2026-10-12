@@ -7,7 +7,9 @@ type Props = {
   external?: boolean;
   onClick?: () => void;
   disabled?: boolean;
-  variant?: "glass" | "outline";
+  variant?: "glass" | "outline" | "soft" | "success";
+  icon?: ReactNode;
+  iconPosition?: "left" | "right";
   className?: string;
 };
 
@@ -18,11 +20,15 @@ function Button({
   onClick,
   disabled,
   variant = "glass",
+  icon,
+  iconPosition = "right",
   className = "",
 }: Props) {
   const label = (
-    <span className="block px-6 py-3 text-center text-sm font-semibold uppercase lg:text-base">
-      {children}
+    <span className="flex items-center justify-center gap-2 px-4 py-3 text-center text-sm font-semibold uppercase lg:px-6 lg:text-base">
+      {icon && iconPosition === "left" ? icon : null}
+      <span>{children}</span>
+      {icon && iconPosition === "right" ? icon : null}
     </span>
   );
 
@@ -31,8 +37,16 @@ function Button({
   } ${className}`;
 
   const inner =
-    variant === "glass" ? (
-      <span className="shadow-effect button-shadow text-platinum mt-2 block">
+    variant !== "outline" ? (
+      <span
+        className={`shadow-effect button-shadow text-platinum mt-2 block ${
+          variant === "soft"
+            ? "button-soft"
+            : variant === "success"
+              ? "button-success"
+              : ""
+        }`}
+      >
         <span className="backdrop-glass button-glass block">{label}</span>
       </span>
     ) : (

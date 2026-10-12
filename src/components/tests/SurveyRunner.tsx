@@ -27,6 +27,42 @@ type SurveyRunnerProps = {
 
 type Phase = "intro" | "questions" | "submitting" | "result";
 
+function ArrowIcon({ direction }: { direction: "left" | "right" }) {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d={direction === "left" ? "M19 12H5M11 6l-6 6 6 6" : "M5 12h14M13 6l6 6-6 6"} />
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M4 12l5 5L20 6" />
+    </svg>
+  );
+}
+
 function ProgressBar({
   value,
   label,
@@ -49,7 +85,7 @@ function ProgressBar({
       }`}
     >
       <div
-        className="bg-gold h-full rounded-full transition-all duration-300"
+        className="bg-success h-full rounded-full transition-all duration-300"
         style={{ width: `${percent}%` }}
       />
     </div>
@@ -206,6 +242,7 @@ export default function SurveyRunner({
   }, [schema, questionCount, attempt]);
 
   useEffect(() => {
+    let autoNextTimer: ReturnType<typeof setTimeout> | undefined;
     const bump = () => {
       rerender();
       setTimeout(rerender, 80);
@@ -252,10 +289,11 @@ export default function SurveyRunner({
         options.question?.getType() === "radiogroup" &&
         sender.isLastElement !== true
       ) {
-        setTimeout(() => {
+        if (autoNextTimer) clearTimeout(autoNextTimer);
+        autoNextTimer = setTimeout(() => {
           sender.performNext();
           rerender();
-        }, 250);
+        }, 450);
       }
     };
 
@@ -264,6 +302,7 @@ export default function SurveyRunner({
     survey.onValueChanged.add(onValueChanged);
     survey.onFocusInQuestion.add(bump);
     return () => {
+      if (autoNextTimer) clearTimeout(autoNextTimer);
       survey.onComplete.remove(onComplete);
       survey.onCurrentPageChanged.remove(bump);
       survey.onValueChanged.remove(onValueChanged);
@@ -361,7 +400,7 @@ export default function SurveyRunner({
             </div>
 
             {submitError ? (
-              <p className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-900">
+              <p className="border-danger/40 bg-danger/10 text-danger rounded-xl border px-4 py-3 text-sm">
                 {submitError}
               </p>
             ) : null}
@@ -374,19 +413,28 @@ export default function SurveyRunner({
               </Glass>
             </div>
 
-            <div className="flex flex-col-reverse gap-4 lg:flex-row lg:justify-between">
+            <div className="flex gap-3 lg:justify-between">
               <Button
-                variant="outline"
+                variant="soft"
+                className="flex-1 lg:flex-none"
+                icon={<ArrowIcon direction="left" />}
+                iconPosition="left"
                 onClick={goPrev}
                 disabled={phase === "submitting" || Boolean(isFirst)}
               >
                 Назад
               </Button>
-              <Button onClick={goNext} disabled={phase === "submitting"}>
+              <Button
+                variant={isLast ? "success" : "glass"}
+                className="flex-1 lg:flex-none"
+                icon={isLast ? <CheckIcon /> : <ArrowIcon direction="right" />}
+                onClick={goNext}
+                disabled={phase === "submitting"}
+              >
                 {phase === "submitting"
-                  ? "Считаем результат..."
+                  ? "Считаем..."
                   : isLast
-                    ? "Показать результат"
+                    ? "Результат"
                     : "Далее"}
               </Button>
             </div>

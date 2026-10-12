@@ -10,6 +10,11 @@
   --color-platinum: #f9fffa;
   --color-black: #080705;
   --color-gold: #f0d066;
+  --color-success: #3e9b73;
+  --color-success-dark: #1f5c45;
+  --color-success-light: #a7e8c6;
+  --color-danger: #c8545f;
+  --color-danger-light: #ffb3b9;
 }
 
 .markdown {
@@ -172,6 +177,22 @@
   transform: translateY(0) translateX(0);
 }
 
+.button-success.button-shadow::after {
+  background-color: var(--color-success-dark);
+}
+
+.button-success .button-glass {
+  background-color: var(--color-success) !important;
+}
+
+.button-soft.button-shadow::after {
+  background-color: var(--color-dusty-grape);
+}
+
+.button-soft .button-glass {
+  background-color: rgb(110 68 194 / 0.55) !important;
+}
+
 /* Тема SurveyJS под стиль сайта (стеклянные карточки) */
 .test-survey {
   --sjs-general-backcolor: transparent;
@@ -279,14 +300,26 @@
 
 .test-survey .sd-item--checked .sd-selectbase__label,
 .test-survey .sd-selectbase__label:has(input:checked) {
-  background: var(--color-gold);
-  border-color: var(--color-gold);
+  background: var(--color-success);
+  border-color: var(--color-success-light);
+  justify-content: space-between;
+}
+
+.test-survey .sd-item--checked .sd-selectbase__label::after,
+.test-survey .sd-selectbase__label:has(input:checked)::after {
+  content: "";
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-left: 0.75rem;
+  background: no-repeat center / contain
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f9fffa' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12l5 5L20 6'/%3E%3C/svg%3E");
 }
 
 .test-survey .sd-item--checked .sd-selectbase__label,
 .test-survey .sd-item--checked .sd-item__control-label,
 .test-survey .sd-selectbase__label:has(input:checked) span {
-  color: var(--color-black);
+  color: var(--color-platinum);
 }
 
 .test-survey .sd-input,
@@ -298,7 +331,7 @@
 
 .test-survey .sd-error,
 .test-survey .sd-element__erbox {
-  color: var(--color-gold);
+  color: var(--color-danger-light);
   background: rgb(0 0 0 / 0.25);
   border-radius: 0.5rem;
 }
