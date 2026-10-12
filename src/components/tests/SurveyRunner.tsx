@@ -419,7 +419,7 @@ export default function SurveyRunner({
               </p>
             ) : null}
 
-            <div className="pb-2">
+            <div className="relative z-20 pb-2">
               <Glass>
                 <div className="test-survey text-platinum p-6 lg:p-8">
                   <Survey model={survey} />
