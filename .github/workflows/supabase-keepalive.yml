@@ -1,0 +1,24 @@
+name: Supabase keep-alive
+
+# Free-plan Supabase projects are paused after 7 days without activity.
+# Requests to /api/content and /api/tariffs read from the database,
+# which counts as activity.
+on:
+  schedule:
+    - cron: "0 6 */3 * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request content endpoints
+        env:
+          SITE_URL: ${{ vars.SITE_URL || 'https://ekaterinazhuk.ru' }}
+        run: |
+          for path in /api/content /api/tariffs; do
+            echo "GET $SITE_URL$path"
+            curl -fsS --retry 3 --retry-delay 10 -o /dev/null -w "%{http_code}\n" "$SITE_URL$path"
+          done

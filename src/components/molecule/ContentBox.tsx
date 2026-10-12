@@ -1,4 +1,4 @@
-import getContent from "../../assets/data/content";
+import { useSiteContent } from "../providers/SiteContentProvider";
 import { parseMarkdown } from "../../utils/markdownParser";
 
 type Props = {
@@ -6,7 +6,7 @@ type Props = {
 };
 
 function ContentBox({ content }: Props) {
-  const data = getContent();
+  const data = useSiteContent();
 
   return (
     <div>

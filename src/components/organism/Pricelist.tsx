@@ -1,30 +1,36 @@
 import Typography from "../atom/Typography";
 import PriceItem from "./PriceItem";
-import getContent from "../../assets/data/content";
 import { useEffect, useState } from "react";
 import { parseMarkdown } from "../../utils/markdownParser";
 import Contact from "./Contact";
+import { useSiteContent } from "../providers/SiteContentProvider";
+import type { Tariff } from "@/lib/tariffStore";
+
+type TariffResponse = {
+  tariffs: Tariff[];
+};
 
 function Pricelist() {
-  const data = getContent();
-  const [descriptions, setDescriptions] = useState<Record<string, string>>({});
+  const data = useSiteContent();
+  const [tariffs, setTariffs] = useState<Tariff[]>([]);
 
   useEffect(() => {
-    // Загрузка всех описаний
-    const loadDescriptions = async () => {
-      const descriptionPromises = data.pricelist.map(async (item) => {
-        const response = await fetch(item.descriptionPath);
-        const content = await response.text();
-        return { [item.title]: content };
-      });
+    const loadTariffs = async () => {
+      try {
+        const response = await fetch("/api/tariffs", { cache: "no-store" });
+        if (!response.ok) {
+          return;
+        }
 
-      const loadedDescriptions = await Promise.all(descriptionPromises);
-      const descriptionsMap = Object.assign({}, ...loadedDescriptions);
-      setDescriptions(descriptionsMap);
+        const body = (await response.json()) as TariffResponse;
+        setTariffs(body.tariffs.filter((tariff) => tariff.isActive));
+      } catch {
+        setTariffs([]);
+      }
     };
 
-    loadDescriptions();
-  }, [data.pricelist]);
+    loadTariffs();
+  }, []);
 
   return (
     <section id="price">
@@ -33,20 +39,35 @@ function Pricelist() {
       </Typography>
       <div className="flex flex-col gap-6">
         <div className="flex flex-col flex-wrap justify-center gap-3 lg:flex-row">
-          {data.pricelist.map((item) => (
+          {tariffs.map((tariff) => (
             <PriceItem
-              key={item.title}
-              title={item.title}
+              key={tariff.id}
+              title={tariff.title}
               description={
-                descriptions[item.title] ? (
-                  parseMarkdown(descriptions[item.title])
+                tariff.descriptionMarkdown ? (
+                  parseMarkdown(tariff.descriptionMarkdown)
                 ) : (
                   <div className="flex h-50 items-center justify-center">
                     {data.loading}
                   </div>
                 )
               }
-              packages={item.packages}
+              packages={tariff.packages.map((pkg) => ({
+                name: pkg.title,
+                price: {
+                  regular: {
+                    amount: pkg.regularAmount,
+                    currency: pkg.currency,
+                  },
+                  discounted:
+                    pkg.discountedAmount === null
+                      ? undefined
+                      : {
+                          amount: pkg.discountedAmount,
+                          currency: pkg.currency,
+                        },
+                },
+              }))}
             />
           ))}
         </div>

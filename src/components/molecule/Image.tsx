@@ -1,8 +1,7 @@
-import { ResponsiveImage } from "@responsive-image/react";
-import type { ImageData } from "@responsive-image/core";
+import NextImage, { type StaticImageData } from "next/image";
 
 type Props = {
-  src: ImageData;
+  src: string | StaticImageData;
   alt: string;
   className?: string;
 };
@@ -10,14 +9,16 @@ type Props = {
 function Image({ src, alt, className }: Props) {
   return (
     <div className={className}>
-      <div className="shadow-effect shadow-effect-offset mt-2 w-fit!">
-        <div className="image-glass rounded-3xl">
-          <ResponsiveImage
+      <div className="shadow-effect shadow-effect-offset mt-2 w-[clamp(16rem,88vw,32rem)]">
+        <div className="image-glass w-full! overflow-hidden rounded-3xl">
+          <NextImage
             src={src}
             alt={alt}
-            className="w-full lg:max-w-160 lg:min-w-120"
-            fetchPriority="high"
-            loading="eager"
+            width={640}
+            height={800}
+            sizes="(max-width: 640px) 88vw, 32rem"
+            className="h-auto w-full object-cover"
+            priority
           />
           <div className="image-shadow" />
         </div>

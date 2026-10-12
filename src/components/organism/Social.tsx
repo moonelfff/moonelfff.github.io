@@ -1,10 +1,10 @@
-import getContent from "../../assets/data/content";
 import B17Icon from "../../assets/icons/B17Icon";
 import TelegramIcon from "../../assets/icons/TelegramIcon";
 import VKIcon from "../../assets/icons/VKIcon";
+import { useSiteContent } from "../providers/SiteContentProvider";
 
 function Social() {
-  const content = getContent();
+  const content = useSiteContent();
 
   return (
     <ul className="flex gap-3">
