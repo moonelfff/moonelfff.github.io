@@ -189,7 +189,7 @@ function ResultView({
 
       <div className="flex flex-col gap-4 lg:flex-row">
         {contactHref ? (
-          <Button href={contactHref} external variant="success">
+          <Button href={contactHref} external variant="solid">
             {contactTitle || "Записаться на консультацию"}
           </Button>
         ) : null}
@@ -401,7 +401,7 @@ export default function SurveyRunner({
               </Glass>
             </div>
             <Button
-              variant="success"
+              variant="solid"
               icon={<ArrowIcon direction="right" />}
               onClick={() => setPhase("questions")}
             >
@@ -435,7 +435,7 @@ export default function SurveyRunner({
 
             <div className="flex gap-3 lg:justify-between">
               <Button
-                variant="soft"
+                variant="tonal"
                 className="flex-1 lg:flex-none"
                 icon={<ArrowIcon direction="left" />}
                 iconPosition="left"
@@ -445,8 +445,7 @@ export default function SurveyRunner({
                 Назад
               </Button>
               <Button
-                variant="success"
-                className="flex-1 lg:flex-none"
+                variant="solid"
                 icon={isLast ? <CheckIcon /> : <ArrowIcon direction="right" />}
                 onClick={goNext}
                 disabled={phase === "submitting"}

@@ -40,7 +40,9 @@ export default async function TestsPage() {
                     <h2 className="text-xl font-semibold lg:text-2xl">
                       {test.title}
                     </h2>
-                    <p className="line-clamp-5 flex-1 overflow-hidden text-base">{excerpt}</p>
+                    <div className="flex-1">
+                      <p className="line-clamp-5 text-base">{excerpt}</p>
+                    </div>
                     <div className="flex flex-wrap gap-2 text-sm">
                       <span className="rounded-full bg-white/20 px-3 py-1">
                         {questions}{" "}
@@ -57,7 +59,7 @@ export default async function TestsPage() {
                     </div>
                     <Button
                       href={`/tests/${test.slug}`}
-                      variant="success"
+                      variant="solid"
                       icon={
                         <svg
                           width="20"

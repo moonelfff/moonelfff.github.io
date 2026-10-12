@@ -7,7 +7,7 @@ type Props = {
   external?: boolean;
   onClick?: () => void;
   disabled?: boolean;
-  variant?: "glass" | "outline" | "soft" | "success";
+  variant?: "glass" | "outline" | "soft" | "success" | "solid" | "tonal";
   icon?: ReactNode;
   iconPosition?: "left" | "right";
   className?: string;
@@ -36,8 +36,18 @@ function Button({
     disabled ? "pointer-events-none opacity-50" : ""
   } ${className}`;
 
-  const inner =
-    variant !== "outline" ? (
+  const flat = variant === "solid" || variant === "tonal";
+  const inner = flat ? (
+    <span
+      className={`mt-2 block rounded-xl border-2 transition-colors ${
+        variant === "solid"
+          ? "bg-success border-success text-platinum hover:bg-success-dark hover:border-success-dark"
+          : "text-dusty-grape bg-dusty-grape/10 hover:bg-dusty-grape/20 border-transparent"
+      }`}
+    >
+      {label}
+    </span>
+  ) : variant !== "outline" ? (
       <span
         className={`shadow-effect button-shadow text-platinum mt-2 block ${
           variant === "soft"
