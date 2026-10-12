@@ -233,6 +233,9 @@ export default function SurveyRunner({
     nextSurvey.showNavigationButtons = "none";
     nextSurvey.showProgressBar = "off";
     nextSurvey.showTitle = false;
+    if (!surveySchema.showQuestionNumbers) {
+      nextSurvey.showQuestionNumbers = "on";
+    }
     nextSurvey.showCompletedPage = false;
     nextSurvey.focusFirstQuestionAutomatic = false;
     if (surveySchema.questionsOnPageMode === "questionPerPage") {

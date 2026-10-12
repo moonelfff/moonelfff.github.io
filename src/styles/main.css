@@ -268,6 +268,27 @@
   max-width: none;
 }
 
+.test-survey .sd-page__content {
+  padding-inline: 0;
+}
+
+.test-survey .sd-question__header-and-content-container,
+.test-survey [class*="header-and-content-container"] {
+  padding: 0;
+}
+
+.test-survey .sd-question__num,
+.test-survey .sd-element__num {
+  display: inline !important;
+  position: static !important;
+  width: auto !important;
+  margin: 0 !important;
+  color: var(--color-gold) !important;
+  font-family: var(--font-play), sans-serif;
+  font-size: 1.25rem !important;
+  line-height: inherit !important;
+}
+
 .test-survey .sd-body__page,
 .test-survey .sd-row,
 .test-survey .sd-page,
