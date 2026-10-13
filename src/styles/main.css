@@ -10,10 +10,10 @@
   --color-platinum: #f9fffa;
   --color-black: #080705;
   --color-gold: #f0d066;
-  --color-success: #329f5b;
-  --color-success-dark: #216c3d;
-  --color-success-light: #4aeb86;
-  --color-danger: #ff5964;
+  --color-success: #3e9b73;
+  --color-success-dark: #1f5c45;
+  --color-success-light: #a7e8c6;
+  --color-danger: #c8545f;
   --color-danger-light: #ffb3b9;
 }
 
@@ -242,6 +242,14 @@
   border-radius: 0.5rem;
 }
 
+.button-flat--pill:hover::before {
+  border-radius: inherit;
+}
+
+.button-flat--pill:hover {
+  border-color: rgb(255 255 255 / 0.5);
+}
+
 .button-flat:hover::after {
   background: var(--btn-bg-hover);
   filter: blur(5px);
@@ -266,19 +274,11 @@
 }
 
 .button-success.button-shadow::after {
-  background-color: var(--color-success-dark);
-}
-
-.button-success .button-glass {
-  background-color: var(--color-success) !important;
+  background-color: var(--color-success);
 }
 
 .button-soft.button-shadow::after {
   background-color: var(--color-dusty-grape);
-}
-
-.button-soft .button-glass {
-  background-color: rgb(110 68 194 / 0.55) !important;
 }
 
 /* Тема SurveyJS под стиль сайта (стеклянные карточки) */

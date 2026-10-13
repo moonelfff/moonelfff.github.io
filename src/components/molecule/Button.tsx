@@ -28,7 +28,11 @@ function Button({
     <span className="flex items-center justify-center gap-2 px-4 py-3 text-center text-sm font-semibold uppercase lg:px-6 lg:text-base">
       {icon && iconPosition === "left" ? icon : null}
       <span>{children}</span>
-      {icon && iconPosition === "right" ? icon : null}
+      {icon && iconPosition === "right" ? (
+        <span className="transition-transform duration-300 group-hover/btn:translate-x-1">
+          {icon}
+        </span>
+      ) : null}
     </span>
   );
 
@@ -39,9 +43,9 @@ function Button({
   const flat = variant === "solid" || variant === "tonal";
   const inner = flat ? (
     <span
-      className={`button-grain button-flat mt-2 block rounded-xl border-2 ${
+      className={`button-grain button-flat group/btn mt-2 block border-2 ${variant === "solid" ? "button-flat--pill rounded-full" : "rounded-xl"} ${
         variant === "solid"
-          ? "text-platinum [--btn-bg-hover:#56b98d] [--btn-bg:#3e9b73] border-transparent"
+          ? "text-platinum border-white/35 shadow-[inset_0_1px_0_rgb(255_255_255/0.35)] [--btn-bg-hover:rgb(255_255_255/0.3)] [--btn-bg:rgb(255_255_255/0.16)]"
           : "text-dusty-grape [--btn-bg-hover:rgb(110_68_194/0.22)] [--btn-bg:rgb(110_68_194/0.1)] border-transparent"
       }`}
     >
