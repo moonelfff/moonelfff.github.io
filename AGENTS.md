@@ -1,4 +1,4 @@
-<!-- BEGIN:nextjs-agent-rules -->
+﻿<!-- BEGIN:nextjs-agent-rules -->
 
 # This is NOT the Next.js you know
 
@@ -19,7 +19,7 @@ Website of clinical psychologist Ekaterina Zhuk (ekaterinazhuk.ru): Next.js App 
 - Pages that read Supabase must be `export const dynamic = "force-dynamic"` so the build works without credentials.
 - Public reads use cached `getPublic*` functions (`unstable_cache` + tags, `src/lib/cache.ts`); admin routes use uncached `get*Bundle`. Any new save path must call `invalidateCache(tag)`.
 - Admin auth: cookie + `src/proxy.ts` + `src/lib/adminSession.ts`. `/admin` and `/api/admin/*` are protected.
-- Admin UI (`src/app/admin`): shared components in `_components/` (`AdminShell` with sticky save bar, `useToast()` notifications, `ui.tsx` primitives), helpers in `_lib/`. Mobile-first (44px targets, 16px inputs on mobile), site palette only (`soft-linnen`, `platinum`, `alabaster-grey`, `dusty-grape`). Report results via toasts, not inline text. Explain non-obvious settings with a plain-language `tip` on `Field`/`Checkbox`/`SectionTitle` (the `Tip` "?" bubble in `ui.tsx`; styled `.tip-bubble` in `main.css`); keep admin copy simple, in Russian, with no technical jargon (say «адрес (slug)», «служебные параметры», not «SurveyJS JSON»). Image previews must use the same aspect ratio as the site (`ImageUpload` `aspectClass`).
+- Admin UI: atomic design like the home page - `src/components/admin/{atom,molecule,organism,providers}` (one component per file, default exports, `AdminShell` with sticky save bar, `useToast()` notifications), helpers/hooks in `src/lib/admin/`, `src/app/admin/**/page.tsx` stay thin and only render an organism. Mobile-first (44px targets, 16px inputs on mobile), site palette only (`soft-linnen`, `platinum`, `alabaster-grey`, `dusty-grape`). Report results via toasts, not inline text. Explain non-obvious settings with a plain-language `tip` on `Field`/`Checkbox`/`SectionTitle` (the `Tip` "?" bubble atom `Tip`; styled `.tip-bubble` in `main.css`); keep admin copy simple, in Russian, with no technical jargon (say «адрес (slug)», «служебные параметры», not «SurveyJS JSON»). Image previews must use the same aspect ratio as the site (`ImageUpload` `aspectClass`).
 - Hosting: Vercel (GitHub Pages is not supported). Workflows: `supabase-keepalive.yml` (keep-alive), `sync-fallback-photo.yml` (weekly fallback photo sync), `supabase-backup.yml` (daily encrypted backup of all tables and storage, skipped when data is unchanged; scripts in `scripts/`), `supabase-restore.yml` (manual restore with confirmation and pre-restore snapshot) in `.github/workflows/`.
 
 - Кнопки: вне карточек - стеклянные `glass`/`soft`/`success` (как чёрная кнопка на главной, меняется только цвет подложки); внутри карточек - только `variant="solid"` (полупрозрачная светлая таблетка со стрелкой), менять можно лишь цвет фона.

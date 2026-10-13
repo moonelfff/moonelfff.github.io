@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { ToastProvider } from "./_components/Toast";
+import { ToastProvider } from "@/components/admin/providers/ToastProvider";
 import "./admin.css";
 
 export const metadata: Metadata = {
