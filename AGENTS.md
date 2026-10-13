@@ -22,6 +22,8 @@ Website of clinical psychologist Ekaterina Zhuk (ekaterinazhuk.ru): Next.js App 
 - Admin UI (`src/app/admin`): shared components in `_components/` (`AdminShell` with sticky save bar, `useToast()` notifications, `ui.tsx` primitives), helpers in `_lib/`. Mobile-first (44px targets, 16px inputs on mobile), site palette only (`soft-linnen`, `platinum`, `alabaster-grey`, `dusty-grape`). Report results via toasts, not inline text. Explain non-obvious settings with a plain-language `tip` on `Field`/`Checkbox`/`SectionTitle` (the `Tip` "?" bubble in `ui.tsx`; styled `.tip-bubble` in `main.css`); keep admin copy simple, in Russian, with no technical jargon (say «адрес (slug)», «служебные параметры», not «SurveyJS JSON»). Image previews must use the same aspect ratio as the site (`ImageUpload` `aspectClass`).
 - Hosting: Vercel (GitHub Pages is not supported). Workflows: `supabase-keepalive.yml` (keep-alive), `sync-fallback-photo.yml` (weekly fallback photo sync), `supabase-backup.yml` (daily encrypted backup of all tables and storage, skipped when data is unchanged; scripts in `scripts/`), `supabase-restore.yml` (manual restore with confirmation and pre-restore snapshot) in `.github/workflows/`.
 
+- Кнопки: вне карточек - стеклянные `glass`/`soft`/`success` (как чёрная кнопка на главной, меняется только цвет подложки); внутри карточек - только `variant="solid"` (полупрозрачная светлая таблетка со стрелкой), менять можно лишь цвет фона.
+
 ## Environment
 
 - Secrets live in `.env.local` (gitignored). A shared copy is at `C:\Users\mrsav\.copilot\secrets\.env.local`; in a new worktree copy it to the repo root. Never print, log or commit its values.
