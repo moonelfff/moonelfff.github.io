@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes } from "react";
 import Spinner from "@/components/atom/Spinner";
+import Tooltip from "@/components/atom/Tooltip";
 
 type Variant = "primary" | "secondary" | "danger" | "ghost";
 
@@ -37,12 +38,11 @@ function AdminButton({
     ? "disabled:cursor-progress disabled:opacity-80"
     : "";
 
-  return (
+  const button = (
     <button
       type={type}
       aria-label={label}
       aria-busy={isLoading || undefined}
-      title={title ?? label}
       disabled={disabled || isLoading}
       className={`focus-visible:outline-dusty-grape inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-xl text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-40 ${loading} ${size} ${VARIANTS[variant]} ${className}`}
       {...props}
@@ -50,6 +50,15 @@ function AdminButton({
       {isLoading ? <Spinner className="size-[18px]" /> : null}
       {children}
     </button>
+  );
+
+  const tooltipText = title ?? (icon ? label : undefined);
+  return tooltipText ? (
+    <Tooltip text={tooltipText} className="inline-flex shrink-0">
+      {button}
+    </Tooltip>
+  ) : (
+    button
   );
 }
 

@@ -2,6 +2,7 @@
 
 import type { Dispatch, SetStateAction } from "react";
 import { GripIcon, PlusIcon } from "@/assets/icons/admin";
+import Tooltip from "@/components/atom/Tooltip";
 import { updateDraft } from "@/lib/admin/draft";
 import { moveItem } from "@/lib/admin/moveItem";
 import { createPackage } from "@/lib/admin/tariffs";
@@ -45,13 +46,18 @@ function TariffCard({ tariff, index, count, dragSort, setTariffs }: Props) {
         isHighlighted={dragSort.isDropTarget(index)}
         summary={
           <span className="flex min-w-0 items-center gap-2">
-            <span
-              {...dragSort.handleProps(index)}
-              className="hidden shrink-0 cursor-grab text-black/40 active:cursor-grabbing md:inline-flex"
-              title="Перетащить тариф"
+            <Tooltip
+              text="Перетащить тариф"
+              className="hidden shrink-0 md:inline-flex"
             >
-              <GripIcon />
-            </span>
+              <span
+                {...dragSort.handleProps(index)}
+                aria-label="Перетащить тариф"
+                className="cursor-grab text-black/40 active:cursor-grabbing"
+              >
+                <GripIcon />
+              </span>
+            </Tooltip>
             <span className="min-w-0">
               <span className="block truncate font-medium">
                 {tariff.title || "Без названия"}
