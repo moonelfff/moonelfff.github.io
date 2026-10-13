@@ -69,7 +69,7 @@ function Tooltip({ text, children, className = "inline-flex" }: Props) {
         id={id}
         role="tooltip"
         popover="auto"
-        className="tip-bubble text-platinum pointer-events-none fixed m-0 box-border rounded-xl border-0 px-3 py-2 text-xs leading-relaxed font-normal"
+        className="tip-bubble pointer-events-none fixed m-0 box-border w-max max-w-80 max-h-[calc(100dvh-1.5rem)] overflow-x-hidden overflow-y-auto [overflow-wrap:anywhere] rounded-xl border-0 bg-[rgb(110_68_194_/_0.85)] px-3 py-2 text-xs leading-relaxed font-normal text-platinum opacity-0 isolate backdrop-blur-[1.5rem] shadow-[0_0_2px_1px_rgb(0_0_0_/_0.5)_inset,0_0_6px_2px_rgb(255_255_255_/_0.5)_inset,0_0.5rem_1.5rem_rgb(40_20_90_/_0.25)] transition-[opacity,transform,display,overlay] transition-discrete duration-150 ease-out motion-reduce:transition-none"
       >
         <span className="relative z-[1]">{text}</span>
       </span>
