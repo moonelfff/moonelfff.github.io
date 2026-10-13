@@ -1,4 +1,4 @@
-# Сайт психолога Екатерины Жук - описание проекта
+﻿# Сайт психолога Екатерины Жук - описание проекта
 
 Домен: <https://ekaterinazhuk.ru>. Репозиторий: `moonelfff/moonelfff.github.io`.
 
@@ -56,7 +56,7 @@
 2. **Supabase - единственный источник данных**, локальные файлы и фолбэки не используются. Без `NEXT_PUBLIC_SUPABASE_URL`/`SUPABASE_SERVICE_ROLE_KEY` или без загруженных данных код бросает понятную ошибку (подсказка: `npm run seed`). Общий клиент - `src/lib/supabase.ts`.
 3. **contentStore**: таблица `site_content` (key/value: `content_json` + ключ на каждый md-путь без ведущего `/`). Сохранение из админки - `upsert` в эту таблицу.
 4. **tariffStore**: таблицы `tariffs` и `tariff_packages`; прайс загружается на сервере в `page.tsx` и передаётся через `SiteContentProvider` (без клиентского запроса; `/api/tariffs` остаётся публичным API).
-5. **testStore**: таблица `psychological_tests` (slug, `schema_json` SurveyJS, `scoring_json`). Страницы `/tests` и `/tests/[slug]` рендерят опросник (`SurveyRunner`), ответы отправляются в `/api/tests/[slug]/submit`, подсчёт - `scoring.ts` (уровни или группы). Дизайн тестов: стеклянные карточки `Glass`, кнопки `molecule/Button` (вне карточек - стеклянные `glass`/`soft`/`success`, меняется только цвет подложки; внутри карточек - полупрозрачная светлая таблетка `solid`, менять можно только цвет фона), тема SurveyJS - класс `.test-survey` в `main.css`; страница теста проходит этапы «описание → вопросы (прогресс, Назад/Далее, автопереход при >8 вопросов на странице) → результат». Админка тестов (`src/app/admin/tests`) - визуальный редактор: `_lib/editable.ts` конвертирует схему и `scoring_json` в редактируемую модель и обратно (подсчёт ссылается на вопросы по внутреннему id, переименование безопасно), `ScoringEditor` (режимы `scale`/`groups`/без подсчёта), `TestSettings`, `QuestionPicker`. Поддерживаются поля подсчёта `positiveValues` (по умолчанию [1,2]) и `topCount` (по умолчанию 2), тип вопроса `rating`. Короткие примеры для проверки: `demo-stress-level` (шкала с уровнями) и `demo-communication-style` (группы) в `supabase/seed/tests.json`.
+5. **testStore**: таблица `psychological_tests` (slug, `schema_json` SurveyJS, `scoring_json`). Страницы `/tests` и `/tests/[slug]` рендерят опросник (`SurveyRunner`), ответы отправляются в `/api/tests/[slug]/submit`, подсчёт - `scoring.ts` (уровни или группы). Дизайн тестов: стеклянные карточки `Glass`, кнопки `molecule/Button` (вне карточек - стеклянные `glass`/`soft`/`success`, меняется только цвет подложки; внутри карточек - полупрозрачная светлая таблетка `solid`, менять можно только цвет фона), тема SurveyJS - класс `.test-survey` в `main.css`; страница теста проходит этапы «описание → вопросы (прогресс, Назад/Далее, автопереход при >8 вопросов на странице) → результат». Админка тестов (`src/app/admin/tests`) - визуальный редактор: `lib/admin/editable.ts` конвертирует схему и `scoring_json` в редактируемую модель и обратно (подсчёт ссылается на вопросы по внутреннему id, переименование безопасно), `ScoringEditor` (режимы `scale`/`groups`/без подсчёта), `TestSettings`, `QuestionPicker`. Поддерживаются поля подсчёта `positiveValues` (по умолчанию [1,2]) и `topCount` (по умолчанию 2), тип вопроса `rating`. Короткие примеры для проверки: `demo-stress-level` (шкала с уровнями) и `demo-communication-style` (группы) в `supabase/seed/tests.json`.
 6. **Начальные данные**: `npm run seed` (`scripts/seed-supabase.mjs`) загружает `supabase/seed/*` в пустые таблицы; `-- --force` перезаписывает.7. **Изображения** (`POST /api/admin/image`): `profile` (WebP до 2400 px, quality 90) и `og` (JPEG 1200x630); JPEG/PNG/WEBP до 8 МБ; загрузка в бакет Supabase (`SUPABASE_STORAGE_BUCKET`, по умолчанию `site-images`); URL пишется в `profileImageUrl`/`ogImageUrl`.
 8. **SEO**: `layout.tsx` формирует metadata, Open Graph, JSON-LD (Person, Service, WebPage); также `robots.txt` (закрыты `/admin`, `/api/`), `sitemap.xml`, `llms.txt`, `site.webmanifest`. Подключены GTM и Яндекс.Метрика.
 
@@ -80,9 +80,9 @@
 ### Структура интерфейса админки (`src/app/admin`)
 
 - `layout.tsx` - светлая тема в палитре сайта (`soft-linnen`, `platinum`, `alabaster-grey`, `dusty-grape`) и `ToastProvider`; `admin.css` - анимация тостов.
-- `_components/` - `AdminShell` (шапка с вкладками, нижняя панель Save/Reset, Ctrl+S, предупреждения о несохранённом), `Toast` (`useToast()`: success/error/info), `ui` (Button, Field, TextInput, TextArea, Select, Checkbox, Card, Collapsible, Tip - кнопка «?» с всплывающей подсказкой; `Field` и `Checkbox` принимают проп `tip`), `RowActions`, `MarkdownEditor`, `ImageUpload` (проп `aspectClass` задаёт пропорции превью как на сайте: фото профиля 4:5, OG 1200×630), `TariffsEditor`, `icons`.
-- `_lib/` - `draft` (`updateDraft`, `useSavedSnapshot` для dirty-состояния), `api` (`fetchAdmin`, `sendJson`; при 401 редирект на логин), `useDragSort`, `tariffs`, `validation`, `moveItem`.
-- `tests/` - `page.tsx`, `_components/{TestCard,QuestionCard}`, `_lib/editable.ts` (модель и `buildTestsPayload` с валидацией).
+- `src/components/admin/` - атомарный дизайн, как на главной: `atom` (`AdminButton`, `TextInput`, `TextArea`, `Select`, `Tip`, `Hint`, `Panel`), `molecule` (`Field`, `Checkbox`, `SectionTitle`, `AdminCard`, `Collapsible`, `RowActions`, `MarkdownEditor`, `ImageUpload` с пропом `aspectClass` - пропорции как на сайте: профиль 4:5, OG 1200×630, `AdminLoadError`, `AdminPageSkeleton`, `ScoringModePicker`, `QuestionPicker`), `organism` (`AdminShell`, `AdminHeader`, `AdminSaveBar`, `ContentAdminPage`, `TestsAdminPage`, `LoginForm`, карточки сайта/тарифов/тестов/подсчёта), `providers/ToastProvider` (`useToast()`). `Field` и `Checkbox` принимают проп `tip`. Иконки - `src/assets/icons/admin.tsx`.
+- `src/lib/admin/` - `draft` (`updateDraft`, `useSavedSnapshot`), `api` (`fetchAdmin`, `sendJson`; при 401 редирект на логин), `useAdminLoader`, `useContentImageUpload`, `content`, `useDragSort`, `tariffs`, `validation`, `moveItem`, `scoringRanges`, `editable` (модель и `buildTestsPayload`).
+- Страницы `src/app/admin/**/page.tsx` тонкие: только рендерят организм.
 
 ## 6. Кэширование
 
@@ -118,5 +118,5 @@ npm run lint
 
 ## 11. Известные замечания
 
-- `npm run lint` показывает одно предупреждение: `window.location.assign` в `admin/_lib/api.ts` (намеренная жёсткая навигация на логин при 401). `<img>` пикселя Метрики в `layout.tsx` помечен eslint-disable.
+- `npm run lint` показывает одно предупреждение: `window.location.assign` в `lib/admin/api.ts` (намеренная жёсткая навигация на логин при 401). `<img>` пикселя Метрики в `layout.tsx` помечен eslint-disable.
 - Для устойчивости рекомендуется периодически выгружать данные Supabase; начальная копия контента лежит в `supabase/seed`.
