@@ -1,5 +1,6 @@
 const VIEWPORT_GAP = 12;
 const BUBBLE_OFFSET = 8;
+const MAX_BUBBLE_WIDTH = 320;
 
 export function positionTooltip(bubble: HTMLElement, anchor: DOMRect): void {
   const viewport = window.visualViewport;
@@ -12,7 +13,7 @@ export function positionTooltip(bubble: HTMLElement, anchor: DOMRect): void {
   bubble.style.right = "auto";
   bubble.style.bottom = "auto";
   bubble.style.width = "max-content";
-  bubble.style.maxWidth = `${Math.max(1, viewportWidth - VIEWPORT_GAP * 2)}px`;
+  bubble.style.maxWidth = `${Math.max(1, Math.min(MAX_BUBBLE_WIDTH, viewportWidth - VIEWPORT_GAP * 2))}px`;
   bubble.style.maxHeight = `${Math.max(1, viewportHeight - VIEWPORT_GAP * 2)}px`;
   bubble.style.overflowWrap = "anywhere";
   bubble.style.overflowY = "auto";
