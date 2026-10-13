@@ -269,16 +269,8 @@
   background-color: var(--color-success);
 }
 
-.button-success .button-glass {
-  background-color: var(--color-success) !important;
-}
-
 .button-soft.button-shadow::after {
   background-color: var(--color-dusty-grape);
-}
-
-.button-soft .button-glass {
-  background-color: rgb(110 68 194 / 0.55) !important;
 }
 
 /* Тема SurveyJS под стиль сайта (стеклянные карточки) */
