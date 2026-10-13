@@ -1,6 +1,7 @@
 import { Fragment, type ReactNode } from "react";
 import { Lexer, type Token, type Tokens } from "marked";
 import Typography from "../components/atom/Typography";
+import Tooltip from "../components/atom/Tooltip";
 
 type HeadingTag = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 
@@ -8,21 +9,30 @@ function renderInline(tokens: Token[] = []): ReactNode {
   return tokens.map((token, index) => {
     switch (token.type) {
       case "strong":
-        return <strong key={index}>{renderInline((token as Tokens.Strong).tokens)}</strong>;
+        return (
+          <strong key={index}>
+            {renderInline((token as Tokens.Strong).tokens)}
+          </strong>
+        );
       case "em":
         return <em key={index}>{renderInline((token as Tokens.Em).tokens)}</em>;
       case "del":
-        return <del key={index}>{renderInline((token as Tokens.Del).tokens)}</del>;
+        return (
+          <del key={index}>{renderInline((token as Tokens.Del).tokens)}</del>
+        );
       case "codespan":
         return <code key={index}>{(token as Tokens.Codespan).text}</code>;
       case "br":
         return <br key={index} />;
       case "link": {
         const link = token as Tokens.Link;
-        return (
-          <a key={index} href={link.href} title={link.title ?? undefined}>
-            {renderInline(link.tokens)}
-          </a>
+        const anchor = <a href={link.href}>{renderInline(link.tokens)}</a>;
+        return link.title ? (
+          <Tooltip key={index} text={link.title} className="inline">
+            {anchor}
+          </Tooltip>
+        ) : (
+          <Fragment key={index}>{anchor}</Fragment>
         );
       }
       case "image": {

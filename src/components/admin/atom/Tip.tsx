@@ -1,9 +1,7 @@
 ﻿"use client";
 
 import { useId, useRef } from "react";
-
-const VIEWPORT_GAP = 12;
-const BUBBLE_OFFSET = 8;
+import { positionTooltip } from "@/components/atom/positionTooltip";
 
 /**
  * Round "?" button with a native Popover API bubble. The bubble lives in the
@@ -15,7 +13,6 @@ function Tip({ text }: { text: string }) {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const bubbleRef = useRef<HTMLSpanElement>(null);
   const pointerType = useRef("");
-  const wasOpen = useRef(false);
 
   const isOpen = () => bubbleRef.current?.matches(":popover-open") ?? false;
 
@@ -26,16 +23,7 @@ function Tip({ text }: { text: string }) {
       return;
     }
 
-    bubble.showPopover();
-    const anchor = button.getBoundingClientRect();
-    const { width, height } = bubble.getBoundingClientRect();
-    const maxLeft = window.innerWidth - width - VIEWPORT_GAP;
-    const fitsBelow =
-      anchor.bottom + BUBBLE_OFFSET + height <=
-      window.innerHeight - VIEWPORT_GAP;
-
-    bubble.style.left = `${Math.max(VIEWPORT_GAP, Math.min(anchor.left, maxLeft))}px`;
-    bubble.style.top = `${fitsBelow ? anchor.bottom + BUBBLE_OFFSET : Math.max(VIEWPORT_GAP, anchor.top - BUBBLE_OFFSET - height)}px`;
+    positionTooltip(bubble, button.getBoundingClientRect());
   };
 
   const close = () => {
@@ -53,7 +41,6 @@ function Tip({ text }: { text: string }) {
         aria-describedby={id}
         onPointerDown={(event) => {
           pointerType.current = event.pointerType;
-          wasOpen.current = isOpen();
         }}
         onPointerEnter={(event) => event.pointerType === "mouse" && open()}
         onPointerLeave={(event) => event.pointerType === "mouse" && close()}
@@ -78,7 +65,7 @@ function Tip({ text }: { text: string }) {
         id={id}
         role="tooltip"
         popover="auto"
-        className="tip-bubble text-platinum fixed m-0 w-64 max-w-[calc(100vw-1.5rem)] rounded-xl border-0 px-3 py-2 text-xs leading-relaxed font-normal"
+        className="tip-bubble text-platinum fixed m-0 box-border max-w-[calc(100vw-1.5rem)] rounded-xl border-0 px-3 py-2 text-xs leading-relaxed font-normal"
       >
         {text}
       </span>

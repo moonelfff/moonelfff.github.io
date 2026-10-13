@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Tooltip from "@/components/atom/Tooltip";
 import { useRouter } from "next/navigation";
 import type { MouseEvent } from "react";
 import { ExternalLinkIcon, LogoutIcon } from "@/assets/icons/admin";
@@ -70,15 +71,16 @@ function AdminHeader({ activeTab, confirmLeave }: Props) {
         </nav>
 
         <div className="ml-auto flex items-center gap-1">
-          <Link
-            href="/"
-            target="_blank"
-            aria-label="Открыть сайт в новой вкладке"
-            title="Открыть сайт"
-            className="inline-flex size-11 items-center justify-center rounded-xl text-black/70 transition hover:bg-black/5 hover:text-black md:size-9"
-          >
-            <ExternalLinkIcon />
-          </Link>
+          <Tooltip text="Открыть сайт" className="inline-flex">
+            <Link
+              href="/"
+              target="_blank"
+              aria-label="Открыть сайт в новой вкладке"
+              className="inline-flex size-11 items-center justify-center rounded-xl text-black/70 transition hover:bg-black/5 hover:text-black md:size-9"
+            >
+              <ExternalLinkIcon />
+            </Link>
+          </Tooltip>
           <AdminButton icon variant="ghost" label="Выйти" onClick={onLogout}>
             <LogoutIcon />
           </AdminButton>

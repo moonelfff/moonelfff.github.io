@@ -1,6 +1,7 @@
 "use client";
 
 import { GripIcon } from "@/assets/icons/admin";
+import Tooltip from "@/components/atom/Tooltip";
 import type { useDragSort } from "@/lib/admin/useDragSort";
 import type { TariffPackage } from "@/lib/tariffStore";
 import TextInput from "../atom/TextInput";
@@ -39,13 +40,15 @@ function PackageRow({
     >
       <div className="mb-2 flex items-center justify-between gap-2">
         <span className="flex items-center gap-2 text-sm font-medium text-black/70">
-          <span
-            {...dragSort.handleProps(index)}
-            className="hidden cursor-grab text-black/40 active:cursor-grabbing md:inline-flex"
-            title="Перетащить пакет"
-          >
-            <GripIcon />
-          </span>
+          <Tooltip text="Перетащить пакет" className="hidden md:inline-flex">
+            <span
+              {...dragSort.handleProps(index)}
+              aria-label="Перетащить пакет"
+              className="cursor-grab text-black/40 active:cursor-grabbing"
+            >
+              <GripIcon />
+            </span>
+          </Tooltip>
           Пакет {index + 1}
         </span>
         <div className="flex items-center gap-1">
