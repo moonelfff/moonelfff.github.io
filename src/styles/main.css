@@ -145,13 +145,38 @@
 .tip-bubble {
   isolation: isolate;
   overflow: hidden;
+  opacity: 0;
+  transform: translateY(4px) scale(0.98);
   background: rgb(110 68 194 / 0.85);
   -webkit-backdrop-filter: blur(1.5rem);
   backdrop-filter: blur(1.5rem);
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease,
+    display 160ms allow-discrete,
+    overlay 160ms allow-discrete;
   box-shadow:
     0 0 2px 1px rgb(0 0 0 / 0.5) inset,
     0 0 6px 2px rgb(255 255 255 / 0.5) inset,
     0 0.5rem 1.5rem rgb(40 20 90 / 0.25);
+}
+
+.tip-bubble:popover-open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+@starting-style {
+  .tip-bubble:popover-open {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tip-bubble {
+    transition: none;
+  }
 }
 
 .tip-bubble::before {
