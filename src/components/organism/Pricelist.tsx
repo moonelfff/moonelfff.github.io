@@ -2,7 +2,10 @@ import Typography from "../atom/Typography";
 import PriceItem from "./PriceItem";
 import { parseMarkdown } from "../../utils/markdownParser";
 import Contact from "./Contact";
-import { useSiteContent, useSiteTariffs } from "../providers/SiteContentProvider";
+import {
+  useSiteContent,
+  useSiteTariffs,
+} from "../providers/SiteContentProvider";
 
 function Pricelist() {
   const data = useSiteContent();
@@ -19,6 +22,11 @@ function Pricelist() {
             <PriceItem
               key={tariff.id}
               title={tariff.title}
+              contactLabel={data.bookConsultation}
+              telegramLabel={data.telegram}
+              telegramHref={data.telegramLink}
+              vkLabel={data.vkMessenger}
+              vkHref={data.vkMessengerLink}
               description={
                 tariff.descriptionMarkdown
                   ? parseMarkdown(tariff.descriptionMarkdown)

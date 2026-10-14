@@ -258,13 +258,17 @@
 }
 
 .button-flat--pill:hover {
-  border-color: rgb(255 255 255 / 0.5);
+  border-color: rgb(255 255 255 / 0.75);
 }
 
 .button-flat:hover::after {
   background: var(--btn-bg-hover);
   filter: blur(5px);
   inset: 0;
+}
+
+.button-flat--pill:hover::after {
+  filter: blur(3px);
 }
 
 .button-shadow::after {
