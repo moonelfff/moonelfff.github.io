@@ -47,7 +47,7 @@ function Button({
     <span
       className={`button-grain button-flat group/btn mt-2 block border-2 ${variant === "solid" ? "button-flat--pill rounded-full" : "rounded-xl"} ${
         variant === "solid"
-          ? `text-platinum border-white/40 shadow-[inset_0_1px_0_rgb(255_255_255/0.55),inset_0_-1px_0_rgb(255_255_255/0.12)] backdrop-blur-sm ${
+          ? `text-platinum border-white/35 shadow-[0_0_2px_1px_rgb(0_0_0_/_0.7)_inset,0_0_6px_2px_rgb(255_255_255_/_0.6)_inset] backdrop-blur-sm ${
               solidBackground === "dusty-grape"
                 ? "[--btn-bg-hover:rgb(110_68_194/0.94)] [--btn-bg:rgb(110_68_194/0.84)]"
                 : "[--btn-bg-hover:rgb(255_255_255/0.3)] [--btn-bg:rgb(255_255_255/0.16)]"
