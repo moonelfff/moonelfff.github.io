@@ -53,4 +53,5 @@ export const LINK_FIELDS: TextFieldConfig[] = [
   { key: "blogLink", label: "Ссылка блога" },
   { key: "blog", label: "Текст ссылки на блог" },
   { key: "bookConsultation", label: "Кнопка записи" },
+  { key: "priceCardBookLabel", label: "Кнопка записи в карточках услуг" },
 ];

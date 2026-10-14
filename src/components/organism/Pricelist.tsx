@@ -22,7 +22,7 @@ function Pricelist() {
             <PriceItem
               key={tariff.id}
               title={tariff.title}
-              contactLabel={data.bookConsultation}
+              contactLabel={data.priceCardBookLabel}
               telegramLabel={data.telegram}
               telegramHref={data.telegramLink}
               vkLabel={data.vkMessenger}

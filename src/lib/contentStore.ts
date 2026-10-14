@@ -60,6 +60,7 @@ export async function getContentBundle(): Promise<ContentBundle> {
   }
 
   const content = JSON.parse(rawContent) as SiteContent;
+  content.priceCardBookLabel ??= "Записаться";
   const markdownPaths = getMarkdownPaths(content);
   const markdownRows = await readRows(markdownPaths);
 
