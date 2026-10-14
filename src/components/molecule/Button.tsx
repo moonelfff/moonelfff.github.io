@@ -11,7 +11,7 @@ type Props = {
   icon?: ReactNode;
   iconPosition?: "left" | "right";
   className?: string;
-  solidColor?: "light" | "dusty-grape";
+  solidColor?: "light" | "dusty-grape" | "white";
 };
 
 function Button({
@@ -49,7 +49,9 @@ function Button({
         variant === "solid"
           ? solidColor === "dusty-grape"
             ? "text-platinum border-white/35 shadow-[inset_0_1px_0_rgb(255_255_255/0.35)] [--btn-bg-hover:rgb(110_68_194/0.95)] [--btn-bg:rgb(110_68_194/0.82)]"
-            : "text-platinum border-white/35 shadow-[inset_0_1px_0_rgb(255_255_255/0.35)] [--btn-bg-hover:rgb(255_255_255/0.3)] [--btn-bg:rgb(255_255_255/0.16)]"
+            : solidColor === "white"
+              ? "text-dusty-grape border-white/80 shadow-[inset_0_1px_0_rgb(255_255_255/0.9)] [--btn-bg-hover:rgb(255_255_255/1)] [--btn-bg:rgb(255_255_255/0.9)]"
+              : "text-platinum border-white/35 shadow-[inset_0_1px_0_rgb(255_255_255/0.35)] [--btn-bg-hover:rgb(255_255_255/0.3)] [--btn-bg:rgb(255_255_255/0.16)]"
           : "text-dusty-grape [--btn-bg-hover:rgb(110_68_194/0.22)] [--btn-bg:rgb(110_68_194/0.1)] border-transparent"
       }`}
     >

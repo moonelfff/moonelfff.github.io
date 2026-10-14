@@ -13,7 +13,7 @@ function BookingChannelButton({ label, href, icon }: Props) {
       href={href}
       external
       variant="solid"
-      solidColor="dusty-grape"
+      solidColor="white"
       icon={icon}
       iconPosition="left"
     >

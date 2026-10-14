@@ -80,7 +80,7 @@ function BookingButton({
             href={telegramHref}
             icon={
               <TelegramIcon
-                color="var(--color-platinum)"
+                color="var(--color-dusty-grape)"
                 width={24}
                 height={24}
               />
@@ -90,7 +90,11 @@ function BookingButton({
             label={vkLabel}
             href={vkHref}
             icon={
-              <VKIcon color="var(--color-platinum)" width={24} height={24} />
+              <VKIcon
+                color="var(--color-dusty-grape)"
+                width={24}
+                height={24}
+              />
             }
           />
         </div>
