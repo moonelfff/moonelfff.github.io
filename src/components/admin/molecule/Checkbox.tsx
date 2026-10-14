@@ -1,4 +1,5 @@
 import type { InputHTMLAttributes } from "react";
+import Typography from "@/components/atom/Typography";
 import Tip from "../atom/Tip";
 
 type Props = Omit<InputHTMLAttributes<HTMLInputElement>, "type"> & {
@@ -14,7 +15,7 @@ function Checkbox({ label, tip, ...props }: Props) {
         className="accent-dusty-grape size-5 shrink-0 cursor-pointer"
         {...props}
       />
-      <span>{label}</span>
+      <Typography component="span">{label}</Typography>
       {tip ? <Tip text={tip} /> : null}
     </label>
   );

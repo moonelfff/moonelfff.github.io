@@ -4,8 +4,8 @@ import { moveItem } from "@/lib/admin/moveItem";
 import type { EditableQuestion } from "@/lib/admin/editable";
 import TextInput from "../atom/TextInput";
 import Panel from "../atom/Panel";
-import Field from "../molecule/Field";
-import RowActions from "../molecule/RowActions";
+import Field from "./Field";
+import RowActions from "./RowActions";
 
 type Props = {
   question: EditableQuestion;

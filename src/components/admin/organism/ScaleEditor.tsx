@@ -14,7 +14,7 @@ import TextInput from "../atom/TextInput";
 import Field from "../molecule/Field";
 import QuestionPicker from "../molecule/QuestionPicker";
 import SectionTitle from "../molecule/SectionTitle";
-import LevelRow from "./LevelRow";
+import LevelRow from "../molecule/LevelRow";
 
 type Props = {
   test: EditableTest;
