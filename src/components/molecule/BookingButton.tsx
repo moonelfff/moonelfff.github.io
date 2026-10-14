@@ -59,7 +59,7 @@ function BookingButton({
             type="button"
             aria-label="Закрыть"
             onClick={() => dialogRef.current?.close()}
-            className="inline-flex size-11 shrink-0 items-center justify-center rounded-full text-black/60 transition hover:bg-black/5 hover:text-black focus-visible:outline-2 focus-visible:outline-dusty-grape"
+            className="inline-flex size-11 shrink-0 items-center justify-center rounded-full text-dusty-grape transition hover:bg-dusty-grape/10 focus-visible:outline-2 focus-visible:outline-dusty-grape"
           >
             <X size={18} strokeWidth={1.75} aria-hidden />
           </button>

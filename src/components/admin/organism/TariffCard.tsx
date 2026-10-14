@@ -53,7 +53,7 @@ function TariffCard({ tariff, index, count, dragSort, setTariffs }: Props) {
               <span
                 {...dragSort.handleProps(index)}
                 aria-label="Перетащить тариф"
-                className="cursor-grab text-black/40 active:cursor-grabbing"
+                className="cursor-grab text-dusty-grape/70 active:cursor-grabbing"
               >
                 <GripIcon />
               </span>

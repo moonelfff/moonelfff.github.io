@@ -37,7 +37,7 @@ function Collapsible({
         >
           {actions}
         </span>
-        <ChevronDownIcon className="admin-accordion-chevron size-5 shrink-0 text-black/50" />
+        <ChevronDownIcon className="admin-accordion-chevron size-5 shrink-0 text-dusty-grape" />
       </summary>
       <div className="border-alabaster-grey flex flex-col gap-4 border-t p-3 md:p-4">
         {children}
