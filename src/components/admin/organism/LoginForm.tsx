@@ -42,7 +42,7 @@ function LoginForm() {
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md items-center px-4 py-8">
-      <div className="border-alabaster-grey bg-platinum w-full rounded-2xl border p-6 shadow-sm">
+      <div className="backdrop-glass backdrop-glass-offset border-alabaster-grey w-full rounded-2xl border p-6 shadow-sm">
         <h1 className="text-2xl font-semibold">Вход в админку</h1>
         <p className="mt-2 text-sm text-black/65">
           Введите пароль администратора.

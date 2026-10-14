@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useState, type Dispatch, type SetStateAction } from "react";
-import { ExternalLinkIcon, PlusIcon, TrashIcon } from "@/assets/icons/admin";
+import { ExternalLinkIcon, GripIcon, PlusIcon } from "@/assets/icons/admin";
+import Tooltip from "@/components/atom/Tooltip";
 import { updateDraft } from "@/lib/admin/draft";
 import {
   createQuestion,
@@ -13,6 +14,7 @@ import {
   type ScoringMode,
 } from "@/lib/admin/editable";
 import { moveItem } from "@/lib/admin/moveItem";
+import type { useDragSort } from "@/lib/admin/useDragSort";
 import { normalizeSlug } from "@/lib/slug";
 import AdminButton from "../atom/AdminButton";
 import TextArea from "../atom/TextArea";
@@ -20,6 +22,7 @@ import TextInput from "../atom/TextInput";
 import Collapsible from "../molecule/Collapsible";
 import Field from "../molecule/Field";
 import MarkdownEditor from "../molecule/MarkdownEditor";
+import RowActions from "../molecule/RowActions";
 import QuestionCard from "./QuestionCard";
 import ScoringEditor from "./ScoringEditor";
 import TestSettings from "./TestSettings";
@@ -33,12 +36,14 @@ const SCORING_SUMMARY: Record<ScoringMode, string> = {
 type Props = {
   test: EditableTest;
   index: number;
+  count: number;
+  dragSort: ReturnType<typeof useDragSort>;
   defaultOpen: boolean;
   setTests: Dispatch<SetStateAction<EditableTest[]>>;
 };
 
 /** One test: its details, questions, settings and scoring. */
-function TestCard({ test, index, defaultOpen, setTests }: Props) {
+function TestCard({ test, index, count, dragSort, defaultOpen, setTests }: Props) {
   const [justAddedQuestionId, setJustAddedQuestionId] = useState<string | null>(
     null,
   );
@@ -68,26 +73,42 @@ function TestCard({ test, index, defaultOpen, setTests }: Props) {
   return (
     <Collapsible
       defaultOpen={defaultOpen}
+      isHighlighted={dragSort.isDropTarget(index)}
       className="bg-platinum shadow-sm"
       summary={
-        <>
-          <span className="block truncate font-semibold">
-            {test.title || "Без названия"}
+        <span className="flex min-w-0 items-center gap-2">
+          <Tooltip
+            text="Перетащить тест"
+            className="hidden shrink-0 md:inline-flex"
+          >
+            <span
+              {...dragSort.handleProps(index)}
+              aria-label="Перетащить тест"
+              className="cursor-grab text-dusty-grape/70 active:cursor-grabbing"
+            >
+              <GripIcon />
+            </span>
+          </Tooltip>
+          <span className="min-w-0">
+            <span className="block truncate font-semibold">
+              {test.title || "Без названия"}
+            </span>
+            <span className="block text-xs text-black/55">
+              /{test.slug} · вопросов: {test.questions.length}
+            </span>
           </span>
-          <span className="block text-xs text-black/55">
-            /{test.slug} · вопросов: {test.questions.length}
-          </span>
-        </>
+        </span>
       }
       actions={
-        <AdminButton
-          icon
-          variant="ghost"
-          label="Удалить тест"
-          onClick={onRemove}
-        >
-          <TrashIcon className="text-danger" />
-        </AdminButton>
+        <RowActions
+          noun="тест"
+          index={index}
+          count={count}
+          onMove={(from, to) =>
+            setTests((current) => moveItem(current, from, to))
+          }
+          onRemove={onRemove}
+        />
       }
     >
       <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_8rem]">

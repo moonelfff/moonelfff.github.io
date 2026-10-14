@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="bg-soft-linnen font-primary min-h-dvh text-black">
+    <div className="admin-glass bg-soft-linnen font-primary min-h-dvh text-black">
       <ToastProvider>{children}</ToastProvider>
     </div>
   );

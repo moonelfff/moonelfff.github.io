@@ -36,7 +36,7 @@ function PackageRow({
   return (
     <div
       {...dragSort.itemProps(index)}
-      className={`bg-platinum rounded-xl border p-3 transition ${border} ${dragging}`}
+      className={`backdrop-glass backdrop-glass-offset rounded-xl border p-3 transition ${border} ${dragging}`}
     >
       <div className="mb-2 flex items-center justify-between gap-2">
         <span className="flex items-center gap-2 text-sm font-medium text-black/70">

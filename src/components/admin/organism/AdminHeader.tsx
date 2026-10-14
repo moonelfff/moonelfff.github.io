@@ -40,7 +40,7 @@ function AdminHeader({ activeTab, confirmLeave }: Props) {
   };
 
   return (
-    <header className="border-alabaster-grey bg-platinum/90 sticky top-0 z-30 border-b backdrop-blur">
+    <header className="backdrop-glass backdrop-glass-offset border-alabaster-grey sticky top-0 z-30 border-b">
       <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center gap-x-4 gap-y-1 px-3 py-2 md:px-6">
         <span className="text-dusty-grape text-base font-semibold">
           Админка

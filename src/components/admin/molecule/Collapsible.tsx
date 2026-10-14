@@ -27,7 +27,7 @@ function Collapsible({
   return (
     <details
       open={defaultOpen}
-      className={`admin-accordion overflow-hidden rounded-xl border bg-soft-linnen/40 transition-colors duration-200 ${border} ${className}`}
+      className={`admin-accordion backdrop-glass backdrop-glass-offset overflow-hidden rounded-xl border transition-colors duration-200 ${border} ${className}`}
     >
       <summary className="flex min-h-12 cursor-pointer list-none items-center gap-2 rounded-xl px-3 py-2 transition-colors hover:bg-dusty-grape/5 focus-visible:outline-dusty-grape focus-visible:outline-2 focus-visible:outline-offset-[-2px] marker:hidden [&::-webkit-details-marker]:hidden">
         <span className="min-w-0 flex-1">{summary}</span>

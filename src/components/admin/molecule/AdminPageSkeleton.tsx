@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/atom/Skeleton";
 
 function CardSkeleton({ fields }: { fields: number }) {
   return (
-    <div className="border-alabaster-grey bg-platinum flex flex-col gap-4 rounded-2xl border p-4 md:p-5">
+    <div className="backdrop-glass backdrop-glass-offset border-alabaster-grey flex flex-col gap-4 rounded-2xl border p-4 md:p-5">
       <div className="flex items-center justify-between gap-3">
         <div className="flex flex-1 flex-col gap-2">
           <Skeleton className="h-6 w-1/3" />
