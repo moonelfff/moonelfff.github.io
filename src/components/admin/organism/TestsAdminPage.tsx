@@ -11,6 +11,8 @@ import {
   type EditableTest,
 } from "@/lib/admin/editable";
 import { useAdminLoader } from "@/lib/admin/useAdminLoader";
+import { moveItem } from "@/lib/admin/moveItem";
+import { useDragSort } from "@/lib/admin/useDragSort";
 import type { PublicTestDefinition } from "@/lib/tests/types";
 import AdminButton from "../atom/AdminButton";
 import AdminCard from "../molecule/AdminCard";
@@ -27,6 +29,9 @@ function TestsAdminPage() {
   const toast = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const [tests, setTests] = useState<EditableTest[]>([]);
+  const dragSort = useDragSort((from, to) =>
+    setTests((current) => moveItem(current, from, to)),
+  );
 
   const snapshot = useSavedSnapshot(tests);
   const { markSaved } = snapshot;
@@ -91,7 +96,7 @@ function TestsAdminPage() {
       {!isLoading && !loadFailed ? (
         <AdminCard
           title="Тесты"
-          description="Создавайте тесты, меняйте вопросы и настраивайте, как считается результат. На сайте изменения появятся после нажатия «Сохранить»."
+          description="Тесты идут на сайте в том же порядке, что и здесь. Меняйте порядок стрелками или перетаскиванием на компьютере. На сайте изменения появятся после нажатия «Сохранить»."
           actions={
             <AdminButton
               onClick={() =>
@@ -111,13 +116,20 @@ function TestsAdminPage() {
           ) : null}
 
           {tests.map((test, index) => (
-            <TestCard
+            <div
               key={test.id}
-              test={test}
-              index={index}
-              defaultOpen={tests.length === 1}
-              setTests={setTests}
-            />
+              {...dragSort.itemProps(index)}
+              className={dragSort.isDragging(index) ? "opacity-60" : ""}
+            >
+              <TestCard
+                test={test}
+                index={index}
+                count={tests.length}
+                dragSort={dragSort}
+                defaultOpen={tests.length === 1}
+                setTests={setTests}
+              />
+            </div>
           ))}
         </AdminCard>
       ) : null}

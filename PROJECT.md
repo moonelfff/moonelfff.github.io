@@ -60,6 +60,8 @@
 6. **Начальные данные**: `npm run seed` (`scripts/seed-supabase.mjs`) загружает `supabase/seed/*` в пустые таблицы; `-- --force` перезаписывает.7. **Изображения** (`POST /api/admin/image`): `profile` (WebP до 2400 px, quality 90) и `og` (JPEG 1200x630); JPEG/PNG/WEBP до 8 МБ; загрузка в бакет Supabase (`SUPABASE_STORAGE_BUCKET`, по умолчанию `site-images`); URL пишется в `profileImageUrl`/`ogImageUrl`.
 8. **SEO**: `layout.tsx` формирует metadata, Open Graph, JSON-LD (Person, Service, WebPage); также `robots.txt` (закрыты `/admin`, `/api/`), `sitemap.xml`, `llms.txt`, `site.webmanifest`. Подключены GTM и Яндекс.Метрика.
 
+Порядок тестов в админке меняется стрелками вверх/вниз или перетаскиванием на компьютере, как у тарифов. После нажатия «Сохранить» порядок записывается в `psychological_tests.sort_order` и используется в публичном списке тестов; «Отменить» возвращает сохранённый порядок.
+
 ### API
 
 | Маршрут | Назначение |

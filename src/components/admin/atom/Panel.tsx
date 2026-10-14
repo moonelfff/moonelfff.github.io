@@ -10,7 +10,7 @@ function Panel({
 }) {
   return (
     <div
-      className={`border-alabaster-grey bg-soft-linnen/40 flex flex-col gap-3 rounded-xl border p-3 ${className}`}
+      className={`backdrop-glass backdrop-glass-offset border-alabaster-grey flex flex-col gap-3 rounded-xl border p-3 ${className}`}
     >
       {children}
     </div>

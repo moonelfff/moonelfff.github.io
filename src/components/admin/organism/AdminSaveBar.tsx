@@ -13,7 +13,7 @@ function AdminSaveBar({ isDirty, isSaving, onSave, onReset }: Props) {
   const canSave = isDirty && !isSaving;
 
   return (
-    <div className="border-alabaster-grey bg-platinum/95 fixed inset-x-0 bottom-0 z-30 border-t pb-[env(safe-area-inset-bottom)] backdrop-blur">
+    <div className="backdrop-glass backdrop-glass-offset border-alabaster-grey fixed inset-x-0 bottom-0 z-30 border-t pb-[env(safe-area-inset-bottom)]">
       <div className="mx-auto flex w-full max-w-5xl items-center gap-2 px-3 py-2.5 md:px-6">
         <p
           className="hidden min-w-0 flex-1 items-center gap-2 text-sm text-black/70 md:flex"

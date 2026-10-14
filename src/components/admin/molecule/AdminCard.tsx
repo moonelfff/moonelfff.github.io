@@ -10,7 +10,7 @@ type Props = {
 /** Top-level page block with a heading and optional action buttons. */
 function AdminCard({ title, description, actions, children }: Props) {
   return (
-    <section className="border-alabaster-grey bg-platinum rounded-2xl border p-4 shadow-sm md:p-5">
+    <section className="backdrop-glass backdrop-glass-offset border-alabaster-grey rounded-2xl border p-4 shadow-sm md:p-5">
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="text-lg font-semibold">{title}</h2>
