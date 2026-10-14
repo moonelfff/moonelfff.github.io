@@ -48,7 +48,7 @@ function BookingButton({
             dialogRef.current?.close();
           }
         }}
-        className="m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border border-white/35 bg-[rgb(0_0_0_/_0.55)] p-6 text-platinum shadow-[0_0_2px_1px_rgb(0_0_0_/_0.7)_inset,0_0_6px_2px_rgb(255_255_255_/_0.6)_inset] backdrop-blur-[1.5rem] backdrop:bg-transparent backdrop:backdrop-blur-none"
+        className="m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border border-alabaster-grey bg-platinum p-6 text-black shadow-[0_0_2px_1px_rgb(0_0_0_/_0.18)_inset,0_1.5rem_3rem_rgb(0_0_0_/_0.2)] backdrop:bg-transparent backdrop:backdrop-blur-none"
       >
         <div className="flex items-center justify-between gap-4">
           <h2 id={headingId} className="text-lg leading-11 font-semibold">
@@ -58,7 +58,7 @@ function BookingButton({
             type="button"
             aria-label="Закрыть"
             onClick={() => dialogRef.current?.close()}
-            className="inline-flex size-11 shrink-0 items-center justify-center rounded-full text-platinum/75 transition hover:bg-white/15 hover:text-platinum focus-visible:outline-2 focus-visible:outline-white"
+            className="inline-flex size-11 shrink-0 items-center justify-center rounded-full text-black/60 transition hover:bg-black/5 hover:text-black focus-visible:outline-2 focus-visible:outline-dusty-grape"
           >
             <svg
               aria-hidden="true"
