@@ -8,7 +8,8 @@ const VARIANTS: Record<Variant, string> = {
   primary: "bg-dusty-grape text-platinum hover:bg-dusty-grape/90",
   secondary:
     "border border-dusty-grape/40 bg-platinum text-dusty-grape hover:bg-dusty-grape/10",
-  danger: "border border-red-200 bg-platinum text-red-700 hover:bg-red-50",
+  danger:
+    "border border-danger/30 bg-platinum text-danger hover:bg-danger/10",
   ghost: "text-black/70 hover:bg-dusty-grape/10 hover:text-dusty-grape",
 };
 

@@ -192,7 +192,7 @@ function ScaleEditor({ test, editScoring }: Props) {
         ) : null}
 
         {warnings.length > 0 ? (
-          <ul className="flex flex-col gap-1 rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
+          <ul className="border-gold/60 bg-gold/15 text-black/80 flex flex-col gap-1 rounded-xl border p-3 text-sm">
             {warnings.map((warning) => (
               <li key={warning}>⚠ {warning}</li>
             ))}

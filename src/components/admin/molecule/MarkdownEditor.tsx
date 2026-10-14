@@ -22,7 +22,7 @@ function MarkdownEditor({ label, value, onChange, hint }: MarkdownEditorProps) {
         <div
           role="tablist"
           aria-label="Режим просмотра"
-          className="flex gap-1 rounded-lg bg-black/5 p-0.5 lg:hidden"
+          className="flex gap-1 rounded-lg bg-soft-linnen p-0.5 lg:hidden"
         >
           {(["edit", "preview"] as const).map((tab) => (
             <button
@@ -34,7 +34,7 @@ function MarkdownEditor({ label, value, onChange, hint }: MarkdownEditorProps) {
               className={`min-h-9 cursor-pointer rounded-md px-3 text-sm font-medium transition ${
                 mobileTab === tab
                   ? "bg-dusty-grape text-platinum shadow-sm"
-                  : "text-black/60"
+                  : "text-dusty-grape/70"
               }`}
             >
               {tab === "edit" ? "Текст" : "Предпросмотр"}

@@ -38,8 +38,8 @@ const KIND_STYLES: Record<
   ToastKind,
   { accent: string; Icon: typeof CheckIcon }
 > = {
-  success: { accent: "border-l-emerald-500 text-emerald-600", Icon: CheckIcon },
-  error: { accent: "border-l-red-500 text-red-600", Icon: AlertIcon },
+  success: { accent: "border-l-success text-success-dark", Icon: CheckIcon },
+  error: { accent: "border-l-danger text-danger", Icon: AlertIcon },
   info: { accent: "border-l-dusty-grape text-dusty-grape", Icon: InfoIcon },
 };
 

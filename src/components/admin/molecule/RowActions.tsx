@@ -38,7 +38,7 @@ function RowActions({ index, count, noun, onMove, onRemove }: RowActionsProps) {
         label={`Удалить ${noun}`}
         onClick={onRemove}
       >
-        <TrashIcon className="text-red-600" />
+        <TrashIcon className="text-danger" />
       </AdminButton>
     </>
   );
