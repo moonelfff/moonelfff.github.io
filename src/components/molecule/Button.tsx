@@ -11,6 +11,7 @@ type Props = {
   icon?: ReactNode;
   iconPosition?: "left" | "right";
   className?: string;
+  solidBackground?: "light" | "dusty-grape";
 };
 
 function Button({
@@ -23,6 +24,7 @@ function Button({
   icon,
   iconPosition = "right",
   className = "",
+  solidBackground = "light",
 }: Props) {
   const label = (
     <span className="flex items-center justify-center gap-2 px-4 py-3 text-center text-sm font-semibold uppercase lg:px-6 lg:text-base">
@@ -45,7 +47,11 @@ function Button({
     <span
       className={`button-grain button-flat group/btn mt-2 block border-2 ${variant === "solid" ? "button-flat--pill rounded-full" : "rounded-xl"} ${
         variant === "solid"
-          ? "text-platinum border-white/35 shadow-[inset_0_1px_0_rgb(255_255_255/0.35)] [--btn-bg-hover:rgb(255_255_255/0.3)] [--btn-bg:rgb(255_255_255/0.16)]"
+          ? `text-platinum border-white/35 shadow-[inset_0_1px_0_rgb(255_255_255/0.35)] ${
+              solidBackground === "dusty-grape"
+                ? "[--btn-bg-hover:rgb(110_68_194/0.9)] [--btn-bg:rgb(110_68_194)]"
+                : "[--btn-bg-hover:rgb(255_255_255/0.3)] [--btn-bg:rgb(255_255_255/0.16)]"
+            }`
           : "text-dusty-grape [--btn-bg-hover:rgb(110_68_194/0.22)] [--btn-bg:rgb(110_68_194/0.1)] border-transparent"
       }`}
     >
