@@ -1,13 +1,16 @@
 import Typography from "../atom/Typography";
 import Card from "../molecule/Card";
 import Number from "../molecule/Number";
-import Button from "../molecule/Button";
+import BookingButton from "../molecule/BookingButton";
 
 type Props = {
   title: string;
   description: React.ReactNode;
-  contactHref: string;
   contactLabel: string;
+  telegramLabel: string;
+  telegramHref: string;
+  vkLabel: string;
+  vkHref: string;
   packages: {
     name: string;
     price: {
@@ -20,8 +23,11 @@ type Props = {
 function PriceItem({
   title,
   description,
-  contactHref,
   contactLabel,
+  telegramLabel,
+  telegramHref,
+  vkLabel,
+  vkHref,
   packages,
 }: Props) {
   return (
@@ -52,9 +58,12 @@ function PriceItem({
           </div>
         ))}
       </div>
-      <Button
-        href={contactHref}
-        external
+      <BookingButton
+        label={contactLabel}
+        telegramLabel={telegramLabel}
+        telegramHref={telegramHref}
+        vkLabel={vkLabel}
+        vkHref={vkHref}
         variant="solid"
         icon={
           <svg
@@ -71,9 +80,7 @@ function PriceItem({
             <path d="M5 12h14M13 6l6 6-6 6" />
           </svg>
         }
-      >
-        {contactLabel}
-      </Button>
+      />
     </Card>
   );
 }
