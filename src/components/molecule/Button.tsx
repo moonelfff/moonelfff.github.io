@@ -48,7 +48,7 @@ function Button({
       className={`button-grain button-flat group/btn mt-2 block border-2 ${variant === "solid" ? "button-flat--pill rounded-full" : "rounded-xl"} ${
         variant === "solid"
           ? solidColor === "dusty-grape"
-            ? "text-platinum border-white/35 shadow-[inset_0_1px_0_rgb(255_255_255/0.35)] [--btn-bg-hover:rgb(110_68_194/0.95)] [--btn-bg:rgb(110_68_194/0.82)]"
+            ? "text-platinum border-white/35 shadow-[inset_0_1px_0_rgb(255_255_255/0.35)] [--btn-bg-hover:rgb(110_68_194/0.9)] [--btn-bg:rgb(110_68_194)]"
             : solidColor === "white"
               ? "text-dusty-grape border-white/80 shadow-[inset_0_1px_0_rgb(255_255_255/0.9)] [--btn-bg-hover:rgb(255_255_255/1)] [--btn-bg:rgb(255_255_255/0.9)]"
               : "text-platinum border-white/35 shadow-[inset_0_1px_0_rgb(255_255_255/0.35)] [--btn-bg-hover:rgb(255_255_255/0.3)] [--btn-bg:rgb(255_255_255/0.16)]"
