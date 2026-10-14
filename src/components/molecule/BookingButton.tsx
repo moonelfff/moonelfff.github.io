@@ -25,7 +25,7 @@ function BookingButton({
   vkHref,
   variant = "glass",
   className,
-  icon,
+  icon
 }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const headingId = useId();
@@ -43,12 +43,12 @@ function BookingButton({
       <dialog
         ref={dialogRef}
         aria-labelledby={headingId}
-        onClick={(event) => {
+        onClick={event => {
           if (event.target === event.currentTarget) {
             dialogRef.current?.close();
           }
         }}
-        className="m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border border-white/60 bg-platinum/75 p-6 text-black shadow-[0_0_2px_1px_rgb(0_0_0_/_0.18)_inset,0_1.5rem_3rem_rgb(0_0_0_/_0.2)] backdrop-blur-[1.5rem] backdrop:bg-transparent backdrop:backdrop-blur-none"
+        className="m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border p-6 text-black shadow-[0_0_2px_1px_rgb(0_0_0_/_0.18)_inset,0_1.5rem_3rem_rgb(0_0_0_/_0.2)] backdrop-blur-[1.5rem] backdrop:bg-transparent backdrop:backdrop-blur-none"
       >
         <div className="flex items-center justify-between gap-4">
           <h2 id={headingId} className="text-lg leading-11 font-semibold">
@@ -90,11 +90,7 @@ function BookingButton({
             label={vkLabel}
             href={vkHref}
             icon={
-              <VKIcon
-                color="var(--color-platinum)"
-                width={24}
-                height={24}
-              />
+              <VKIcon color="var(--color-platinum)" width={24} height={24} />
             }
           />
         </div>

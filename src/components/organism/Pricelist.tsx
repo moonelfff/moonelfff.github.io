@@ -4,7 +4,7 @@ import { parseMarkdown } from "../../utils/markdownParser";
 import Contact from "./Contact";
 import {
   useSiteContent,
-  useSiteTariffs,
+  useSiteTariffs
 } from "../providers/SiteContentProvider";
 
 function Pricelist() {
@@ -18,7 +18,7 @@ function Pricelist() {
       </Typography>
       <div className="flex flex-col gap-6">
         <div className="flex flex-col flex-wrap justify-center gap-3 lg:flex-row">
-          {tariffs.map((tariff) => (
+          {tariffs.map(tariff => (
             <PriceItem
               key={tariff.id}
               title={tariff.title}
@@ -32,27 +32,26 @@ function Pricelist() {
                   ? parseMarkdown(tariff.descriptionMarkdown)
                   : null
               }
-              packages={tariff.packages.map((pkg) => ({
+              packages={tariff.packages.map(pkg => ({
                 name: pkg.title,
                 price: {
                   regular: {
                     amount: pkg.regularAmount,
-                    currency: pkg.currency,
+                    currency: pkg.currency
                   },
                   discounted:
                     pkg.discountedAmount === null
                       ? undefined
                       : {
                           amount: pkg.discountedAmount,
-                          currency: pkg.currency,
-                        },
-                },
+                          currency: pkg.currency
+                        }
+                }
               }))}
             />
           ))}
         </div>
       </div>
-      <Contact />
     </section>
   );
 }
