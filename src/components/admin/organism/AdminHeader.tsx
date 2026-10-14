@@ -76,12 +76,18 @@ function AdminHeader({ activeTab, confirmLeave }: Props) {
               href="/"
               target="_blank"
               aria-label="Открыть сайт в новой вкладке"
-              className="inline-flex size-11 items-center justify-center rounded-xl text-black/70 transition hover:bg-black/5 hover:text-black md:size-9"
+              className="inline-flex size-11 items-center justify-center rounded-xl text-dusty-grape transition hover:bg-dusty-grape/10 md:size-9"
             >
               <ExternalLinkIcon />
             </Link>
           </Tooltip>
-          <AdminButton icon variant="ghost" label="Выйти" onClick={onLogout}>
+          <AdminButton
+            icon
+            variant="ghost"
+            label="Выйти"
+            onClick={onLogout}
+            className="text-dusty-grape"
+          >
             <LogoutIcon />
           </AdminButton>
         </div>

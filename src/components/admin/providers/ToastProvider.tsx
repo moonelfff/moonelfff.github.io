@@ -38,8 +38,8 @@ const KIND_STYLES: Record<
   ToastKind,
   { accent: string; Icon: typeof CheckIcon }
 > = {
-  success: { accent: "border-l-emerald-500 text-emerald-600", Icon: CheckIcon },
-  error: { accent: "border-l-red-500 text-red-600", Icon: AlertIcon },
+  success: { accent: "border-l-success text-success-dark", Icon: CheckIcon },
+  error: { accent: "border-l-danger text-danger", Icon: AlertIcon },
   info: { accent: "border-l-dusty-grape text-dusty-grape", Icon: InfoIcon },
 };
 
@@ -104,7 +104,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                 type="button"
                 onClick={() => dismiss(id)}
                 aria-label="Закрыть уведомление"
-                className="-m-1 inline-flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-black/50 transition hover:bg-black/5 hover:text-black"
+                className="-m-1 inline-flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-dusty-grape transition hover:bg-dusty-grape/10"
               >
                 <CloseIcon width={16} height={16} />
               </button>

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Typography from "@/components/atom/Typography";
 import Tip from "../atom/Tip";
 
 type Props = {
@@ -10,7 +11,7 @@ type Props = {
 function SectionTitle({ children, tip }: Props) {
   return (
     <h4 className="flex items-center gap-1.5 font-semibold">
-      {children}
+      <Typography component="span">{children}</Typography>
       {tip ? <Tip text={tip} /> : null}
     </h4>
   );

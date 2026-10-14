@@ -44,7 +44,7 @@ function PackageRow({
             <span
               {...dragSort.handleProps(index)}
               aria-label="Перетащить пакет"
-              className="cursor-grab text-black/40 active:cursor-grabbing"
+              className="cursor-grab text-dusty-grape/70 active:cursor-grabbing"
             >
               <GripIcon />
             </span>

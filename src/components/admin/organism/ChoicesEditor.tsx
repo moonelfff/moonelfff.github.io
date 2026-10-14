@@ -5,7 +5,7 @@ import { createChoice, type EditableQuestion } from "@/lib/admin/editable";
 import AdminButton from "../atom/AdminButton";
 import Hint from "../atom/Hint";
 import Checkbox from "../molecule/Checkbox";
-import ChoiceRow from "./ChoiceRow";
+import ChoiceRow from "../molecule/ChoiceRow";
 
 type Props = {
   question: EditableQuestion;

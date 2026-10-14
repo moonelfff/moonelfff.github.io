@@ -3,19 +3,14 @@
 import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
 import NextLink from "next/link";
 import { Model, setLicenseKey, surveyLocalization } from "survey-core";
+import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import "survey-core/i18n/russian";
-import { Survey } from "survey-react-ui";
-import "survey-core/survey-core.min.css";
-import Glass from "@/components/atom/Glass";
 import Typography from "@/components/atom/Typography";
-import Button from "@/components/molecule/Button";
+import TestIntroduction from "@/components/tests/organism/TestIntroduction";
+import TestQuestionStep from "@/components/tests/organism/TestQuestionStep";
+import TestResult from "@/components/tests/organism/TestResult";
 import type { TestResultPayload } from "@/lib/tests/types";
-import {
-  countQuestions,
-  estimateMinutes,
-  pluralize,
-} from "@/lib/tests/meta";
-import { parseMarkdown } from "@/utils/markdownParser";
+import { countQuestions, estimateMinutes } from "@/lib/tests/meta";
 
 type SurveyRunnerProps = {
   slug: string;
@@ -32,176 +27,6 @@ const ruStrings = surveyLocalization.locales.ru;
 if (ruStrings) {
   ruStrings.requiredError = "Выберите ответ, чтобы продолжить";
   ruStrings.requiredErrorInPanel = "Ответьте хотя бы на один вопрос";
-}
-
-function ArrowIcon({ direction }: { direction: "left" | "right" }) {
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d={direction === "left" ? "M19 12H5M11 6l-6 6 6 6" : "M5 12h14M13 6l6 6-6 6"} />
-    </svg>
-  );
-}
-
-function CheckIcon() {
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M4 12l5 5L20 6" />
-    </svg>
-  );
-}
-
-function ProgressBar({
-  value,
-  label,
-  onGlass,
-}: {
-  value: number;
-  label?: string;
-  onGlass?: boolean;
-}) {
-  const percent = Math.max(0, Math.min(100, Math.round(value * 100)));
-  return (
-    <div
-      role="progressbar"
-      aria-valuenow={percent}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-label={label}
-      className={`h-3 w-full overflow-hidden rounded-full ${
-        onGlass ? "bg-black/30" : "bg-dusty-grape/15"
-      }`}
-    >
-      <div
-        className="bg-success h-full rounded-full transition-all duration-300"
-        style={{ width: `${percent}%` }}
-      />
-    </div>
-  );
-}
-
-function ResultView({
-  result,
-  contactHref,
-  contactTitle,
-  onRetry,
-}: {
-  result: TestResultPayload;
-  contactHref?: string;
-  contactTitle?: string;
-  onRetry: () => void;
-}) {
-  const groups = result.groupScores ?? [];
-  const maxGroup = Math.max(1, ...groups.map((group) => group.score));
-  const top = result.topGroups ?? [];
-
-  return (
-    <div className="flex flex-col gap-6">
-      <Glass>
-        <div className="text-platinum flex flex-col gap-4 p-6 lg:p-8">
-          <p className="text-sm tracking-wide uppercase opacity-80">
-            Ваш результат
-          </p>
-          <h2 className="text-2xl font-semibold lg:text-4xl">
-            {result.level}
-          </h2>
-          {result.maxScore > 0 && groups.length === 0 ? (
-            <div className="flex flex-col gap-2">
-              <ProgressBar
-                onGlass
-                value={result.score / result.maxScore}
-                label="Балл"
-              />
-              <p className="font-numerical text-sm">
-                {result.score} / {result.maxScore}
-              </p>
-            </div>
-          ) : null}
-          {result.summary ? (
-            <p className="text-base lg:text-lg">{result.summary}</p>
-          ) : null}
-        </div>
-      </Glass>
-
-      {top.length > 0 ? (
-        <div className="grid gap-6 md:grid-cols-2">
-          {top.map((group, index) => (
-            <div key={group.id} className="pb-2">
-              <Glass>
-                <div className="text-platinum flex h-full flex-col gap-2 p-6">
-                  <span className="bg-gold w-fit rounded-full px-3 py-1 text-sm font-semibold text-black">
-                    {index === 0 ? "Главное" : `№${index + 1}`}
-                  </span>
-                  <h3 className="text-xl font-semibold lg:text-2xl">
-                    {group.title || group.name}
-                  </h3>
-                  {group.interpretation ? (
-                    <p className="text-base">{group.interpretation}</p>
-                  ) : null}
-                </div>
-              </Glass>
-            </div>
-          ))}
-        </div>
-      ) : null}
-
-      {groups.length > 1 ? (
-        <div className="pb-2">
-          <Glass>
-            <div className="text-platinum flex flex-col gap-3 p-6">
-              <h3 className="text-xl font-semibold">Все результаты</h3>
-              {groups.map((group) => (
-                <div key={group.id} className="flex flex-col gap-1">
-                  <div className="flex justify-between gap-3 text-sm">
-                    <span>{group.name || group.title}</span>
-                    <span className="font-numerical">{group.score}</span>
-                  </div>
-                  <ProgressBar onGlass value={group.score / maxGroup} />
-                </div>
-              ))}
-            </div>
-          </Glass>
-        </div>
-      ) : null}
-
-      <Typography component="p" className="text-sm opacity-70">
-        Тест не является диагностикой и не заменяет консультацию психолога.
-      </Typography>
-
-      <div className="flex flex-col gap-4 lg:flex-row">
-        {contactHref ? (
-          <Button href={contactHref} external variant="success">
-            {contactTitle || "Записаться на консультацию"}
-          </Button>
-        ) : null}
-        <Button variant="soft" onClick={onRetry}>
-          Пройти заново
-        </Button>
-        <Button variant="soft" href="/tests">
-          Все тесты
-        </Button>
-      </div>
-    </div>
-  );
 }
 
 export default function SurveyRunner({
@@ -372,96 +197,40 @@ export default function SurveyRunner({
         <Typography component="h1">{title}</Typography>
 
         {phase === "intro" ? (
-          <div className="flex flex-col gap-6 pb-6">
-            <div className="pb-2">
-              <Glass>
-                <div className="text-platinum flex flex-col gap-4 p-6 lg:p-8">
-                  <div className="markdown content-markdown">
-                    {description.trim() ? (
-                      parseMarkdown(description)
-                    ) : (
-                      <p>Описание теста пока не заполнено.</p>
-                    )}
-                  </div>
-                  <div className="flex flex-wrap gap-2 text-sm">
-                    <span className="rounded-full bg-white/20 px-3 py-1">
-                      {questionCount}{" "}
-                      {pluralize(questionCount, [
-                        "вопрос",
-                        "вопроса",
-                        "вопросов",
-                      ])}
-                    </span>
-                    <span className="rounded-full bg-white/20 px-3 py-1">
-                      ~{minutes}{" "}
-                      {pluralize(minutes, ["минута", "минуты", "минут"])}
-                    </span>
-                  </div>
-                </div>
-              </Glass>
-            </div>
-            <Button
-              variant="success"
-              icon={<ArrowIcon direction="right" />}
-              onClick={() => setPhase("questions")}
-            >
-              Начать
-            </Button>
-          </div>
+          <TestIntroduction
+            description={description}
+            questionCount={questionCount}
+            minutes={minutes}
+            startIcon={<ArrowRight size={20} strokeWidth={2.5} aria-hidden />}
+            onStart={() => setPhase("questions")}
+          />
         ) : null}
 
         {phase === "questions" || phase === "submitting" ? (
-          <div className="flex flex-col gap-6 pb-6">
-            <div className="flex flex-col gap-2">
-              <ProgressBar value={progress} label="Прогресс" />
-              <p className="font-numerical text-dusty-grape text-sm">
-                Отвечено {answered} из {questionCount}
-              </p>
-            </div>
-
-            {submitError ? (
-              <p className="border-danger/40 bg-danger/10 text-danger rounded-xl border px-4 py-3 text-sm">
-                {submitError}
-              </p>
-            ) : null}
-
-            <div className="relative z-20 pb-2">
-              <Glass>
-                <div className="test-survey text-platinum p-6 lg:p-8">
-                  <Survey model={survey} />
-                </div>
-              </Glass>
-            </div>
-
-            <div className="flex gap-3 lg:justify-between">
-              <Button
-                variant="soft"
-                className="flex-1 lg:flex-none"
-                icon={<ArrowIcon direction="left" />}
-                iconPosition="left"
-                onClick={goPrev}
-                disabled={phase === "submitting" || Boolean(isFirst)}
-              >
-                Назад
-              </Button>
-              <Button
-                variant="success"
-                icon={isLast ? <CheckIcon /> : <ArrowIcon direction="right" />}
-                onClick={goNext}
-                disabled={phase === "submitting"}
-              >
-                {phase === "submitting"
-                  ? "Считаем..."
-                  : isLast
-                    ? "Результат"
-                    : "Далее"}
-              </Button>
-            </div>
-          </div>
+          <TestQuestionStep
+            survey={survey}
+            progress={progress}
+            answered={answered}
+            questionCount={questionCount}
+            error={submitError}
+            isSubmitting={phase === "submitting"}
+            isFirst={Boolean(isFirst)}
+            isLast={Boolean(isLast)}
+            previousIcon={<ArrowLeft size={20} strokeWidth={2.5} aria-hidden />}
+            nextIcon={
+              isLast ? (
+                <Check size={20} strokeWidth={3} aria-hidden />
+              ) : (
+                <ArrowRight size={20} strokeWidth={2.5} aria-hidden />
+              )
+            }
+            onPrevious={goPrev}
+            onNext={goNext}
+          />
         ) : null}
 
         {phase === "result" && result ? (
-          <ResultView
+          <TestResult
             result={result}
             contactHref={contactHref}
             contactTitle={contactTitle}

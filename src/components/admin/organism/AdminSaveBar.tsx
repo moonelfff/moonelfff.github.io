@@ -21,14 +21,14 @@ function AdminSaveBar({ isDirty, isSaving, onSave, onReset }: Props) {
         >
           <span
             className={`size-2 shrink-0 rounded-full ${
-              isDirty ? "bg-amber-500" : "bg-emerald-500"
+              isDirty ? "bg-gold" : "bg-success"
             }`}
           />
           {isDirty ? "Есть несохранённые изменения" : "Все изменения сохранены"}
         </p>
         {isDirty ? (
           <span
-            className="size-2.5 shrink-0 rounded-full bg-amber-500 md:hidden"
+            className="size-2.5 shrink-0 rounded-full bg-gold md:hidden"
             role="img"
             aria-label="Есть несохранённые изменения"
           />

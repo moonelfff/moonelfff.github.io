@@ -86,7 +86,7 @@ function TestCard({ test, index, defaultOpen, setTests }: Props) {
           label="Удалить тест"
           onClick={onRemove}
         >
-          <TrashIcon className="text-red-600" />
+          <TrashIcon className="text-danger" />
         </AdminButton>
       }
     >

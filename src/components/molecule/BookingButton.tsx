@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useRef, type ReactNode } from "react";
+import { X } from "lucide-react";
 import TelegramIcon from "@/assets/icons/TelegramIcon";
 import VKIcon from "@/assets/icons/VKIcon";
 import BookingChannelButton from "./BookingChannelButton";
@@ -58,20 +59,9 @@ function BookingButton({
             type="button"
             aria-label="Закрыть"
             onClick={() => dialogRef.current?.close()}
-            className="inline-flex size-11 shrink-0 items-center justify-center rounded-full text-black/60 transition hover:bg-black/5 hover:text-black focus-visible:outline-2 focus-visible:outline-dusty-grape"
+            className="inline-flex size-11 shrink-0 items-center justify-center rounded-full text-dusty-grape transition hover:bg-dusty-grape/10 focus-visible:outline-2 focus-visible:outline-dusty-grape"
           >
-            <svg
-              aria-hidden="true"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.75"
-              strokeLinecap="round"
-            >
-              <path d="m6 6 12 12M18 6 6 18" />
-            </svg>
+            <X size={18} strokeWidth={1.75} aria-hidden />
           </button>
         </div>
         <div className="mt-4 flex flex-col gap-3">

@@ -21,7 +21,7 @@ function RowActions({ index, count, noun, onMove, onRemove }: RowActionsProps) {
         disabled={index === 0}
         onClick={() => onMove(index, index - 1)}
       >
-        <ArrowUpIcon />
+        <ArrowUpIcon className="text-dusty-grape" />
       </AdminButton>
       <AdminButton
         icon
@@ -30,7 +30,7 @@ function RowActions({ index, count, noun, onMove, onRemove }: RowActionsProps) {
         disabled={index === count - 1}
         onClick={() => onMove(index, index + 1)}
       >
-        <ArrowDownIcon />
+        <ArrowDownIcon className="text-dusty-grape" />
       </AdminButton>
       <AdminButton
         icon
@@ -38,7 +38,7 @@ function RowActions({ index, count, noun, onMove, onRemove }: RowActionsProps) {
         label={`Удалить ${noun}`}
         onClick={onRemove}
       >
-        <TrashIcon className="text-red-600" />
+        <TrashIcon className="text-danger" />
       </AdminButton>
     </>
   );
