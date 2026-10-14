@@ -185,6 +185,10 @@ GitHub Pages больше **не подходит**: сайт используе
 
 ## GitHub Actions
 
+- **`pr-checks.yml`** — проверяет каждый PR в `main`, изменения в `main` и ручные запуски: `npm ci`, ESLint, TypeScript (`npx tsc --noEmit`) и production-сборку. Использует Node.js 24, не требует секретов и не обращается к рабочей базе Supabase. Повторный запуск для того же PR отменяет предыдущую проверку.
+
+Чтобы проверка блокировала мердж при ошибке, после первого запуска добавьте **Lint, types and build** в обязательные status checks правила защиты `main` (Settings → Rules → Rulesets). Сам workflow не запрещает мердж без настройки этого правила.
+
 Адрес сайта в обоих workflow берётся из переменной репозитория `SITE_URL` (Settings -> Secrets and variables -> Actions -> Variables), по умолчанию `https://ekaterinazhuk.ru`. Запускать можно вручную из вкладки Actions. GitHub отключает cron-workflow в репозиториях без коммитов более 60 дней - тогда включите их заново.
 
 - **`supabase-keepalive.yml`** - раз в 3 дня запрашивает `/api/content` и `/api/tariffs` (оба читают БД). Free-план Supabase ставит проект на паузу после 7 дней без запросов к БД.
