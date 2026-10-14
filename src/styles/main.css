@@ -655,6 +655,31 @@
   background-size: 1.125rem;
   cursor: pointer;
 }
+
+.admin-accordion > summary {
+  transition:
+    background-color 0.2s ease,
+    border-radius 0.2s ease;
+}
+
+.admin-accordion > summary:hover,
+.admin-accordion[open] > summary {
+  background-color: rgb(110 68 194 / 0.05);
+}
+
+.admin-accordion[open] > summary {
+  border-radius: 0.75rem 0.75rem 0 0;
+}
+
+.admin-accordion-chevron {
+  rotate: 0deg;
+  transition: rotate 0.2s ease-out;
+}
+
+.admin-accordion[open] > summary > .admin-accordion-chevron {
+  rotate: 180deg;
+}
+
 @supports (appearance: base-select) {
   .admin-select,
   .admin-select::picker(select) {

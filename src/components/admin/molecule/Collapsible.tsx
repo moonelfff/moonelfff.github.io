@@ -27,9 +27,9 @@ function Collapsible({
   return (
     <details
       open={defaultOpen}
-      className={`group/accordion overflow-hidden rounded-xl border bg-soft-linnen/40 transition-colors duration-200 ${border} ${className}`}
+      className={`admin-accordion overflow-hidden rounded-xl border bg-soft-linnen/40 transition-colors duration-200 ${border} ${className}`}
     >
-      <summary className="flex min-h-12 cursor-pointer list-none items-center gap-2 rounded-xl px-3 py-2 transition-colors hover:bg-dusty-grape/5 focus-visible:outline-dusty-grape focus-visible:outline-2 focus-visible:outline-offset-[-2px] group-open/accordion:rounded-b-none group-open/accordion:bg-dusty-grape/5 marker:hidden [&::-webkit-details-marker]:hidden">
+      <summary className="flex min-h-12 cursor-pointer list-none items-center gap-2 rounded-xl px-3 py-2 transition-colors hover:bg-dusty-grape/5 focus-visible:outline-dusty-grape focus-visible:outline-2 focus-visible:outline-offset-[-2px] marker:hidden [&::-webkit-details-marker]:hidden">
         <span className="min-w-0 flex-1">{summary}</span>
         <span
           className="flex items-center gap-1"
@@ -37,7 +37,7 @@ function Collapsible({
         >
           {actions}
         </span>
-        <ChevronDownIcon className="size-5 shrink-0 text-black/50 transition-transform duration-200 ease-out group-open/accordion:rotate-180" />
+        <ChevronDownIcon className="admin-accordion-chevron size-5 shrink-0 text-black/50" />
       </summary>
       <div className="border-alabaster-grey flex flex-col gap-4 border-t p-3 md:p-4">
         {children}
