@@ -11,7 +11,6 @@ type Props = {
   icon?: ReactNode;
   iconPosition?: "left" | "right";
   className?: string;
-  solidColor?: "light" | "dusty-grape" | "white";
 };
 
 function Button({
@@ -24,7 +23,6 @@ function Button({
   icon,
   iconPosition = "right",
   className = "",
-  solidColor = "light",
 }: Props) {
   const label = (
     <span className="flex items-center justify-center gap-2 px-4 py-3 text-center text-sm font-semibold uppercase lg:px-6 lg:text-base">
@@ -47,11 +45,7 @@ function Button({
     <span
       className={`button-grain button-flat group/btn mt-2 block border-2 ${variant === "solid" ? "button-flat--pill rounded-full" : "rounded-xl"} ${
         variant === "solid"
-          ? solidColor === "dusty-grape"
-            ? "text-platinum border-white/50 shadow-[inset_0_1px_0_rgb(255_255_255/0.7),inset_0_-1px_0_rgb(60_35_110/0.25),inset_0_0_10px_rgb(255_255_255/0.28)] backdrop-blur-[2rem] [--btn-bg-hover:linear-gradient(145deg,rgb(255_255_255/0.38),rgb(110_68_194/0.94)_42%,rgb(110_68_194/0.96))] [--btn-bg:linear-gradient(145deg,rgb(255_255_255/0.32),rgb(110_68_194/0.86)_42%,rgb(110_68_194/0.9))]"
-            : solidColor === "white"
-              ? "text-dusty-grape border-white/80 shadow-[inset_0_1px_0_rgb(255_255_255/0.9)] [--btn-bg-hover:rgb(255_255_255/1)] [--btn-bg:rgb(255_255_255/0.9)]"
-              : "text-platinum border-white/35 shadow-[inset_0_1px_0_rgb(255_255_255/0.35)] [--btn-bg-hover:rgb(255_255_255/0.3)] [--btn-bg:rgb(255_255_255/0.16)]"
+          ? "text-platinum border-white/35 shadow-[inset_0_1px_0_rgb(255_255_255/0.35)] [--btn-bg-hover:rgb(255_255_255/0.3)] [--btn-bg:rgb(255_255_255/0.16)]"
           : "text-dusty-grape [--btn-bg-hover:rgb(110_68_194/0.22)] [--btn-bg:rgb(110_68_194/0.1)] border-transparent"
       }`}
     >
