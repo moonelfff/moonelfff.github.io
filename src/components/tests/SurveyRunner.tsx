@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
 import NextLink from "next/link";
 import { Model, setLicenseKey, surveyLocalization } from "survey-core";
+import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import "survey-core/i18n/russian";
 import Typography from "@/components/atom/Typography";
 import TestIntroduction from "@/components/tests/organism/TestIntroduction";
@@ -26,42 +27,6 @@ const ruStrings = surveyLocalization.locales.ru;
 if (ruStrings) {
   ruStrings.requiredError = "Выберите ответ, чтобы продолжить";
   ruStrings.requiredErrorInPanel = "Ответьте хотя бы на один вопрос";
-}
-
-function ArrowIcon({ direction }: { direction: "left" | "right" }) {
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d={direction === "left" ? "M19 12H5M11 6l-6 6 6 6" : "M5 12h14M13 6l6 6-6 6"} />
-    </svg>
-  );
-}
-
-function CheckIcon() {
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M4 12l5 5L20 6" />
-    </svg>
-  );
 }
 
 export default function SurveyRunner({
@@ -236,7 +201,7 @@ export default function SurveyRunner({
             description={description}
             questionCount={questionCount}
             minutes={minutes}
-            startIcon={<ArrowIcon direction="right" />}
+            startIcon={<ArrowRight size={20} strokeWidth={2.5} aria-hidden />}
             onStart={() => setPhase("questions")}
           />
         ) : null}
@@ -251,9 +216,13 @@ export default function SurveyRunner({
             isSubmitting={phase === "submitting"}
             isFirst={Boolean(isFirst)}
             isLast={Boolean(isLast)}
-            previousIcon={<ArrowIcon direction="left" />}
+            previousIcon={<ArrowLeft size={20} strokeWidth={2.5} aria-hidden />}
             nextIcon={
-              isLast ? <CheckIcon /> : <ArrowIcon direction="right" />
+              isLast ? (
+                <Check size={20} strokeWidth={3} aria-hidden />
+              ) : (
+                <ArrowRight size={20} strokeWidth={2.5} aria-hidden />
+              )
             }
             onPrevious={goPrev}
             onNext={goNext}

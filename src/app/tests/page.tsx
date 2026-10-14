@@ -1,3 +1,4 @@
+import { ArrowRight } from "lucide-react";
 import Glass from "@/components/atom/Glass";
 import Typography from "@/components/atom/Typography";
 import Button from "@/components/molecule/Button";
@@ -58,21 +59,7 @@ export default async function TestsPage() {
                     <Button
                       href={`/tests/${test.slug}`}
                       variant="solid"
-                      icon={
-                        <svg
-                          width="20"
-                          height="20"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          aria-hidden="true"
-                        >
-                          <path d="M5 12h14M13 6l6 6-6 6" />
-                        </svg>
-                      }
+                      icon={<ArrowRight size={20} strokeWidth={2.5} aria-hidden />}
                     >
                       Пройти тест
                     </Button>
