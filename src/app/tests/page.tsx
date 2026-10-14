@@ -1,12 +1,12 @@
 import Glass from "@/components/atom/Glass";
 import Typography from "@/components/atom/Typography";
 import Button from "@/components/molecule/Button";
+import TestMetadata from "@/components/tests/molecule/TestMetadata";
 import { getPublicTestBundle } from "@/lib/tests/testStore";
 import {
   countQuestions,
   estimateMinutes,
   plainText,
-  pluralize,
 } from "@/lib/tests/meta";
 
 export const dynamic = "force-dynamic";
@@ -37,26 +37,24 @@ export default async function TestsPage() {
               <article key={test.id} className="pb-2">
                 <Glass>
                   <div className="text-platinum flex h-full flex-col gap-4 p-6">
-                    <h2 className="text-xl font-semibold lg:text-2xl">
+                    <Typography
+                      component="h2"
+                      className="text-platinum mb-0 text-xl font-semibold lg:text-2xl"
+                    >
                       {test.title}
-                    </h2>
+                    </Typography>
                     <div className="flex-1">
-                      <p className="line-clamp-5 text-base">{excerpt}</p>
+                      <Typography
+                        component="p"
+                        className="line-clamp-5 text-left text-base"
+                      >
+                        {excerpt}
+                      </Typography>
                     </div>
-                    <div className="flex flex-wrap gap-2 text-sm">
-                      <span className="rounded-full bg-white/20 px-3 py-1">
-                        {questions}{" "}
-                        {pluralize(questions, [
-                          "вопрос",
-                          "вопроса",
-                          "вопросов",
-                        ])}
-                      </span>
-                      <span className="rounded-full bg-white/20 px-3 py-1">
-                        ~{minutes}{" "}
-                        {pluralize(minutes, ["минута", "минуты", "минут"])}
-                      </span>
-                    </div>
+                    <TestMetadata
+                      questionCount={questions}
+                      minutes={minutes}
+                    />
                     <Button
                       href={`/tests/${test.slug}`}
                       variant="solid"
