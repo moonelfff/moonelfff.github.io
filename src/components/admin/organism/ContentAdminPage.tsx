@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { Tariff } from "@/lib/tariffStore";
 import { errorMessage, fetchAdmin, sendJson } from "@/lib/admin/api";
 import {
@@ -25,6 +26,7 @@ import TariffsEditor from "./TariffsEditor";
 
 /** The "Content" admin page: tariffs, site texts, links and images. */
 function ContentAdminPage() {
+  const router = useRouter();
   const toast = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const [draft, setDraft] = useState<ContentDraft | null>(null);
@@ -42,10 +44,12 @@ function ContentAdminPage() {
       fetchAdmin<ContentBundle>(
         "/api/admin/content",
         "Не удалось загрузить контент",
+        router.replace,
       ),
       fetchAdmin<TariffBundle>(
         "/api/admin/tariffs",
         "Не удалось загрузить тарифы",
+        router.replace,
       ),
     ]);
 
@@ -57,7 +61,7 @@ function ContentAdminPage() {
     markDraftSaved(loadedDraft);
     setTariffs(tariffBundle.tariffs);
     markTariffsSaved(tariffBundle.tariffs);
-  }, [markDraftSaved, markTariffsSaved]);
+  }, [markDraftSaved, markTariffsSaved, router]);
 
   const { isLoading, loadFailed, retry } = useAdminLoader(
     load,
@@ -80,6 +84,7 @@ function ContentAdminPage() {
       "PUT",
       current,
       "Не удалось сохранить контент",
+      router.replace,
     );
     const saved = { content: bundle.content, markdown: bundle.markdown };
     setDraft(saved);
@@ -92,6 +97,7 @@ function ContentAdminPage() {
       "PUT",
       { tariffs: prepareTariffsForSave(current) },
       "Не удалось сохранить тарифы",
+      router.replace,
     );
     setTariffs(bundle.tariffs);
     markTariffsSaved(bundle.tariffs);

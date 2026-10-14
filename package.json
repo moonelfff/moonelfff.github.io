@@ -7,7 +7,7 @@
     "build": "next build",
     "prestart": "npm run build",
     "start": "next start --hostname 127.0.0.1 --port 3020",
-    "lint": "eslint",
+    "lint": "eslint --max-warnings=0",
     "seed": "node --env-file=.env.local scripts/seed-supabase.mjs"
   },
   "dependencies": {

@@ -4,12 +4,13 @@ type ErrorBody = { error?: string } | null;
 export async function fetchAdmin<T>(
   url: string,
   fallbackError: string,
+  navigate: (href: string) => void,
   init?: RequestInit,
 ): Promise<T> {
   const response = await fetch(url, { cache: "no-store", ...init });
 
   if (response.status === 401) {
-    window.location.assign("/admin/login");
+    navigate("/admin/login");
     throw new Error("Сессия истекла, войдите заново");
   }
 
@@ -26,8 +27,9 @@ export function sendJson<T>(
   method: "PUT" | "POST",
   payload: unknown,
   fallbackError: string,
+  navigate: (href: string) => void,
 ): Promise<T> {
-  return fetchAdmin<T>(url, fallbackError, {
+  return fetchAdmin<T>(url, fallbackError, navigate, {
     method,
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

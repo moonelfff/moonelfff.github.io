@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type Dispatch, type SetStateAction } from "react";
+import { useRouter } from "next/navigation";
 import { useToast } from "@/components/admin/providers/ToastProvider";
 import { errorMessage, fetchAdmin } from "./api";
 import {
@@ -22,6 +23,7 @@ type Options = {
  * to the saved baseline, so other unsaved edits stay intact.
  */
 export function useContentImageUpload({ setDraft, updateSaved }: Options) {
+  const router = useRouter();
   const toast = useToast();
   const [uploadingKind, setUploadingKind] = useState<ImageKind | null>(null);
 
@@ -35,6 +37,7 @@ export function useContentImageUpload({ setDraft, updateSaved }: Options) {
       const bundle = await fetchAdmin<ContentBundle>(
         "/api/admin/image",
         "Не удалось загрузить изображение",
+        router.replace,
         { method: "POST", body: formData },
       );
       const field = IMAGE_FIELDS[kind];
