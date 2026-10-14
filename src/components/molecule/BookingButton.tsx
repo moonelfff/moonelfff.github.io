@@ -3,6 +3,7 @@
 import { useId, useRef, type ReactNode } from "react";
 import TelegramIcon from "@/assets/icons/TelegramIcon";
 import VKIcon from "@/assets/icons/VKIcon";
+import BookingChannelButton from "./BookingChannelButton";
 import Button from "./Button";
 
 type Props = {
@@ -47,7 +48,7 @@ function BookingButton({
             dialogRef.current?.close();
           }
         }}
-        className="m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border border-white/30 bg-[rgb(110_68_194_/_0.86)] p-6 text-platinum shadow-[0_0_2px_1px_rgb(0_0_0_/_0.5)_inset,0_0_6px_2px_rgb(255_255_255_/_0.35)_inset,0_1.5rem_3rem_rgb(40_20_90_/_0.35)] backdrop-blur-[1.5rem] backdrop:bg-black/35 backdrop:backdrop-blur-sm"
+        className="m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border border-white/35 bg-[rgb(0_0_0_/_0.55)] p-6 text-platinum shadow-[0_0_2px_1px_rgb(0_0_0_/_0.7)_inset,0_0_6px_2px_rgb(255_255_255_/_0.6)_inset] backdrop-blur-[1.5rem] backdrop:bg-transparent backdrop:backdrop-blur-none"
       >
         <div className="flex items-center justify-between gap-4">
           <h2 id={headingId} className="text-lg leading-11 font-semibold">
@@ -74,28 +75,24 @@ function BookingButton({
           </button>
         </div>
         <div className="mt-4 flex flex-col gap-3">
-          <a
+          <BookingChannelButton
+            label={telegramLabel}
             href={telegramHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex min-h-12 items-center justify-center gap-3 rounded-xl border border-white/30 bg-white/10 px-4 py-3 font-semibold text-platinum shadow-[0_0_1px_1px_rgb(0_0_0_/_0.25)_inset,0_0_3px_2px_rgb(255_255_255_/_0.25)_inset] backdrop-blur-xl transition hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-          >
-            <TelegramIcon
-              color="var(--color-platinum)"
-              width={24}
-              height={24}
-            />
-            {telegramLabel}
-          </a>
-          <a
+            icon={
+              <TelegramIcon
+                color="var(--color-platinum)"
+                width={24}
+                height={24}
+              />
+            }
+          />
+          <BookingChannelButton
+            label={vkLabel}
             href={vkHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex min-h-12 items-center justify-center gap-3 rounded-xl border border-white/30 bg-white/10 px-4 py-3 font-semibold text-platinum shadow-[0_0_1px_1px_rgb(0_0_0_/_0.25)_inset,0_0_3px_2px_rgb(255_255_255_/_0.25)_inset] backdrop-blur-xl transition hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-          >
-            <VKIcon color="var(--color-platinum)" width={24} height={24} />
-            {vkLabel}
-          </a>
+            icon={
+              <VKIcon color="var(--color-platinum)" width={24} height={24} />
+            }
+          />
         </div>
       </dialog>
     </>
