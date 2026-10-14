@@ -1,10 +1,13 @@
 import Typography from "../atom/Typography";
 import Card from "../molecule/Card";
 import Number from "../molecule/Number";
+import Button from "../molecule/Button";
 
 type Props = {
   title: string;
   description: React.ReactNode;
+  contactHref: string;
+  contactLabel: string;
   packages: {
     name: string;
     price: {
@@ -14,7 +17,13 @@ type Props = {
   }[];
 };
 
-function PriceItem({ title, description, packages }: Props) {
+function PriceItem({
+  title,
+  description,
+  contactHref,
+  contactLabel,
+  packages,
+}: Props) {
   return (
     <Card>
       <div>
@@ -43,6 +52,28 @@ function PriceItem({ title, description, packages }: Props) {
           </div>
         ))}
       </div>
+      <Button
+        href={contactHref}
+        external
+        variant="solid"
+        icon={
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M5 12h14M13 6l6 6-6 6" />
+          </svg>
+        }
+      >
+        {contactLabel}
+      </Button>
     </Card>
   );
 }

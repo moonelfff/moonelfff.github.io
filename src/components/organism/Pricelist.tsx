@@ -19,6 +19,8 @@ function Pricelist() {
             <PriceItem
               key={tariff.id}
               title={tariff.title}
+              contactHref={data.telegramLink}
+              contactLabel={data.bookConsultation}
               description={
                 tariff.descriptionMarkdown
                   ? parseMarkdown(tariff.descriptionMarkdown)
