@@ -26,7 +26,7 @@ function BookingButton({
   vkHref,
   variant = "glass",
   className,
-  icon,
+  icon
 }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const headingId = useId();
@@ -44,7 +44,7 @@ function BookingButton({
       <dialog
         ref={dialogRef}
         aria-labelledby={headingId}
-        onClick={(event) => {
+        onClick={event => {
           if (event.target === event.currentTarget) {
             dialogRef.current?.close();
           }
@@ -80,11 +80,7 @@ function BookingButton({
             label={vkLabel}
             href={vkHref}
             icon={
-              <VKIcon
-                color="var(--color-platinum)"
-                width={24}
-                height={24}
-              />
+              <VKIcon color="var(--color-platinum)" width={24} height={24} />
             }
           />
         </div>
