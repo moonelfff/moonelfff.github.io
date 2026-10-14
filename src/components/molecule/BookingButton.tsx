@@ -49,7 +49,7 @@ function BookingButton({
             dialogRef.current?.close();
           }
         }}
-        className="m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border border-white/60 bg-platinum/75 p-6 text-black shadow-[0_0_2px_1px_rgb(0_0_0_/_0.18)_inset,0_1.5rem_3rem_rgb(0_0_0_/_0.2)] backdrop-blur-[1.5rem] backdrop:bg-transparent backdrop:backdrop-blur-none"
+        className="booking-dialog m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border p-6 text-black"
       >
         <div className="flex items-center justify-between gap-4">
           <h2 id={headingId} className="text-lg leading-11 font-semibold">
