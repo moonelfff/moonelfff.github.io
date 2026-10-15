@@ -1,9 +1,8 @@
 import Typography from "../atom/Typography";
-import { useSiteContent } from "../providers/SiteContentProvider";
+import type { SiteContent } from "@/lib/contentTypes";
 
-function Copyright() {
+function Copyright({ content }: { content: SiteContent }) {
   const year = new Date().getUTCFullYear();
-  const content = useSiteContent();
 
   return (
     <Typography component="p">

@@ -1,8 +1,7 @@
 import BookingButton from "../molecule/BookingButton";
-import { useSiteContent } from "../providers/SiteContentProvider";
+import type { SiteContent } from "@/lib/contentTypes";
 
-function Contact() {
-  const data = useSiteContent();
+function Contact({ data }: { data: SiteContent }) {
   return (
     <BookingButton
       label={data.bookConsultation}

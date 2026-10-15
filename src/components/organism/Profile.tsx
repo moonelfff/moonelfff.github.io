@@ -5,14 +5,13 @@ import ContentBox from "../molecule/ContentBox";
 import Typography from "../atom/Typography";
 import TelegramIcon from "../../assets/icons/TelegramIcon";
 import Contact from "./Contact";
-import { useSiteContent, useSiteMarkdown } from "../providers/SiteContentProvider";
+import type { MarkdownMap, SiteContent } from "@/lib/contentTypes";
 
-function Profile() {
-  const data = useSiteContent();
+function Profile({ data, markdown }: { data: SiteContent; markdown: MarkdownMap }) {
   const profileImageSrc = data.profileImageUrl || photo;
 
-  const content = useSiteMarkdown(data.info.contentPath);
-  const blogContent = useSiteMarkdown(data.blogDescriptionPath);
+  const content = markdown[data.info.contentPath.replace(/^\/+/, "")] ?? "";
+  const blogContent = markdown[data.blogDescriptionPath.replace(/^\/+/, "")] ?? "";
 
   return (
     <section
@@ -27,7 +26,7 @@ function Profile() {
         <div className="flex flex-col gap-6">
           <div>
             <ContentBox content={content} />
-            <Contact />
+            <Contact data={data} />
           </div>
           <div>
             <ContentBox content={blogContent} />

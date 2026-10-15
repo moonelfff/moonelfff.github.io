@@ -2,10 +2,9 @@ import B17Icon from "../../assets/icons/B17Icon";
 import TelegramIcon from "../../assets/icons/TelegramIcon";
 import VKIcon from "../../assets/icons/VKIcon";
 import Tooltip from "../atom/Tooltip";
-import { useSiteContent } from "../providers/SiteContentProvider";
+import type { SiteContent } from "@/lib/contentTypes";
 
-function Social() {
-  const content = useSiteContent();
+function Social({ content }: { content: SiteContent }) {
 
   return (
     <ul className="flex gap-3">

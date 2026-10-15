@@ -3,6 +3,16 @@ import { unstable_cache } from "next/cache";
 import { CACHE_REVALIDATE_SECONDS, CACHE_TAGS, invalidateCache } from "@/lib/cache";
 import { getSupabaseAdminClient } from "@/lib/supabase";
 import type { PublicTestDefinition, TestScoringConfig } from "./types";
+import { countQuestions } from "./meta";
+
+export type TestSummary = Pick<
+  PublicTestDefinition,
+  "id" | "slug" | "title" | "description"
+> & {
+  questionCount: number;
+};
+
+export type TestDetails = Omit<PublicTestDefinition, "scoring">;
 
 const TESTS_TABLE = "psychological_tests";
 
@@ -99,19 +109,66 @@ export async function getTestBundle(): Promise<TestBundle> {
   return { tests, source: "supabase" };
 }
 
-// Public readers use this cached version; admin routes call getTestBundle directly.
-export const getPublicTestBundle = unstable_cache(
-  getTestBundle,
-  ["test-bundle"],
+// Cache compact summaries, keeping schemas out of the cached list.
+export const getPublicTestSummaries = unstable_cache(
+  async (): Promise<TestSummary[]> => {
+    const { data, error } = await getSupabaseAdminClient()
+      .from(TESTS_TABLE)
+      .select("id,slug,title,description,schema_json")
+      .order("sort_order", { ascending: true });
+
+    if (error) throw error;
+
+    return data.map((row) => ({
+      id: row.id,
+      slug: row.slug,
+      title: row.title,
+      description: row.description,
+      questionCount: countQuestions(row.schema_json),
+    }));
+  },
+  ["test-summaries"],
   { tags: [CACHE_TAGS.tests], revalidate: CACHE_REVALIDATE_SECONDS },
 );
 
-export async function getTestBySlug(
-  slug: string,
-): Promise<PublicTestDefinition | null> {
-  const bundle = await getPublicTestBundle();
-  return bundle.tests.find((test) => test.slug === slug) ?? null;
-}
+export const getPublicTestBySlug = unstable_cache(
+  async (slug: string): Promise<TestDetails | null> => {
+    const { data, error } = await getSupabaseAdminClient()
+      .from(TESTS_TABLE)
+      .select("id,slug,title,description,version,schema_json")
+      .eq("slug", slug)
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!data) return null;
+
+    return {
+      id: data.id,
+      slug: data.slug,
+      title: data.title,
+      description: data.description,
+      version: data.version,
+      schema: data.schema_json,
+    };
+  },
+  ["test-details"],
+  { tags: [CACHE_TAGS.tests], revalidate: CACHE_REVALIDATE_SECONDS },
+);
+
+export const getTestBySlug = unstable_cache(
+  async (slug: string): Promise<PublicTestDefinition | null> => {
+    const { data, error } = await getSupabaseAdminClient()
+      .from(TESTS_TABLE)
+      .select("id,slug,title,description,version,schema_json,scoring_json,sort_order")
+      .eq("slug", slug)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data ? mapRowToTest(data) : null;
+  },
+  ["test-scoring"],
+  { tags: [CACHE_TAGS.tests], revalidate: CACHE_REVALIDATE_SECONDS },
+);
 
 export async function saveTests(
   tests: PublicTestDefinition[],

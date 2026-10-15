@@ -1,14 +1,10 @@
 import Typography from "../atom/Typography";
 import PriceItem from "./PriceItem";
 import { parseMarkdown } from "../../utils/markdownParser";
-import {
-  useSiteContent,
-  useSiteTariffs
-} from "../providers/SiteContentProvider";
+import type { SiteContent } from "@/lib/contentTypes";
+import type { Tariff } from "@/lib/tariffStore";
 
-function Pricelist() {
-  const data = useSiteContent();
-  const tariffs = useSiteTariffs();
+function Pricelist({ data, tariffs }: { data: SiteContent; tariffs: Tariff[] }) {
 
   return (
     <section id="price">
