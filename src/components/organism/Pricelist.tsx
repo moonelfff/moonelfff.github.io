@@ -1,7 +1,6 @@
 import Typography from "../atom/Typography";
 import PriceItem from "./PriceItem";
 import { parseMarkdown } from "../../utils/markdownParser";
-import Contact from "./Contact";
 import {
   useSiteContent,
   useSiteTariffs

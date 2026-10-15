@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
 import { PlusIcon } from "@/assets/icons/admin";
 import { errorMessage, fetchAdmin, sendJson } from "@/lib/admin/api";
 import { useSavedSnapshot } from "@/lib/admin/draft";
@@ -26,6 +27,7 @@ type TestBundle = { tests: PublicTestDefinition[]; source: "supabase" };
 
 /** The "Tests" admin page: the list of editable tests. */
 function TestsAdminPage() {
+  const router = useRouter();
   const toast = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const [tests, setTests] = useState<EditableTest[]>([]);
@@ -40,11 +42,12 @@ function TestsAdminPage() {
     const bundle = await fetchAdmin<TestBundle>(
       "/api/admin/tests",
       "Не удалось загрузить тесты",
+      router.replace,
     );
     const loaded = bundle.tests.map(toEditable);
     setTests(loaded);
     markSaved(loaded);
-  }, [markSaved]);
+  }, [markSaved, router]);
 
   const { isLoading, loadFailed, retry } = useAdminLoader(
     load,
@@ -59,6 +62,7 @@ function TestsAdminPage() {
         "PUT",
         { tests: buildTestsPayload(tests) },
         "Не удалось сохранить тесты",
+        router.replace,
       );
       const saved = bundle.tests.map(toEditable);
       setTests(saved);
