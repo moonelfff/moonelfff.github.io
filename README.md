@@ -185,6 +185,10 @@ GitHub Pages больше **не подходит**: сайт используе
 
 ## GitHub Actions
 
+Для совместимости с плагинами `eslint-config-next` используется ESLint 9: текущие `eslint-plugin-import`, `eslint-plugin-react` и `eslint-plugin-jsx-a11y` ещё не объявляют поддержку ESLint 10. ESLint 9 уже помечен устаревшим; переход на 10 следует выполнить после обновления совместимости плагинов. В npm, поддерживающем `allowScripts`, разрешён установочный скрипт конкретной версии `unrs-resolver`, используемого резолвером TypeScript.
+
+Известное предупреждение `npm audit`: `braces` через `micromatch` → `fast-glob` → `@next/eslint-plugin-next` (зависимости разработки). На момент проверки исправленная версия `braces` не опубликована; `npm audit fix --force` предлагает несовместимый откат `eslint-config-next` до 14, поэтому применять его нельзя. Проверка `npm audit --omit=dev` не обнаруживает уязвимостей в production-зависимостях.
+
 `npm run lint` не допускает ни ошибок, ни предупреждений (`--max-warnings=0`); любое новое предупреждение блокирует проверку PR. Перед проверкой TypeScript workflow запускает `npx next typegen`, чтобы в чистом checkout были доступны типы маршрутов и изображений Next.js.
 
 - **`pr-checks.yml`** — проверяет каждый PR в `main`, изменения в `main` и ручные запуски: `npm ci`, ESLint, TypeScript (`npx tsc --noEmit`) и production-сборку. Использует Node.js 24, не требует секретов и не обращается к рабочей базе Supabase. Повторный запуск для того же PR отменяет предыдущую проверку.
