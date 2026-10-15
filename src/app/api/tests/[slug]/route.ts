@@ -1,4 +1,4 @@
-import { getTestBySlug } from "@/lib/tests/testStore";
+import { getPublicTestBySlug } from "@/lib/tests/testStore";
 import { NextResponse } from "next/server";
 
 type Params = {
@@ -7,7 +7,7 @@ type Params = {
 
 export async function GET(_: Request, { params }: Params) {
   const { slug } = await params;
-  const test = await getTestBySlug(slug);
+  const test = await getPublicTestBySlug(slug);
 
   if (!test) {
     return NextResponse.json({ error: "Тест не найден" }, { status: 404 });

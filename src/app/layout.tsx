@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { getPublicContentBundle } from "@/lib/contentStore";
+import { getPublicSiteContent } from "@/lib/contentStore";
 import "./globals.css";
 import { mulish, play } from "./fonts";
 
@@ -24,10 +24,10 @@ async function getSeoImageUrls(): Promise<{
   ogImageUrl: string;
 }> {
   try {
-    const bundle = await getPublicContentBundle();
-    const profileImageUrl = toAbsoluteImageUrl(bundle.content.profileImageUrl);
+    const content = await getPublicSiteContent();
+    const profileImageUrl = toAbsoluteImageUrl(content.profileImageUrl);
     const ogImageUrl = toAbsoluteImageUrl(
-      bundle.content.ogImageUrl || bundle.content.profileImageUrl,
+      content.ogImageUrl || content.profileImageUrl,
     );
 
     return {

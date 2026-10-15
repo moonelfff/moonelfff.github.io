@@ -3,9 +3,8 @@ import Glass from "@/components/atom/Glass";
 import Typography from "@/components/atom/Typography";
 import Button from "@/components/molecule/Button";
 import TestMetadata from "@/components/tests/molecule/TestMetadata";
-import { getPublicTestBundle } from "@/lib/tests/testStore";
+import { getPublicTestSummaries } from "@/lib/tests/testStore";
 import {
-  countQuestions,
   estimateMinutes,
   plainText,
 } from "@/lib/tests/meta";
@@ -13,7 +12,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function TestsPage() {
-  const { tests } = await getPublicTestBundle();
+  const tests = await getPublicTestSummaries();
 
   return (
     <main className="bg-platinum font-primary min-h-dvh px-3 py-3 md:px-12 xl:px-24 2xl:px-60">
@@ -31,7 +30,7 @@ export default async function TestsPage() {
       ) : (
         <div className="grid gap-6 pb-6 md:grid-cols-2 xl:grid-cols-3">
           {tests.map((test) => {
-            const questions = countQuestions(test.schema);
+            const questions = test.questionCount;
             const minutes = estimateMinutes(questions);
             const excerpt = plainText(test.description);
             return (

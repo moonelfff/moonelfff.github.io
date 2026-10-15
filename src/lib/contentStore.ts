@@ -49,7 +49,7 @@ async function readRows(keys: string[]): Promise<Map<string, string>> {
   );
 }
 
-export async function getContentBundle(): Promise<ContentBundle> {
+export async function getSiteContent(): Promise<SiteContent> {
   const jsonRows = await readRows([CONTENT_JSON_KEY]);
   const rawContent = jsonRows.get(CONTENT_JSON_KEY);
 
@@ -61,6 +61,20 @@ export async function getContentBundle(): Promise<ContentBundle> {
 
   const content = JSON.parse(rawContent) as SiteContent;
   content.priceCardBookLabel ??= "Записаться";
+  return content;
+}
+
+export const getPublicSiteContent = unstable_cache(
+  getSiteContent,
+  ["site-settings"],
+  { tags: [CACHE_TAGS.content], revalidate: CACHE_REVALIDATE_SECONDS },
+);
+
+export async function getContentBundle(): Promise<ContentBundle> {
+  return readContentBundle(await getSiteContent());
+}
+
+async function readContentBundle(content: SiteContent): Promise<ContentBundle> {
   const markdownPaths = getMarkdownPaths(content);
   const markdownRows = await readRows(markdownPaths);
 
@@ -114,7 +128,7 @@ export async function saveContentBundle(
 
 // Public readers use this cached version; admin routes call getContentBundle directly.
 export const getPublicContentBundle = unstable_cache(
-  getContentBundle,
+  async () => readContentBundle(await getPublicSiteContent()),
   ["content-bundle"],
   { tags: [CACHE_TAGS.content], revalidate: CACHE_REVALIDATE_SECONDS },
 );

@@ -11,6 +11,7 @@ export const mulish = localFont({
   ],
   variable: "--font-mulish",
   display: "swap",
+  preload: false,
 });
 
 export const play = localFont({
