@@ -14,6 +14,11 @@ Website of clinical psychologist Ekaterina Zhuk (ekaterinazhuk.ru): Next.js App 
 
 ## Rules
 
+- SEO: основной адрес сайта — `https://ekaterinazhuk.ru` без `www`. Canonical, sitemap и структурированные данные должны использовать его; домен `www` должен постоянно перенаправляться на основной через настройки Vercel. Не добавлять обратный редирект в приложение, пока Vercel перенаправляет основной домен на `www`: это создаст цикл.
+- Пока сохраняем одну страницу услуг и не расширяем блок квалификации. При добавлении новых индексируемых страниц задавать собственные title, description, canonical и соответствующую странице разметку WebPage, не наследовать canonical главной. Оценивать скорость по LCP, INP, CLS и мобильным замерам, не выдавать лабораторные результаты за полевые.
+
+- Раздел `/tests` и все `/tests/[slug]` должны оставаться `noindex` до появления ссылки на тесты на главной странице. При добавлении этой ссылки одновременно включить индексацию: обновить metadata в `src/app/tests/layout.tsx`, проверить robots.txt и добавить публичные страницы тестов в sitemap. До этого не добавлять тесты в sitemap. Не запрещать их обход в robots.txt: поисковики должны видеть `noindex`.
+
 - **Supabase is the only runtime data source** (`site_content`, `tariffs`, `tariff_packages`, `psychological_tests`, Storage). Never add local file reads or fallbacks. `supabase/seed/` is only input for `npm run seed`.
 - Server code gets the client via `src/lib/supabase.ts` (service role key, server only; never expose it to the client).
 - Pages that read Supabase must be `export const dynamic = "force-dynamic"` so the build works without credentials.
