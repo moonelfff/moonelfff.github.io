@@ -3,7 +3,7 @@ import {
   saveContentBundle,
   type SiteContent,
 } from "@/lib/contentStore";
-import { getSupabaseAdminClient } from "@/lib/supabase";
+import { storeImage } from "@/lib/mediaStorage";
 import { NextResponse } from "next/server";
 import crypto from "node:crypto";
 import sharp from "sharp";
@@ -12,7 +12,6 @@ type UploadKind = "profile" | "og";
 
 const MAX_UPLOAD_SIZE_BYTES = 8 * 1024 * 1024;
 const ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
-const DEFAULT_BUCKET = "site-images";
 
 function isUploadKind(value: string): value is UploadKind {
   return value === "profile" || value === "og";
@@ -83,30 +82,19 @@ export async function POST(request: Request) {
     );
   }
 
-  const supabase = getSupabaseAdminClient();
-
   const sourceBuffer = Buffer.from(await rawFile.arrayBuffer());
   const processed = await processImage(sourceBuffer, rawKind);
-  const bucket = process.env.SUPABASE_STORAGE_BUCKET || DEFAULT_BUCKET;
   const storagePath = buildStoragePath(rawKind, processed.extension);
-
-  const { error: uploadError } = await supabase.storage
-    .from(bucket)
-    .upload(storagePath, processed.outputBuffer, {
-      contentType: processed.contentType,
-      cacheControl: "31536000",
-      upsert: false,
-    });
-
-  if (uploadError) {
+  let publicUrl: string;
+  try {
+    publicUrl = await storeImage(storagePath, processed.outputBuffer, processed.contentType);
+  } catch (error) {
+    console.error("Failed to upload image", error);
     return NextResponse.json(
-      { error: `Failed to upload image: ${uploadError.message}` },
+      { error: "Не удалось загрузить изображение" },
       { status: 500 },
     );
   }
-
-  const { data } = supabase.storage.from(bucket).getPublicUrl(storagePath);
-  const publicUrl = data.publicUrl;
 
   const currentBundle = await getContentBundle();
   const nextContent: SiteContent = {

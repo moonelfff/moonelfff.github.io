@@ -8,12 +8,19 @@
     "prestart": "npm run build",
     "start": "next start --hostname 127.0.0.1 --port 3020",
     "lint": "eslint --max-warnings=0",
-    "seed": "node --env-file=.env.local scripts/seed-supabase.mjs"
+    "seed": "node --env-file=.env.local scripts/seed-supabase.mjs",
+    "mysql:init": "node --env-file=.env.local scripts/init-mysql.mjs",
+    "mysql:import": "node --env-file=.env.local scripts/import-supabase-to-mysql.mjs",
+    "mysql:backup": "node --env-file=.env.local scripts/backup-mysql.mjs",
+    "mysql:restore": "node --env-file=.env.local scripts/restore-mysql.mjs",
+    "test:mysql": "node --test scripts/mysql-utils.test.mjs scripts/mysql-integration.test.mjs scripts/tests/mysql-runtime.test.mjs",
+    "mysql:demo": "node --env-file=.env.local scripts/seed-mysql-demo.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.2",
     "lucide-react": "^1.57.0",
     "marked": "^18.0.9",
+    "mysql2": "^3.15.3",
     "nanoid": "^6.0.2",
     "next": "^16.4.0",
     "react": "^19.3.0",

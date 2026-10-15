@@ -3,6 +3,8 @@ import { unstable_cache } from "next/cache";
 import { CACHE_REVALIDATE_SECONDS, CACHE_TAGS, invalidateCache } from "@/lib/cache";
 import { normalizeSlug } from "@/lib/slug";
 import { getSupabaseAdminClient } from "@/lib/supabase";
+import { getDataProvider, type DataProvider } from "@/lib/dataProvider";
+import { mysqlRows, mysqlTransaction } from "@/lib/mysql";
 
 const TARIFFS_TABLE = "tariffs";
 const PACKAGES_TABLE = "tariff_packages";
@@ -28,7 +30,7 @@ export type Tariff = {
 
 export type TariffBundle = {
   tariffs: Tariff[];
-  source: "supabase";
+  source: DataProvider;
 };
 
 type TariffRow = {
@@ -123,6 +125,22 @@ async function readSupabaseTariffs(
 }
 
 export async function getTariffBundle(): Promise<TariffBundle> {
+  if (getDataProvider() === "mysql") {
+    return mysqlTransaction(async (connection) => {
+      const rows = await mysqlRows<Omit<TariffRow, "is_active"> & { is_active: number }>(
+        "SELECT id,slug,title,description_md,is_active,sort_order FROM tariffs ORDER BY sort_order",
+        [], connection,
+      );
+      const packages = await mysqlRows<PackageRow>(
+        "SELECT id,tariff_id,title,price_regular,price_discounted,currency,sort_order FROM tariff_packages ORDER BY sort_order",
+        [], connection,
+      );
+      return {
+        tariffs: mapRowsToTariffs(rows.map((row) => ({ ...row, is_active: Boolean(row.is_active) })), packages),
+        source: "mysql",
+      };
+    });
+  }
   const supabase = getSupabaseAdminClient();
   const tariffs = await readSupabaseTariffs(supabase);
 
@@ -160,6 +178,49 @@ function validateTariffs(tariffs: Tariff[]) {
 export async function saveTariffs(tariffs: Tariff[]): Promise<TariffBundle> {
   validateTariffs(tariffs);
 
+  const preparedTariffs = tariffs.map((tariff, index) => ({
+    id: persistentId(tariff.id),
+    slug: normalizeSlug(tariff.slug || tariff.title) || `tariff-${index + 1}`,
+    title: tariff.title.trim(),
+    description_md: tariff.descriptionMarkdown,
+    is_active: tariff.isActive,
+    sort_order: index,
+    packages: tariff.packages,
+  }));
+  const packageRows = preparedTariffs.flatMap((tariff) =>
+    tariff.packages.map((pkg, index) => ({
+      id: persistentId(pkg.id),
+      tariff_id: tariff.id,
+      title: (pkg.title ?? "").trim(),
+      price_regular: Math.round(pkg.regularAmount),
+      price_discounted:
+        pkg.discountedAmount == null ? null : Math.round(pkg.discountedAmount),
+      currency: pkg.currency || "₽",
+      sort_order: index,
+    })),
+  );
+
+  if (getDataProvider() === "mysql") {
+    await mysqlTransaction(async (connection) => {
+      await connection.execute("DELETE FROM tariff_packages");
+      await connection.execute("DELETE FROM tariffs");
+      for (const tariff of preparedTariffs) {
+        await connection.execute(
+          "INSERT INTO tariffs (id,slug,title,description_md,is_active,sort_order) VALUES (?,?,?,?,?,?)",
+          [tariff.id, tariff.slug, tariff.title, tariff.description_md, tariff.is_active, tariff.sort_order],
+        );
+      }
+      for (const pkg of packageRows) {
+        await connection.execute(
+          "INSERT INTO tariff_packages (id,tariff_id,title,price_regular,price_discounted,currency,sort_order) VALUES (?,?,?,?,?,?,?)",
+          [pkg.id, pkg.tariff_id, pkg.title, pkg.price_regular, pkg.price_discounted, pkg.currency, pkg.sort_order],
+        );
+      }
+    });
+    invalidateCache(CACHE_TAGS.tariffs);
+    return getTariffBundle();
+  }
+
   const supabase = getSupabaseAdminClient();
 
   const { data: existingRaw, error: existingError } = await supabase
@@ -173,22 +234,6 @@ export async function saveTariffs(tariffs: Tariff[]): Promise<TariffBundle> {
   const existingIds = new Set(
     (existingRaw as Array<{ id: string }>).map((row) => row.id),
   );
-
-  const preparedTariffs = tariffs.map((tariff, index) => {
-    const id = persistentId(tariff.id);
-    const slug =
-      normalizeSlug(tariff.slug || tariff.title) || `tariff-${index + 1}`;
-
-    return {
-      id,
-      slug,
-      title: tariff.title.trim(),
-      description_md: tariff.descriptionMarkdown,
-      is_active: tariff.isActive,
-      sort_order: index,
-      packages: tariff.packages,
-    };
-  });
 
   const upsertResult = await supabase.from(TARIFFS_TABLE).upsert(
     preparedTariffs.map((tariff) => ({
@@ -219,19 +264,6 @@ export async function saveTariffs(tariffs: Tariff[]): Promise<TariffBundle> {
     }
   }
 
-  const packageRows = preparedTariffs.flatMap((tariff) =>
-    tariff.packages.map((pkg, index) => ({
-      id: persistentId(pkg.id),
-      tariff_id: tariff.id,
-      title: (pkg.title ?? "").trim(),
-      price_regular: Math.round(pkg.regularAmount),
-      price_discounted:
-        pkg.discountedAmount == null ? null : Math.round(pkg.discountedAmount),
-      currency: pkg.currency || "₽",
-      sort_order: index,
-    })),
-  );
-
   if (packageRows.length > 0) {
     const { error: upsertPackagesError } = await supabase
       .from(PACKAGES_TABLE)
@@ -256,6 +288,6 @@ export async function saveTariffs(tariffs: Tariff[]): Promise<TariffBundle> {
 // Public readers use this cached version; admin routes call getTariffBundle directly.
 export const getPublicTariffBundle = unstable_cache(
   getTariffBundle,
-  ["tariff-bundle"],
+  ["tariff-bundle", getDataProvider()],
   { tags: [CACHE_TAGS.tariffs], revalidate: CACHE_REVALIDATE_SECONDS },
 );

@@ -6,8 +6,8 @@ export type ContentDraft = {
   markdown: Record<string, string>;
 };
 
-export type ContentBundle = ContentDraft & { source: "supabase" };
-export type TariffBundle = { tariffs: Tariff[]; source: "supabase" };
+export type ContentBundle = ContentDraft & { source: "supabase" | "mysql" };
+export type TariffBundle = { tariffs: Tariff[]; source: "supabase" | "mysql" };
 export type ImageKind = "profile" | "og";
 
 export const MARKDOWN_LABELS: Record<string, string> = {

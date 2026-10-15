@@ -6,6 +6,7 @@ import { mulish, play } from "./fonts";
 
 const SITE_URL = "https://ekaterinazhuk.ru";
 const FALLBACK_IMAGE_URL = `${SITE_URL}/photo.webp`;
+const isPreview = process.env.SITE_PREVIEW === "1";
 
 function toAbsoluteImageUrl(value: string | undefined): string {
   if (!value?.trim()) {
@@ -141,11 +142,11 @@ export async function generateMetadata(): Promise<Metadata> {
     ],
     authors: [{ name: "Екатерина Жук" }],
     robots: {
-      index: true,
-      follow: true,
+      index: !isPreview,
+      follow: !isPreview,
       googleBot: {
-        index: true,
-        follow: true,
+        index: !isPreview,
+        follow: !isPreview,
         "max-image-preview": "large",
       },
     },
@@ -195,7 +196,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     manifest: "/site.webmanifest",
     other: {
-      yandex: "all",
+      yandex: isPreview ? "none" : "all",
     },
   };
 }
@@ -207,6 +208,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="ru" className={`${mulish.variable} ${play.variable} h-full antialiased`}>
       <body suppressHydrationWarning className="flex min-h-full flex-col">
+        {!isPreview && <>
         <Script id="gtm" strategy="lazyOnload">
           {`(function (w, d, s, l, i) {
         w[l] = w[l] || [];
@@ -280,6 +282,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
+        </>}
         {children}
       </body>
     </html>

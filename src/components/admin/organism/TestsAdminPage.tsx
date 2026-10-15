@@ -23,7 +23,7 @@ import { useToast } from "../providers/ToastProvider";
 import AdminShell from "./AdminShell";
 import TestCard from "./TestCard";
 
-type TestBundle = { tests: PublicTestDefinition[]; source: "supabase" };
+type TestBundle = { tests: PublicTestDefinition[]; source: "supabase" | "mysql" };
 
 /** The "Tests" admin page: the list of editable tests. */
 function TestsAdminPage() {
