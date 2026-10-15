@@ -2,6 +2,8 @@ import { unstable_cache } from "next/cache";
 import { CACHE_REVALIDATE_SECONDS, CACHE_TAGS, invalidateCache } from "@/lib/cache";
 import { getSupabaseAdminClient } from "@/lib/supabase";
 import type { MarkdownMap, SiteContent } from "@/lib/contentTypes";
+import { getDataProvider, type DataProvider } from "@/lib/dataProvider";
+import { mysqlRows, mysqlTransaction } from "@/lib/mysql";
 
 export type { MarkdownMap, SiteContent };
 
@@ -11,7 +13,7 @@ const CONTENT_JSON_KEY = "content_json";
 export type ContentBundle = {
   content: SiteContent;
   markdown: MarkdownMap;
-  source: "supabase";
+  source: DataProvider;
 };
 
 export function markdownKey(markdownPath: string): string {
@@ -31,6 +33,14 @@ function getMarkdownPaths(content: SiteContent): string[] {
 }
 
 async function readRows(keys: string[]): Promise<Map<string, string>> {
+  if (getDataProvider() === "mysql") {
+    if (keys.length === 0) return new Map();
+    const rows = await mysqlRows<{ key: string; value: string }>(
+      `SELECT \`key\`, value FROM site_content WHERE \`key\` IN (${keys.map(() => "?").join(",")})`,
+      keys,
+    );
+    return new Map(rows.map((row) => [row.key, row.value]));
+  }
   const supabase = getSupabaseAdminClient();
   const { data, error } = await supabase
     .from(CONTENT_TABLE)
@@ -55,7 +65,7 @@ export async function getSiteContent(): Promise<SiteContent> {
 
   if (!rawContent) {
     throw new Error(
-      "Site content is missing in Supabase. Run `npm run seed` to load initial data.",
+      `Site content is missing in ${getDataProvider()}. Import initial data before serving the site.`,
     );
   }
 
@@ -66,7 +76,7 @@ export async function getSiteContent(): Promise<SiteContent> {
 
 export const getPublicSiteContent = unstable_cache(
   getSiteContent,
-  ["site-settings"],
+  ["site-settings", getDataProvider()],
   { tags: [CACHE_TAGS.content], revalidate: CACHE_REVALIDATE_SECONDS },
 );
 
@@ -83,7 +93,7 @@ async function readContentBundle(content: SiteContent): Promise<ContentBundle> {
     markdown[pathKey] = markdownRows.get(pathKey) ?? "";
   }
 
-  return { content, markdown, source: "supabase" };
+  return { content, markdown, source: getDataProvider() };
 }
 
 type SaveInput = {
@@ -105,7 +115,6 @@ export async function saveContentBundle(
 ): Promise<ContentBundle> {
   validateSaveInput(input);
 
-  const supabase = getSupabaseAdminClient();
   const rows = [
     { key: CONTENT_JSON_KEY, value: JSON.stringify(input.content, null, 2) },
     ...getMarkdownPaths(input.content).map((pathKey) => ({
@@ -114,12 +123,23 @@ export async function saveContentBundle(
     })),
   ];
 
-  const { error } = await supabase.from(CONTENT_TABLE).upsert(rows, {
-    onConflict: "key",
-  });
+  if (getDataProvider() === "mysql") {
+    await mysqlTransaction(async (connection) => {
+      for (const row of rows) {
+        await connection.execute(
+          "INSERT INTO site_content (`key`, value) VALUES (?, ?) ON DUPLICATE KEY UPDATE value = ?",
+          [row.key, row.value, row.value],
+        );
+      }
+    });
+  } else {
+    const { error } = await getSupabaseAdminClient()
+      .from(CONTENT_TABLE)
+      .upsert(rows, { onConflict: "key" });
 
-  if (error) {
-    throw new Error(`Failed to save content to Supabase: ${error.message}`);
+    if (error) {
+      throw new Error(`Failed to save content to Supabase: ${error.message}`);
+    }
   }
 
   invalidateCache(CACHE_TAGS.content);
@@ -129,7 +149,7 @@ export async function saveContentBundle(
 // Public readers use this cached version; admin routes call getContentBundle directly.
 export const getPublicContentBundle = unstable_cache(
   async () => readContentBundle(await getPublicSiteContent()),
-  ["content-bundle"],
+  ["content-bundle", getDataProvider()],
   { tags: [CACHE_TAGS.content], revalidate: CACHE_REVALIDATE_SECONDS },
 );
 
@@ -138,7 +158,7 @@ const getPublicMarkdown = unstable_cache(
     const rows = await readRows([key]);
     return rows.get(key) ?? null;
   },
-  ["markdown"],
+  ["markdown", getDataProvider()],
   { tags: [CACHE_TAGS.content], revalidate: CACHE_REVALIDATE_SECONDS },
 );
 

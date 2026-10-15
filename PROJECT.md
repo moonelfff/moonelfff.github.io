@@ -13,6 +13,7 @@
 - Next.js 16.4 (App Router, Turbopack, proxy), React 19.3, TypeScript 6, Node.js 24 LTS
 - Tailwind CSS 4 (`@tailwindcss/postcss`)
 - Supabase (`@supabase/supabase-js`): Postgres и Storage
+- MySQL/MariaDB (`mysql2`): альтернативный режим для Beget; изображения в постоянном `MEDIA_ROOT`
 - `sharp` - обработка загружаемых изображений
 - `marked` - Markdown
 - SurveyJS (`survey-core`, `survey-react-ui`, `survey-creator-*`), `zod`, `nanoid` - тесты
@@ -46,18 +47,20 @@
 
 ## 4. Модель контента
 
-- `content_json` (Supabase, `site_content`): `fullName`, `info` (`title`, `contentPath`), `professionDescription`, `profileImageUrl`, `ogImageUrl`, `priceHeader`, `blogDescriptionPath`, контакты и `pricelist`.
-- Markdown (Supabase, `site_content`, ключи `profile.md`, `blog.md`, `pricelist/*.md`). Текст отображается, только если путь к нему есть в `content_json`.
+- `content_json` (`site_content`, в выбранной базе): `fullName`, `info` (`title`, `contentPath`), `professionDescription`, `profileImageUrl`, `ogImageUrl`, `priceHeader`, `blogDescriptionPath`, контакты и `pricelist`.
+- Markdown (`site_content`, в выбранной базе, ключи `profile.md`, `blog.md`, `pricelist/*.md`). Текст отображается, только если путь к нему есть в `content_json`.
 - Элемент `pricelist`: `title`, `descriptionPath`, `packages[]` (`name`, `price.regular{amount,currency}`, опционально `price.discounted`).
 
 ## 5. Принципы работы
 
 1. Главная страница (`page.tsx`, `force-dynamic`) на сервере загружает `getPublicContentBundle()` (кэшированная версия) и передаёт `content` и `markdown` в `HomePage` (`components/organism`) -> `SiteContentProvider` (хуки `useSiteContent`, `useSiteMarkdown`). Клиент контент не запрашивает.
-2. **Supabase - единственный источник данных**, локальные файлы и фолбэки не используются. Без `NEXT_PUBLIC_SUPABASE_URL`/`SUPABASE_SERVICE_ROLE_KEY` или без загруженных данных код бросает понятную ошибку (подсказка: `npm run seed`). Общий клиент - `src/lib/supabase.ts`.
+2. **Источник выбирается явно**: `DATA_PROVIDER=supabase|mysql` (`src/lib/dataProvider.ts`), по умолчанию Supabase для существующего Vercel-деплоя. Серверные клиенты — `src/lib/supabase.ts` и ленивый пул `src/lib/mysql.ts`. Нет автоматических переключений или чтения начальных файлов: при недоступности выбранной базы возвращается ошибка. В MySQL используются те же четыре таблицы, JSON хранится в LONGTEXT (UTF-8), записи выполняются параметризованными запросами и транзакциями. Сохранение тарифов с пакетами и тестов заменяет соответствующий набор целиком внутри транзакции: ошибка откатывает изменения.
 3. **contentStore**: таблица `site_content` (key/value: `content_json` + ключ на каждый md-путь без ведущего `/`). Сохранение из админки - `upsert` в эту таблицу.
 4. **tariffStore**: таблицы `tariffs` и `tariff_packages`; прайс загружается на сервере в `page.tsx` и передаётся через `SiteContentProvider` (без клиентского запроса; `/api/tariffs` остаётся публичным API).
 5. **testStore**: таблица `psychological_tests` (slug, `schema_json` SurveyJS, `scoring_json`). Страницы `/tests` и `/tests/[slug]` рендерят опросник (`SurveyRunner`), ответы отправляются в `/api/tests/[slug]/submit`, подсчёт - `scoring.ts` (уровни или группы). Дизайн тестов: стеклянные карточки `Glass`, кнопки `molecule/Button` (вне карточек - стеклянные `glass`/`soft`/`success`, меняется только цвет подложки; внутри карточек - полупрозрачная светлая таблетка `solid`, менять можно только цвет фона), тема SurveyJS - класс `.test-survey` в `main.css`; страница теста проходит этапы «описание → вопросы (прогресс, Назад/Далее, автопереход при >8 вопросов на странице) → результат». Админка тестов (`src/app/admin/tests`) - визуальный редактор: `lib/admin/editable.ts` конвертирует схему и `scoring_json` в редактируемую модель и обратно (подсчёт ссылается на вопросы по внутреннему id, переименование безопасно), `ScoringEditor` (режимы `scale`/`groups`/без подсчёта), `TestSettings`, `QuestionPicker`. Поддерживаются поля подсчёта `positiveValues` (по умолчанию [1,2]) и `topCount` (по умолчанию 2), тип вопроса `rating`. Короткие примеры для проверки: `demo-stress-level` (шкала с уровнями) и `demo-communication-style` (группы) в `supabase/seed/tests.json`.
-6. **Начальные данные**: `npm run seed` (`scripts/seed-supabase.mjs`) загружает `supabase/seed/*` в пустые таблицы; `-- --force` перезаписывает.7. **Изображения** (`POST /api/admin/image`): `profile` (WebP до 2400 px, quality 90) и `og` (JPEG 1200x630); JPEG/PNG/WEBP до 8 МБ; загрузка в бакет Supabase (`SUPABASE_STORAGE_BUCKET`, по умолчанию `site-images`); URL пишется в `profileImageUrl`/`ogImageUrl`.
+6. **Начальные данные**: `npm run seed` (`scripts/seed-supabase.mjs`) загружает `supabase/seed/*` в пустые таблицы Supabase; `-- --force` перезаписывает. Перенос действующего сайта в MySQL описан в README.
+7. **Изображения** (`POST /api/admin/image`): `profile` (WebP до 2400 px, quality 90) и `og` (JPEG 1200x630); JPEG/PNG/WEBP до 8 МБ. `mediaStorage.ts` загружает в Supabase Storage либо записывает новый файл в `MEDIA_ROOT` без перезаписи. URL пишется в `profileImageUrl`/`ogImageUrl`. В режиме MySQL `/media/[...path]` проверяет путь, расширение и выход через симлинк; отдаёт только поддерживаемые изображения с `nosniff` и immutable-кэшем на год. Каталог должен находиться вне web root и сохраняться между деплоями.
+   На Beget он находится внутри приватного каталога сайта, вне `public_html`, чтобы веб-пользователь сайта имел доступ через штатные ACL хостинга.
 8. **SEO**: `layout.tsx` формирует metadata, Open Graph, JSON-LD (Person, Service, WebPage); также `robots.txt` (закрыты `/admin`, `/api/`), `sitemap.xml`, `llms.txt`, `site.webmanifest`. Подключены GTM и Яндекс.Метрика.
 
 Порядок тестов в админке меняется стрелками вверх/вниз или перетаскиванием на компьютере, как у тарифов. После нажатия «Сохранить» порядок записывается в `psychological_tests.sort_order` и используется в публичном списке тестов; «Отменить» возвращает сохранённый порядок.
@@ -71,7 +74,7 @@
 - Список тестов использует компактный кэш `getPublicTestSummaries`: без настроек подсчёта и без схем в результате. При холодном кэше схемы читаются только для вычисления числа вопросов; отдельного счётчика в базе нет.
 - Отдельный тест читается по `slug` через `getPublicTestBySlug`, без `scoring_json`. Обработчик результатов использует отдельное серверное чтение `getTestBySlug`. Все эти кэши обновляются по тегу тестов.
 - Экран описания теста не загружает SurveyJS. После «Начать» React lazy/Suspense подгружает `TestSession` вместе с движком и CSS опросника. Повторное прохождение создаёт новую сессию; сбой загрузки показывает страницу ошибки с перезагрузкой.
-- Mulish и Play загружаются по используемым начертаниям без массового preload, с `display: swap`. Страницы с данными Supabase остаются динамическими; сборка не требует доступа к базе.
+- Mulish и Play загружаются по используемым начертаниям без массового preload, с `display: swap`. Страницы с данными остаются динамическими при любом провайдере; сборка не требует доступа к базе.
 
 ### API
 
@@ -99,11 +102,11 @@
 
 ## 6. Кэширование
 
-Публичные чтения из Supabase кэшируются через `unstable_cache` с тегами (`src/lib/cache.ts`: `site-content`, `tariffs`, `tests`): `getPublicContentBundle`, `getMarkdownByPath`, `getPublicTariffBundle`, `getPublicTestBundle` (и `getTestBySlug`). Админка читает данные напрямую (без кэша), чтобы всегда видеть актуальное состояние. Любое сохранение в админке (`saveContentBundle`, `saveTariffs`, `saveTests`, загрузка фото) вызывает `invalidateCache(tag)`, и следующий запрос читает свежие данные. Страховочный TTL - 1 час. Публичные `/api/content`, `/api/tariffs`, `/api/markdown` дополнительно отдают `Cache-Control: s-maxage=60, stale-while-revalidate=300` (CDN), поэтому на этих эндпоинтах правка видна в течение ~минуты; keep-alive workflow всё равно обращается к БД, так как реже TTL. Страницы остаются `force-dynamic`, чтобы сборка не требовала ключей Supabase. Новые публичные чтения добавляйте через такой же кэш, а в админских маршрутах используйте некэшированные функции.
+Публичные чтения выбранной базы кэшируются через `unstable_cache` с тегами (`src/lib/cache.ts`: `site-content`, `tariffs`, `tests`): `getPublicContentBundle`, `getMarkdownByPath`, `getPublicTariffBundle`, `getPublicTestBundle` (и `getTestBySlug`). Админка читает данные напрямую (без кэша), чтобы всегда видеть актуальное состояние. Любое сохранение в админке (`saveContentBundle`, `saveTariffs`, `saveTests`, загрузка фото) вызывает `invalidateCache(tag)`, и следующий запрос читает свежие данные. Страховочный TTL - 1 час. Публичные `/api/content`, `/api/tariffs`, `/api/markdown` дополнительно отдают `Cache-Control: s-maxage=60, stale-while-revalidate=300` (CDN), поэтому на этих эндпоинтах правка видна в течение ~минуты; keep-alive workflow всё равно обращается к БД, так как реже TTL. Страницы остаются `force-dynamic`, чтобы сборка не требовала ключей Supabase. Новые публичные чтения добавляйте через такой же кэш, а в админских маршрутах используйте некэшированные функции.
 
 ## 7. Переменные окружения
 
-См. `.env.example` и README: `ADMIN_PASSWORD`, `ADMIN_SESSION_TOKEN`, `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_STORAGE_BUCKET`, `NEXT_PUBLIC_SURVEYJS_LICENSE_KEY`.
+См. `.env.example` и README: `DATA_PROVIDER`, `ADMIN_PASSWORD`, `ADMIN_SESSION_TOKEN`, `NEXT_PUBLIC_SURVEYJS_LICENSE_KEY`; для Supabase — `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_STORAGE_BUCKET`; для MySQL — `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE`, опциональный `MYSQL_SSL_CA` и постоянный каталог `MEDIA_ROOT`.
 
 ## 8. Запуск и сборка
 
@@ -124,6 +127,9 @@ npm run lint
 - `.github/workflows/supabase-backup.yml`: раз в сутки + ручной запуск (`force`); отпечаток данных (sha256 по файлам выгрузки без manifest.json) проверяется через `actions/cache` с ключом `supabase-backup-<hash>`: попадание в кэш = данные уже сохранялись, архив не создаётся; `scripts/backup-supabase.mjs` находит все таблицы `public` через OpenAPI PostgREST и все бакеты Storage (универсально, без списка таблиц в коде), архив шифруется gpg (`BACKUP_PASSPHRASE`) и сохраняется артефактом на 90 дней только при изменениях. Секреты: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `BACKUP_PASSPHRASE`. Восстановление: `scripts/restore-supabase.mjs` (upsert по PK в порядке FK + загрузка файлов). Инструкция в README.
 - `.github/workflows/supabase-restore.yml`: только ручной запуск (`run_id` пусто = самый свежий артефакт `supabase-backup-*`, `confirm=RESTORE`); сначала сохраняет снимок текущих данных (`pre-restore-*`), затем скачивает и расшифровывает бэкап и запускает `scripts/restore-supabase.mjs` (только добавляет/обновляет, не удаляет).
 - Supabase: SQL из `supabase/`, публичный Storage-бакет, `service_role` только на сервере.
+- Для Beget предусмотрен режим MySQL и локальных изображений; создание базы, перенос и переключение боевого сайта выполняются отдельно по инструкции README. Workflow Supabase не резервирует MySQL и `MEDIA_ROOT`; отдельное расписание и зашифрованное внешнее хранение копий нужно настроить до переноса рабочего сайта.
+- Ответы и результаты психологических тестов сейчас не сохраняются. Переход на MySQL сам по себе не обеспечивает соответствие требованиям к персональным данным: для такого расширения нужны отдельное проектирование, правовая оценка и проверка хостинга.
+- `SITE_PREVIEW=1` отключает GTM/Метрику и JSON-LD, выставляет метатеги `noindex, nofollow`. `npm run mysql:demo -- --confirm <MYSQL_DATABASE>` заполняет только пустую тестовую базу и отдельный каталог медиа демонстрационными данными без обращения к Supabase. Для публичного HTTP-стенда Passenger отдельно закрывает админку и добавляет запрет индексации на уровне HTTP/robots.txt.
 
 ## 10. Оформление
 
