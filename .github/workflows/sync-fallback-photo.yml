@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   sync:
@@ -35,6 +36,8 @@ jobs:
           cp /tmp/photo.webp src/assets/images/photo.webp
 
       - name: Commit if changed
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           if git diff --quiet; then
             echo "Fallback photo is up to date"
@@ -44,3 +47,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -am "Sync fallback photo with the uploaded profile photo"
           git push
+          # Pushes with GITHUB_TOKEN do not trigger push workflows themselves.
+          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
+            gh workflow run pr-checks.yml --ref main
+          fi

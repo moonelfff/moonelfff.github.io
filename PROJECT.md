@@ -12,13 +12,13 @@
 
 - Next.js 16.4 (App Router, Turbopack, proxy), React 19.3, TypeScript 6, Node.js 24 LTS
 - Tailwind CSS 4 (`@tailwindcss/postcss`)
-- Supabase (`@supabase/supabase-js`): Postgres и Storage
-- MySQL/MariaDB (`mysql2`): альтернативный режим для Beget; изображения в постоянном `MEDIA_ROOT`
+- MySQL/MariaDB (`mysql2`): рабочая база на Beget; изображения в постоянном `MEDIA_ROOT`
+- Supabase (`@supabase/supabase-js`): Postgres и Storage резервной площадки Vercel
 - `sharp` - обработка загружаемых изображений
 - `marked` - Markdown
 - SurveyJS (`survey-core`, `survey-react-ui`, `survey-creator-*`), `zod`, `nanoid` - тесты
-- ESLint 10 (`eslint-config-next`)
-- Хостинг: Vercel; CI/cron: GitHub Actions
+- ESLint 9 (`eslint-config-next`)
+- Хостинг: Beget Node.js/Passenger, Vercel сохранён для отката; CI/деплой/cron: GitHub Actions
 - `AGENTS.md`: версия Next имеет breaking changes, сверяйтесь с `node_modules/next/dist/docs/`
 
 ## 3. Структура
@@ -120,21 +120,35 @@ npm run lint
 
 ## 9. Деплой и инфраструктура
 
-- Хостинг - Vercel, домен `ekaterinazhuk.ru` через DNS (A `76.76.21.21`, CNAME `www` -> `cname.vercel-dns.com`). Пошаговая инструкция - в README.
+- Основной хостинг — Beget, домен `ekaterinazhuk.ru` через DNS (A `45.130.41.213`, CNAME `www` → основной домен), сертификат Let's Encrypt. Рабочая БД `mrsavivw_ekzhuk`, постоянные изображения в `ekaterinazhuk-media` внутри приватного каталога сайта. Vercel/Supabase сохранены для отката. Пошаговая инструкция — в README.
 - GitHub Pages не используется: статический экспорт невозможен из-за API и proxy.
-- `.github/workflows/supabase-keepalive.yml`: cron раз в 3 дня + ручной запуск, запрашивает `/api/content` и `/api/tariffs`, чтобы Supabase Free не ставил проект на паузу (7 дней без активности). URL - переменная репозитория `SITE_URL` (по умолчанию `https://ekaterinazhuk.ru`).
+- `.github/workflows/supabase-keepalive.yml`: cron раз в 3 дня + ручной запуск, запрашивает `/api/content` и `/api/tariffs`. URL — переменная `SITE_URL` (по умолчанию `https://ekaterinazhuk.ru`). После переноса основного домена запросы читают MySQL и не поддерживают активность Supabase; к прежнему источнику отдельно обращается ежедневный Supabase backup.
 - `.github/workflows/sync-fallback-photo.yml`: раз в неделю + ручной запуск; скачивает текущее фото профиля из Supabase и при изменении коммитит его в `public/photo.webp` и `src/assets/images/photo.webp` (запасное фото для SEO/OG).
 - `.github/workflows/supabase-backup.yml`: раз в сутки + ручной запуск (`force`); отпечаток данных (sha256 по файлам выгрузки без manifest.json) проверяется через `actions/cache` с ключом `supabase-backup-<hash>`: попадание в кэш = данные уже сохранялись, архив не создаётся; `scripts/backup-supabase.mjs` находит все таблицы `public` через OpenAPI PostgREST и все бакеты Storage (универсально, без списка таблиц в коде), архив шифруется gpg (`BACKUP_PASSPHRASE`) и сохраняется артефактом на 90 дней только при изменениях. Секреты: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `BACKUP_PASSPHRASE`. Восстановление: `scripts/restore-supabase.mjs` (upsert по PK в порядке FK + загрузка файлов). Инструкция в README.
 - `.github/workflows/supabase-restore.yml`: только ручной запуск (`run_id` пусто = самый свежий артефакт `supabase-backup-*`, `confirm=RESTORE`); сначала сохраняет снимок текущих данных (`pre-restore-*`), затем скачивает и расшифровывает бэкап и запускает `scripts/restore-supabase.mjs` (только добавляет/обновляет, не удаляет).
-- `.github/workflows/mysql-backup.yml`: ежедневно в 03:30 UTC + ручной запуск. Отдельный SSH-ключ с принудительной командой `scripts/export-mysql-backup.sh` позволяет только экспорт четырёх таблиц и `MEDIA_ROOT`, без оболочки и туннелей. Поток передаётся по SSH, шифруется GPG AES-256 на runner и загружается как артефакт на 90 дней. После шифрования проверяется расшифровка и SHA-256 снимка; временные ключи и открытые данные удаляются. Новая копия создаётся каждый день независимо от изменений. Нужны `MYSQL_BACKUP_SSH_KEY`, проверенный `MYSQL_BACKUP_KNOWN_HOSTS`, `BACKUP_PASSPHRASE` и переменные хоста/пользователя. Полное восстановление проверяется отдельно. Подробности и ограничения для персональных данных — в README.
+- `.github/workflows/mysql-backup.yml`: ежедневно в 03:30 UTC + ручной запуск. Отдельный SSH-ключ с принудительной командой `deploy/export-backup.sh` находит активный релиз по `.htaccess` и запускает `scripts/export-mysql-backup.sh`: только экспорт четырёх таблиц и `MEDIA_ROOT`, без оболочки и туннелей. Общая блокировка исключает удаление приложения во время экспорта. Поток передаётся по SSH, шифруется GPG AES-256 на runner и загружается как артефакт на 90 дней. После шифрования проверяется расшифровка и SHA-256 снимка; временные ключи и открытые данные удаляются. Новая копия создаётся каждый день независимо от изменений. Нужны `MYSQL_BACKUP_SSH_KEY`, проверенный `MYSQL_BACKUP_KNOWN_HOSTS`, `BACKUP_PASSPHRASE` и переменные хоста/пользователя. Полное восстановление проверяется отдельно. Подробности и ограничения для персональных данных — в README.
 - Supabase: SQL из `supabase/`, публичный Storage-бакет, `service_role` только на сервере.
-- Для Beget предусмотрен режим MySQL и локальных изображений; создание базы, перенос и переключение боевого сайта выполняются отдельно по инструкции README. Workflow Supabase не резервирует MySQL и `MEDIA_ROOT`: до переноса нужно настроить и проверить отдельный `mysql-backup.yml`, затем пробное восстановление в изолированную базу.
+- Перенос на Beget завершён, резервирование MySQL и медиа включено; восстановление снимка проверялось в отдельной базе. Workflow Supabase не резервирует рабочие MySQL и `MEDIA_ROOT`. Автодеплой обновляет только приложение, не содержимое базы. Известный обход HTTP→HTTPS при подставленном `X-Forwarded-Proto` на стороне Beget остаётся нерешённым; пользователь отложил обращение в поддержку.
 - Ответы и результаты психологических тестов сейчас не сохраняются. Переход на MySQL сам по себе не обеспечивает соответствие требованиям к персональным данным: для такого расширения нужны отдельное проектирование, правовая оценка и проверка хостинга.
 - `SITE_PREVIEW=1` отключает GTM/Метрику и JSON-LD, выставляет метатеги `noindex, nofollow`. `npm run mysql:demo -- --confirm <MYSQL_DATABASE>` заполняет только пустую тестовую базу и отдельный каталог медиа демонстрационными данными без обращения к Supabase. Для публичного HTTP-стенда Passenger отдельно закрывает админку и добавляет запрет индексации на уровне HTTP/robots.txt.
 
 ## 10. Оформление
 
 Шрифты Mulish и Play (локальные subset woff2 в `src/assets/fonts`, подключены через `next/font/local` в `src/app/fonts.ts`, preload только у Mulish Regular/SemiBold); стиль «glass», фон `platinum`, noise-текстура, адаптивные отступы Tailwind.
+
+### Автодеплой Beget
+
+После успешных проверок `main` job `Deploy to Beget` в `.github/workflows/pr-checks.yml`
+передаёт исходники проверенного SHA через отдельный ограниченный SSH-ключ.
+`scripts/beget/gateway.sh` создаёт изолированный релиз; `deploy.mjs` устанавливает
+зависимости, собирает Next с одним worker, проверяет приложение локально и атомарно
+переключает Passenger. Повторная HTTPS-проверка подтверждает SHA, доступность контента,
+фото и защиту админки; ошибка возвращает прежнюю конфигурацию. Два последних
+управляемых релиза сохраняются, прежние приложения вне `releases/` не удаляются.
+Секреты берутся из закрытого `deploy/runtime.env` на сервере, MySQL и `MEDIA_ROOT`
+не меняются. Обёртка резервирования находит активное приложение по `.htaccess`,
+а блокировка не допускает удаления релиза во время бэкапа. Установка, настройки
+Actions и ручной откат описаны в README.
 
 ## 11. Известные замечания
 
