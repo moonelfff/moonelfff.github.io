@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import GlassText from "@/components/atom/GlassText";
 import Typography from "@/components/atom/Typography";
 import Button from "@/components/molecule/Button";
 
@@ -6,12 +7,9 @@ export default function NotFoundPage() {
   return (
     <main className="bg-platinum font-primary flex min-h-dvh items-center justify-center px-3 py-12 md:px-12 xl:px-24 2xl:px-60">
       <div className="flex w-full max-w-xl flex-col items-center gap-6 text-center">
-        <Typography
-          component="span"
-          className="text-dusty-grape/30 text-8xl font-semibold lg:text-9xl"
-        >
+        <GlassText className="text-8xl font-semibold lg:text-9xl">
           404
-        </Typography>
+        </GlassText>
         <div>
           <Typography component="h1">Страница не найдена</Typography>
           <Typography component="p" className="mt-3 text-center! text-black/65">

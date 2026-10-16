@@ -39,6 +39,51 @@
   }
 }
 
+.glass-text {
+  position: relative;
+  display: inline-grid;
+  isolation: isolate;
+  line-height: 1.2;
+}
+
+.glass-text__backing,
+.glass-text__surface {
+  grid-area: 1 / 1;
+}
+
+.glass-text__backing {
+  color: var(--color-dusty-grape);
+  transform: translate(0.5rem, -0.5rem);
+  z-index: -1;
+}
+
+.glass-text__surface {
+  position: relative;
+  color: rgb(0 0 0 / 0.05);
+  -webkit-text-stroke: 1px rgb(255 255 255 / 0.7);
+  paint-order: stroke fill;
+  text-shadow:
+    0 0 1px rgb(0 0 0 / 0.25),
+    0 0 3px rgb(255 255 255 / 0.7);
+}
+
+.glass-text__surface::before {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  background-image: url("../assets/images/noise.svg#grainy");
+  background-repeat: repeat;
+  background-size: 6rem 6rem;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+  filter: grayscale(100%);
+  opacity: 0.2;
+  pointer-events: none;
+}
+
 .shadow-effect {
   overflow: visible;
   border-radius: 24px;
