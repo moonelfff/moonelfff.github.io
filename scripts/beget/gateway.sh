@@ -41,7 +41,8 @@ with tarfile.open(archive) as tar:
         path = pathlib.PurePosixPath(member.name)
         if (path.is_absolute() or ".." in path.parts or
                 any(part in {".git", "node_modules", ".next"} or
-                    part.startswith(".env") for part in path.parts) or
+                    (part.startswith(".env") and part != ".env.example")
+                    for part in path.parts) or
                 not (member.isfile() or member.isdir())):
             raise SystemExit("Unsafe source archive entry.")
         total += member.size
