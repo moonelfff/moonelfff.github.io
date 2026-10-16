@@ -16,8 +16,6 @@ jobs:
   backup:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    env:
-      BACKUP_WORK: ${{ runner.temp }}/mysql-backup
     steps:
       - uses: actions/checkout@v7
 
@@ -31,6 +29,8 @@ jobs:
           KNOWN_HOSTS: ${{ secrets.MYSQL_BACKUP_KNOWN_HOSTS }}
         run: |
           set -euo pipefail
+          BACKUP_WORK="$RUNNER_TEMP/mysql-backup"
+          echo "BACKUP_WORK=$BACKUP_WORK" >> "$GITHUB_ENV"
           test -n "$SSH_KEY"
           test -n "$KNOWN_HOSTS"
           umask 077
