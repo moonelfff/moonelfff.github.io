@@ -54,36 +54,7 @@
 .glass-text__backing {
   color: var(--color-dusty-grape);
   transform: translate(0.5rem, -0.5rem);
-  transition: transform 0.3s ease-in-out;
   z-index: -1;
-}
-
-.glass-text:hover .glass-text__backing {
-  transform: translate(0, 0);
-}
-
-.glass-text__blur {
-  position: absolute;
-  inset: 0;
-  mask-image: linear-gradient(transparent, transparent);
-  mask-size: 100% 100%;
-  mask-repeat: no-repeat;
-  backdrop-filter: blur(1.5rem) !important;
-  -webkit-backdrop-filter: blur(1.5rem);
-  transition: backdrop-filter 0.3s ease-in-out;
-  pointer-events: none;
-}
-
-.glass-text:hover .glass-text__blur {
-  backdrop-filter: blur(0) !important;
-  -webkit-backdrop-filter: blur(0);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .glass-text__backing,
-  .glass-text__blur {
-    transition: none;
-  }
 }
 
 .glass-text__surface {
