@@ -56,6 +56,11 @@ export async function smoke(origin, sha, address) {
   assert.equal(bundle.source, "mysql", "Deployment must use the production MySQL provider.");
   assert.ok(bundle.content && Object.keys(bundle.content).length > 0, "Content must not be empty.");
   assert.equal((await read("/tests")).status, 200);
+  const missing = await read("/__deployment-missing-page");
+  assert.equal(missing.status, 404, "Unknown pages must return a real 404.");
+  assert.match(missing.body, /Страница не найдена/);
+  assert.match(missing.body, /href="\/"[^>]*>[\s\S]*?На главную/);
+  assert.match(missing.body, /<meta name="robots" content="[^"]*noindex/);
   assert.equal((await read("/api/admin/content")).status, 401);
   const admin = await read("/admin");
   assert.equal(admin.status, 307);

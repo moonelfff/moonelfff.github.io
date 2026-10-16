@@ -53,6 +53,7 @@ function Tooltip({ text, children, className = "inline-flex" }: Props) {
       className={className}
       onPointerEnter={(event) => event.pointerType === "mouse" && open()}
       onPointerLeave={(event) => event.pointerType === "mouse" && close()}
+      onClick={open}
       onFocusCapture={open}
       onBlurCapture={(event) => {
         if (

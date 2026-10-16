@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { parseMarkdown } from "@/utils/markdownParser";
 import TextArea from "../atom/TextArea";
+import Tip from "../atom/Tip";
 
 type MarkdownEditorProps = {
   label: string;
@@ -18,7 +19,10 @@ function MarkdownEditor({ label, value, onChange, hint }: MarkdownEditorProps) {
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-sm font-medium text-black/80">{label}</span>
+        <span className="flex items-center gap-1.5 text-sm font-medium text-black/80">
+          {label}
+          <Tip text="Оформляйте текст простыми знаками: **жирный текст**, *курсив*, строка с «- » — пункт списка, [подпись](https://example.com) — ссылка. Рядом доступен предпросмотр; он не сохраняет изменения на сайте." />
+        </span>
         <div
           role="tablist"
           aria-label="Режим просмотра"

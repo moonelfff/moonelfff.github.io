@@ -25,7 +25,10 @@ function SiteInfoCard({ draft, setDraft }: Props) {
             setDraft={setDraft}
           />
         ))}
-        <Field label="Подзаголовок профиля">
+        <Field
+          label="Подзаголовок профиля"
+          tip="Видимый подзаголовок под именем, над основным текстом профиля на главной странице."
+        >
           <TextInput
             value={draft.content.info.title}
             onChange={(event) =>

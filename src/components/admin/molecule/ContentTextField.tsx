@@ -14,10 +14,10 @@ type Props = {
 
 /** Text input bound to one string field of the site content. */
 function ContentTextField({ config, draft, setDraft }: Props) {
-  const { key, label, wide } = config;
+  const { key, label, wide, tip } = config;
 
   return (
-    <Field label={label} className={wide ? "md:col-span-2" : ""}>
+    <Field label={label} tip={tip} className={wide ? "md:col-span-2" : ""}>
       <TextInput
         value={draft.content[key]}
         onChange={(event) =>
