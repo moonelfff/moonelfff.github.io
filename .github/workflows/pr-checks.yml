@@ -12,7 +12,7 @@ permissions:
 
 concurrency:
   group: pr-checks-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   validate:
@@ -39,3 +39,54 @@ jobs:
         run: npm run build
       - name: First-screen font regression checks
         run: node --test scripts/tests/first-screen-build.test.mjs
+      - name: Deployment unit checks
+        run: node --test scripts/tests/beget-deploy.test.mjs
+
+  deploy:
+    name: Deploy to Beget
+    needs: validate
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    concurrency:
+      group: beget-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Configure deployment SSH access
+        env:
+          SSH_KEY: ${{ secrets.BEGET_DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.BEGET_DEPLOY_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          test -n "$SSH_KEY"
+          test -n "$KNOWN_HOSTS"
+          umask 077
+          mkdir "$RUNNER_TEMP/beget-deploy"
+          printf '%s\n' "$SSH_KEY" > "$RUNNER_TEMP/beget-deploy/key"
+          printf '%s\n' "$KNOWN_HOSTS" > "$RUNNER_TEMP/beget-deploy/known_hosts"
+      - name: Build, check and activate isolated release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SSH_HOST: ${{ vars.BEGET_DEPLOY_SSH_HOST }}
+          SSH_USER: ${{ vars.BEGET_DEPLOY_SSH_USER }}
+        run: |
+          set -euo pipefail
+          test -n "$SSH_HOST"
+          test -n "$SSH_USER"
+          latest=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq .object.sha)
+          if [ "$latest" != "$GITHUB_SHA" ]; then
+            echo "A newer main commit exists; this superseded deployment is skipped."
+            exit 0
+          fi
+          git archive --format=tar "$GITHUB_SHA" |
+            ssh -T -i "$RUNNER_TEMP/beget-deploy/key" \
+              -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+              -o UserKnownHostsFile="$RUNNER_TEMP/beget-deploy/known_hosts" \
+              -o ConnectTimeout=30 -o ServerAliveInterval=30 -o ServerAliveCountMax=3 \
+              "$SSH_USER@$SSH_HOST" "deploy $GITHUB_SHA"
+      - name: Remove temporary deployment key
+        if: always()
+        run: rm -f -- "$RUNNER_TEMP/beget-deploy/key" "$RUNNER_TEMP/beget-deploy/known_hosts"

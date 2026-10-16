@@ -17,6 +17,7 @@ if (supabaseUrl) {
 }
 
 const nextConfig: NextConfig = {
+  ...(process.env.BEGET_BUILD === "1" ? { experimental: { cpus: 1 } } : {}),
   turbopack: {
     root: process.cwd(),
   },
