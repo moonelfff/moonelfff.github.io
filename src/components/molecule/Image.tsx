@@ -19,10 +19,11 @@ function Image({ src, alt, className }: Props) {
             alt={alt}
             width={640}
             height={800}
-            sizes="(max-width: 640px) 88vw, 32rem"
+            sizes="(max-width: 767px) calc(100vw - 24px), (max-width: 1023px) calc(100vw - 96px), 32rem"
             quality={90}
             className="relative h-full w-full object-cover"
-            preload
+            loading="eager"
+            fetchPriority="high"
           />
           <div className="image-shadow" />
         </div>

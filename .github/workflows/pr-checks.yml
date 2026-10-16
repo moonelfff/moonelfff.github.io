@@ -37,3 +37,5 @@ jobs:
           npx tsc --noEmit
       - name: Production build
         run: npm run build
+      - name: First-screen font regression checks
+        run: node --test scripts/tests/first-screen-build.test.mjs

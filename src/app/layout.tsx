@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { getPublicSiteContent } from "@/lib/contentStore";
 import "./globals.css";
-import { mulish, play } from "./fonts";
+import { mulish, mulishAdditional, play } from "./fonts";
 
 const SITE_URL = "https://ekaterinazhuk.ru";
 const FALLBACK_IMAGE_URL = `${SITE_URL}/photo.webp`;
@@ -206,7 +206,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const structuredData = createStructuredData(profileImageUrl, ogImageUrl);
 
   return (
-    <html lang="ru" className={`${mulish.variable} ${play.variable} h-full antialiased`}>
+    <html lang="ru" className={`${mulish.variable} ${mulishAdditional.variable} ${play.variable} h-full antialiased`}>
       <body suppressHydrationWarning className="flex min-h-full flex-col">
         {!isPreview && <>
         <Script id="gtm" strategy="lazyOnload">
