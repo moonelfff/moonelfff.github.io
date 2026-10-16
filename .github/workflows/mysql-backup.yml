@@ -1,0 +1,87 @@
+name: MySQL backup
+
+on:
+  schedule:
+    - cron: "30 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mysql-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      BACKUP_WORK: ${{ runner.temp }}/mysql-backup
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Configure restricted SSH access
+        env:
+          SSH_KEY: ${{ secrets.MYSQL_BACKUP_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.MYSQL_BACKUP_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          test -n "$SSH_KEY"
+          test -n "$KNOWN_HOSTS"
+          umask 077
+          mkdir "$BACKUP_WORK"
+          printf '%s\n' "$SSH_KEY" > "$BACKUP_WORK/key"
+          printf '%s\n' "$KNOWN_HOSTS" > "$BACKUP_WORK/known_hosts"
+
+      - name: Export over SSH and encrypt
+        env:
+          SSH_HOST: ${{ vars.MYSQL_BACKUP_SSH_HOST }}
+          SSH_USER: ${{ vars.MYSQL_BACKUP_SSH_USER }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          test -n "$SSH_HOST"
+          test -n "$SSH_USER"
+          test -n "$BACKUP_PASSPHRASE"
+          ssh -T -i "$BACKUP_WORK/key" \
+            -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$BACKUP_WORK/known_hosts" \
+            -o ConnectTimeout=30 -o ServerAliveInterval=30 -o ServerAliveCountMax=3 \
+            "$SSH_USER@$SSH_HOST" export-mysql-backup |
+            gpg --batch --yes --pinentry-mode loopback --passphrase-fd 3 \
+              --symmetric --cipher-algo AES256 \
+              --output "$BACKUP_WORK/backup.tar.gz.gpg" 3<<<"$BACKUP_PASSPHRASE"
+
+      - name: Verify encrypted snapshot
+        env:
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          mkdir "$BACKUP_WORK/verified"
+          gpg --batch --pinentry-mode loopback --passphrase-fd 3 \
+            --decrypt "$BACKUP_WORK/backup.tar.gz.gpg" 3<<<"$BACKUP_PASSPHRASE" |
+            tar -xzf - -C "$BACKUP_WORK/verified" --no-same-owner --no-same-permissions
+          node --input-type=module -e '
+            import { loadSnapshot, runCli } from "./scripts/mysql-utils.mjs";
+            await runCli(async () => {
+              await loadSnapshot(`${process.env.BACKUP_WORK}/verified`);
+              console.log("Decrypted snapshot integrity verified.");
+            });
+          '
+
+      - name: Upload encrypted backup only
+        uses: actions/upload-artifact@v7
+        with:
+          name: mysql-backup-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ env.BACKUP_WORK }}/backup.tar.gz.gpg
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Remove temporary key and plaintext
+        if: always()
+        run: rm -rf -- "$BACKUP_WORK"

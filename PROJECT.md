@@ -27,7 +27,7 @@
 /
 ├─ next.config.ts, tsconfig.json, eslint.config.mjs, postcss.config.mjs
 ├─ .env.example
-├─ .github/workflows/   # supabase-keepalive.yml, sync-fallback-photo.yml, supabase-backup.yml, supabase-restore.yml
+├─ .github/workflows/   # проверки, keepalive, синхронизация фото, копии Supabase/MySQL и восстановление Supabase
 ├─ public/        # шрифты, favicons,
 │                 # robots.txt, sitemap.xml, llms.txt, site.webmanifest
 ├─ supabase/      # site_content.sql, tariffs.sql, tests.sql
@@ -126,8 +126,9 @@ npm run lint
 - `.github/workflows/sync-fallback-photo.yml`: раз в неделю + ручной запуск; скачивает текущее фото профиля из Supabase и при изменении коммитит его в `public/photo.webp` и `src/assets/images/photo.webp` (запасное фото для SEO/OG).
 - `.github/workflows/supabase-backup.yml`: раз в сутки + ручной запуск (`force`); отпечаток данных (sha256 по файлам выгрузки без manifest.json) проверяется через `actions/cache` с ключом `supabase-backup-<hash>`: попадание в кэш = данные уже сохранялись, архив не создаётся; `scripts/backup-supabase.mjs` находит все таблицы `public` через OpenAPI PostgREST и все бакеты Storage (универсально, без списка таблиц в коде), архив шифруется gpg (`BACKUP_PASSPHRASE`) и сохраняется артефактом на 90 дней только при изменениях. Секреты: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `BACKUP_PASSPHRASE`. Восстановление: `scripts/restore-supabase.mjs` (upsert по PK в порядке FK + загрузка файлов). Инструкция в README.
 - `.github/workflows/supabase-restore.yml`: только ручной запуск (`run_id` пусто = самый свежий артефакт `supabase-backup-*`, `confirm=RESTORE`); сначала сохраняет снимок текущих данных (`pre-restore-*`), затем скачивает и расшифровывает бэкап и запускает `scripts/restore-supabase.mjs` (только добавляет/обновляет, не удаляет).
+- `.github/workflows/mysql-backup.yml`: ежедневно в 03:30 UTC + ручной запуск. Отдельный SSH-ключ с принудительной командой `scripts/export-mysql-backup.sh` позволяет только экспорт четырёх таблиц и `MEDIA_ROOT`, без оболочки и туннелей. Поток передаётся по SSH, шифруется GPG AES-256 на runner и загружается как артефакт на 90 дней. После шифрования проверяется расшифровка и SHA-256 снимка; временные ключи и открытые данные удаляются. Новая копия создаётся каждый день независимо от изменений. Нужны `MYSQL_BACKUP_SSH_KEY`, проверенный `MYSQL_BACKUP_KNOWN_HOSTS`, `BACKUP_PASSPHRASE` и переменные хоста/пользователя. Полное восстановление проверяется отдельно. Подробности и ограничения для персональных данных — в README.
 - Supabase: SQL из `supabase/`, публичный Storage-бакет, `service_role` только на сервере.
-- Для Beget предусмотрен режим MySQL и локальных изображений; создание базы, перенос и переключение боевого сайта выполняются отдельно по инструкции README. Workflow Supabase не резервирует MySQL и `MEDIA_ROOT`; отдельное расписание и зашифрованное внешнее хранение копий нужно настроить до переноса рабочего сайта.
+- Для Beget предусмотрен режим MySQL и локальных изображений; создание базы, перенос и переключение боевого сайта выполняются отдельно по инструкции README. Workflow Supabase не резервирует MySQL и `MEDIA_ROOT`: до переноса нужно настроить и проверить отдельный `mysql-backup.yml`, затем пробное восстановление в изолированную базу.
 - Ответы и результаты психологических тестов сейчас не сохраняются. Переход на MySQL сам по себе не обеспечивает соответствие требованиям к персональным данным: для такого расширения нужны отдельное проектирование, правовая оценка и проверка хостинга.
 - `SITE_PREVIEW=1` отключает GTM/Метрику и JSON-LD, выставляет метатеги `noindex, nofollow`. `npm run mysql:demo -- --confirm <MYSQL_DATABASE>` заполняет только пустую тестовую базу и отдельный каталог медиа демонстрационными данными без обращения к Supabase. Для публичного HTTP-стенда Passenger отдельно закрывает админку и добавляет запрет индексации на уровне HTTP/robots.txt.
 
