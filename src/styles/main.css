@@ -54,7 +54,22 @@
 .glass-text__backing {
   color: var(--color-dusty-grape);
   transform: translate(0.5rem, -0.5rem);
+  filter: blur(1.5rem);
+  transition:
+    transform 0.3s ease-in-out,
+    filter 0.3s ease-in-out;
   z-index: -1;
+}
+
+.glass-text:hover .glass-text__backing {
+  transform: translate(0, 0);
+  filter: blur(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-text__backing {
+    transition: none;
+  }
 }
 
 .glass-text__surface {
